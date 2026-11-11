@@ -4,10 +4,11 @@ case: missing-referenced-file
 form: folder
 input: input/
 errors:
-  - rule: The icon must point at a file that exists in the package.
+  - rule: Missing referenced file. The icon must point at a file that exists in the package.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
     quote: "The validator refuses a missing or non-image target."
+    decision: "Orchestrator-relayed owner decision (Elgar, binding): a missing target of any reference (files entry, instructions_file, skill path, automation path, icon) is missing-referenced-file."
     location:
       file: input/team.yaml
       path: icon

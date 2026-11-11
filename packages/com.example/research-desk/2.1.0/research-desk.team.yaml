@@ -68,8 +68,15 @@ files:
       ## Sources
   - path: data/competitors.csv
     description: Known competitors with segments
-  - path: assets/logo.png
+    content: |
+      name,segment
+      Example Corp,enterprise
+      Sample Systems,mid-market
+      Demo Analytics,small business
+  - path: assets/logo.svg
     description: Logo for the report cover
+    content: |
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" fill="none" stroke="#225599" stroke-width="2"/></svg>
 
 memory:
   - title: Prefer filings over press releases
@@ -94,11 +101,23 @@ skills:
         content: |
           import sys, urllib.request
           print(urllib.request.urlopen(sys.argv[1]).read()[:2000])
-  - path: skills/market-sizing
+  - name: market-sizing
+    description: Estimate a market size from cited figures.
+    content: |
+      ---
+      name: market-sizing
+      description: Estimate a market size from cited figures.
+      ---
+      1. Collect sizes from primary sources and record each figure's year.
+      2. Flag any figure older than two years.
+      3. Give a range, not a point, and cite every input.
 
 automation:
-  - path: blueprints/digest.yaml
+  - name: digest
     description: Posts a progress digest every hour while research runs
+    content: |
+      trigger: { every: 1h, while: research_running }
+      action: { notify: orchestrator, digest: progress }
   - name: stale-task-nudge
     description: Nudges the lead when a task has been idle for two hours
     content: |
@@ -155,7 +174,11 @@ workers:
     model: [codex:gpt-6.1-sol]
     reasoning: high
     skills: [source-check]
-    instructions_file: workers/checker.md
+    instructions: |
+      Verify every claim in one researcher's report against its cited source.
+      Use the source-check skill: open the source, quote the exact sentence and mark
+      each claim verified, partial or wrong.
+      Return the claims with their marks and list every claim without a source.
 
   qa:
     description: Checks the final report renders and every link resolves.

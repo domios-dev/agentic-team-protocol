@@ -1,0 +1,15 @@
+name: com.example/worker-named-as-slot
+version: 1.0.0
+description: Package with a worker that takes the name of a manager slot.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+workers:
+  planner:
+    description: Splits the question into tasks.
+    instructions: |
+      Split the question into one task per angle.

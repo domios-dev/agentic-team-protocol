@@ -1,6 +1,6 @@
 # Agentic Team Protocol packages
 
-Canonical Agentic Team Protocol (ATP) packages, each published in three forms:
+Agentic Team Protocol (ATP) packages. Each one is published in three forms:
 
 ```
 packages/<scope>/<name>/<version>/
@@ -17,24 +17,20 @@ exactly the folder's files byte for byte, that a re-pack is byte-identical, and
 that text files use LF only. The reference validator is pending (generated from
 the Domios reference implementation in Phase 2).
 
-YAML bytes are copied verbatim from the canonical sources and never reformatted.
 The root `.gitattributes` disables line-ending conversion for `packages/**` and
 `examples/**`, so the bytes and their checksums survive any checkout.
 
-## Status
+Phase 1 publishes com.example/research-desk 2.1.0 only. The builtin
+dev.domios/default package is published in Phase 2 from the Domios tree.
 
-| Package | Form | Status |
-| --- | --- | --- |
-| dev.domios/default 1.0.0 | `default.team.yaml` | Canonical single file, every prompt inline. |
-| dev.domios/default 1.0.0 | `default/`, `default.team` | Canonical `team.yaml` (the `instructions_file` variant) plus the canonical `managers/*.md` and `workers/*.md`. |
-| com.example/research-desk 2.1.0 | `research-desk/`, `research-desk.team` | Canonical `team.yaml` plus authored placeholder files for the path-only references (see below). |
-| com.example/research-desk 2.1.0 | `research-desk.team.yaml` | Canonical bytes. **Open question:** this file names five path-only references (`data/competitors.csv`, `assets/logo.png`, `skills/market-sizing`, `blueprints/digest.yaml`, `workers/checker.md`) that a single file cannot carry. Whether the single-file form is valid with them is not yet decided; it is published as the canonical example and awaits the reference validator. |
+## com.example/research-desk 2.1.0
 
-## Authored placeholder files (research-desk folder and ZIP only)
+### Folder and ZIP: `research-desk/`, `research-desk.team`
 
-The canonical package references these paths without inline content, so the
-folder and ZIP forms carry minimal neutral placeholders. They are illustrative,
-not normative; automation content is host-defined.
+`team.yaml` is the canonical example byte for byte. The canonical package
+references five paths without inline content, which is valid only in the folder
+and ZIP forms. These forms carry minimal neutral placeholders for them. The
+placeholders are illustrative, not normative; automation content is host-defined.
 
 - `data/competitors.csv`: three fictional competitors
 - `assets/logo.png`: a 16x16 PNG
@@ -45,3 +41,21 @@ not normative; automation content is host-defined.
 Files that `team.yaml` already carries inline through `content` (for example
 `assets/icon.svg` and the `source-check` skill's `scripts/fetch.py`) are not
 duplicated as folder files.
+
+### Single file: `research-desk.team.yaml`
+
+A single file must resolve every reference inline, so this form is a fully
+inline variant of the canonical `team.yaml`. Its inline text is byte-identical
+to the folder files above. It differs from the canonical bytes in exactly
+these places:
+
+| Canonical `team.yaml` | Single file |
+| --- | --- |
+| `files`: `data/competitors.csv` (path only) | same entry plus `content` (the folder file's text) |
+| `files`: `assets/logo.png` (path only, binary) | replaced by `assets/logo.svg` with inline SVG `content`; same description |
+| `skills`: `- path: skills/market-sizing` | inline `{name: market-sizing, description, content}` (content is the folder's `SKILL.md`) |
+| `automation`: `- path: blueprints/digest.yaml` + description | inline `{name: digest, description, content}` (same description; content is the folder's `digest.yaml`) |
+| `workers.checker.instructions_file: workers/checker.md` | `instructions: \|` with the text of `workers/checker.md` |
+
+Every other line is unchanged. The canonical bytes used as a single file are
+the invalid fixture `examples/invalid/path-only-in-single-file`.
