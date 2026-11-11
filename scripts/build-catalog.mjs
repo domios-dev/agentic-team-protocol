@@ -17,14 +17,16 @@
 //    the files git has at HEAD, with identical bytes (compared by git object id),
 //    so a dirty, untracked or hand-edited file fails the build (the index.html
 //    listing pages build-site.mjs generates are not package files and are skipped);
-//  - the version holds exactly the three forms: <name>.team.yaml (single file),
-//    <name>.team (ZIP) and <name>/ (folder), and nothing else;
+//  - the version holds <name>.team (ZIP) and <name>/ (folder), optionally
+//    <name>.team.yaml (single file), and nothing else; a version may lack the
+//    single-file form when its package ships none;
 //  - identity fields (name, version, title, description, derived_from) are parsed
-//    from team.yaml (YAML 1.2, no duplicate keys, no aliases) in all three forms; the
-//    three must agree, name must be "<scope>/<name>" and version the directory name;
+//    from team.yaml (YAML 1.2, no duplicate keys, no aliases) in every form present;
+//    they must agree, name must be "<scope>/<name>" and version the directory name;
 //  - every checksum is the SHA-256 (lowercase hex) of the bytes served at that path.
 // `path` and `checksum` name the .team ZIP, the complete package. `forms` lists
-// every served file of the version. Paths are relative to the site root (the
+// every served file of the version; `forms.single_file` is null exactly when the
+// version has no single-file form. Paths are relative to the site root (the
 // directory serving catalog.json). Output is deterministic: entries and files in
 // byte order of their path, fixed key order, no timestamps; the only commit-bound
 // value is source_commit.
@@ -217,10 +219,11 @@ export function buildCatalogData({ root = ROOT, out = path.join(ROOT, '_site') }
         errors.push(`${dir}/${rel}: not part of a package form (${single}, ${zip}, ${folder})`);
       }
     }
-    for (const required of [single, zip, `${folder}team.yaml`]) {
+    for (const required of [zip, `${folder}team.yaml`]) {
       if (!served.includes(required)) errors.push(`${dir}: missing ${required}`);
     }
     if (errors.length > before) continue;
+    const hasSingle = served.includes(single);
 
     const read = (rel) => fs.readFileSync(path.join(servedDir, ...rel.split('/')));
     let ids;
@@ -235,7 +238,7 @@ export function buildCatalogData({ root = ROOT, out = path.join(ROOT, '_site') }
       ids = [
         identity(zipYaml, `${dir}/${zip}!team.yaml`),
         identity(read(`${folder}team.yaml`), `${dir}/${folder}team.yaml`),
-        identity(read(single), `${dir}/${single}`),
+        ...(hasSingle ? [identity(read(single), `${dir}/${single}`)] : []),
       ];
     } catch (e) {
       errors.push(e.message);
@@ -244,7 +247,8 @@ export function buildCatalogData({ root = ROOT, out = path.join(ROOT, '_site') }
     const [id] = ids;
     const canonical = JSON.stringify(id);
     if (ids.some((other) => JSON.stringify(other) !== canonical)) {
-      errors.push(`${dir}: identity fields differ between ${zip}, ${folder}team.yaml and ${single}`);
+      const forms = [zip, `${folder}team.yaml`, ...(hasSingle ? [single] : [])];
+      errors.push(`${dir}: identity fields differ between ${forms.join(', ')}`);
       continue;
     }
     if (id.name !== `${scope}/${pkg}`) errors.push(`${dir}: name "${id.name}" does not match the directory ${scope}/${pkg}`);
@@ -261,7 +265,7 @@ export function buildCatalogData({ root = ROOT, out = path.join(ROOT, '_site') }
       path: zipRef.path,
       checksum: zipRef.checksum,
       forms: {
-        single_file: ref(single),
+        single_file: hasSingle ? ref(single) : null,
         zip: zipRef,
         folder: { path: `${dir}/${folder}`, files: folderFiles.map(ref) },
       },
@@ -329,7 +333,19 @@ export function verifyCatalog({ root = ROOT, out = path.join(ROOT, '_site') } = 
   for (const [i, e] of (catalog.packages ?? []).entries()) {
     const where = `packages[${i}] ${e.name}@${e.version}`;
     check(where, { path: e.path, checksum: e.checksum });
-    check(`${where} forms.single_file`, e.forms?.single_file);
+    if (e.forms?.single_file === null) {
+      // null is accepted only when the version really has no single file: the
+      // ZIP path <dir>/<name>.team implies the single file <dir>/<name>.team.yaml.
+      const single = typeof e.path === 'string' && e.path.endsWith('.team') ? `${e.path}.yaml` : null;
+      const abs = single && path.resolve(outAbs, ...single.split('/'));
+      if (!abs || path.isAbsolute(single) || single.split('/').includes('..') || !abs.startsWith(outAbs + path.sep)) {
+        failures.push(`${where} forms.single_file: null, but the ZIP path ${e.path} does not name the single-file path`);
+      } else if (fs.existsSync(abs)) {
+        failures.push(`${where} forms.single_file: null, but ${single} is served`);
+      }
+    } else {
+      check(`${where} forms.single_file`, e.forms?.single_file);
+    }
     check(`${where} forms.zip`, e.forms?.zip);
     if (!e.forms?.folder?.files?.length) failures.push(`${where}: forms.folder lists no files`);
     for (const f of e.forms?.folder?.files ?? []) check(`${where} forms.folder`, f);

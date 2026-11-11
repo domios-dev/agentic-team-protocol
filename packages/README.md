@@ -1,13 +1,20 @@
 # Agentic Team Protocol packages
 
-Agentic Team Protocol (ATP) packages. Each one is published in three forms:
+Agentic Team Protocol (ATP) packages. The specification defines three forms, and
+each version is published in every form its package ships:
 
 ```
 packages/<scope>/<name>/<version>/
-  <name>.team.yaml   single file, everything inline
+  <name>.team.yaml   single file, everything inline (optional)
   <name>.team        ZIP: root team.yaml plus only the files team.yaml references
   <name>/            folder with the same entries as the ZIP
 ```
+
+The ZIP and folder forms are always present. A version may lack the single-file
+form when its package does not ship one, for example because its document uses
+`instructions_file` references, which are valid only in the ZIP and folder forms.
+`node scripts/check-forms.mjs` prints a `note` line for each such version, and its
+catalog entry has `forms.single_file: null`.
 
 `node scripts/pack-team.mjs` builds every `.team` from its folder. Archives are
 deterministic: entries sorted by byte order of their path, files only, stored
@@ -20,8 +27,31 @@ the Domios reference implementation in Phase 2).
 The root `.gitattributes` disables line-ending conversion for `packages/**` and
 `examples/**`, so the bytes and their checksums survive any checkout.
 
-Phase 1 publishes com.example/research-desk 2.1.0 only. The builtin
-dev.domios/default package is published in Phase 2 from the Domios tree.
+Phase 1 published com.example/research-desk 2.1.0. Phase 2 adds the builtin
+dev.domios/default 1.0.0 from the Domios tree.
+
+## dev.domios/default 1.0.0
+
+### Folder and ZIP: `default/`, `default.team`
+
+The builtin default team of Domios, the reference implementation. Every file in
+`default/` is the Domios file of the same path under
+`src-tauri/team-templates/default/` at Domios commit
+`46078622b77e6bbb4aeca70a779e7cef819fd60d`, byte for byte (same git object id), including
+the header comment of `team.yaml`. Nothing is added, removed or reformatted.
+`default.team` is packed from that folder by `scripts/pack-team.mjs`.
+
+- `team.yaml`: Orchestrator, Planner, Cartographer and Curator managers; worker, qa,
+  reviewer and release_manager workers
+- `icon.svg`: the package icon
+- `managers/*.md`, `workers/*.md`: each role's `instructions_file`
+
+### Single file: none yet
+
+Domios ships no single-file form of this package at that commit, so this version
+has none. Its document uses `instructions_file`, which is valid only in the ZIP and
+folder forms. The single-file form is to come from the Domios exporter; it is not
+authored or derived here.
 
 ## com.example/research-desk 2.1.0
 

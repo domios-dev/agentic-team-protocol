@@ -303,7 +303,9 @@ function buildCatalog() {
       : '—';
     const forms = [
       `${link(e.forms.zip.path, '.team')} ${short(e.forms.zip.checksum)}`,
-      `${link(e.forms.single_file.path, '.team.yaml')} ${short(e.forms.single_file.checksum)}`,
+      e.forms.single_file
+        ? `${link(e.forms.single_file.path, '.team.yaml')} ${short(e.forms.single_file.checksum)}`
+        : 'no single-file form',
       `${link(e.forms.folder.path, 'folder')} (${e.forms.folder.files.length} files)`,
     ].join('<br>');
     return [

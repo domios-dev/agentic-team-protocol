@@ -49,3 +49,12 @@ artifacts (JSON Schema, conformance corpus, reference validator) are pending.
 - JSON Schema, conformance corpus and reference validator: pending, generated from the
   Domios reference implementation in Phase 2. Until then catalog entries are not
   validated by the reference validator.
+- Builtin package `dev.domios/default` 1.0.0 (Phase 2): published in the folder and
+  `.team` ZIP forms, byte-identical to `src-tauri/team-templates/default/` at Domios
+  commit `46078622b77e6bbb4aeca70a779e7cef819fd60d`. Its single-file form is pending: it
+  will come from the Domios exporter and is never authored here.
+- The single-file form is optional per published version. The format still defines three
+  forms; the ZIP and folder forms stay mandatory. `scripts/check-forms.mjs` prints a
+  `note` for a version without a single file. `scripts/build-catalog.mjs` emits
+  `forms.single_file: null` for it, and `--verify` accepts null only when no single file
+  is served. The catalog page shows "no single-file form" for such a version.

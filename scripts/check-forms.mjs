@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Checks the published Agentic Team Protocol package forms:
-//  - every package version has its single-file, folder and `.team` ZIP form;
+//  - every package version has its folder and `.team` ZIP form; the single-file
+//    form is optional (a version may lack it when its package ships none), and
+//    its absence is reported as a note, never skipped silently;
 //  - each ZIP holds exactly the folder's files, byte for byte, with one root
 //    team.yaml, safe relative paths and only entries team.yaml references
 //    (lexical check: a path, or a file inside a referenced skill folder);
@@ -76,11 +78,18 @@ const isReferenced = (name, refs) => [...refs].some((r) => name === r || name.st
 const TEXT = /\.(ya?ml|md|csv|svg|txt|py)$/;
 
 for (const f of packageForms()) {
-  for (const p of [f.single, f.folder, f.zip]) if (!existsSync(p)) fail(`${f.id}: missing ${rel(p)}`);
-  if (failures.length) continue;
+  const missing = [f.folder, f.zip].filter((p) => !existsSync(p));
+  for (const p of missing) fail(`${f.id}: missing ${rel(p)}`);
+  if (missing.length) continue;
 
-  const single = readFileSync(f.single);
-  if (single.includes(0x0d)) fail(`${rel(f.single)}: contains CR; LF line endings only`);
+  // The single-file form is optional per version: a package whose document uses
+  // path references (for example instructions_file) may ship without one.
+  if (existsSync(f.single)) {
+    const single = readFileSync(f.single);
+    if (single.includes(0x0d)) fail(`${rel(f.single)}: contains CR; LF line endings only`);
+  } else {
+    console.log(`note ${f.id}: no single-file form (${rel(f.single)} absent); folder and ZIP checked`);
+  }
 
   const folder = readFolder(f.folder);
   for (const e of folder) if (TEXT.test(e.name) && e.data.includes(0x0d)) fail(`${rel(f.folder)}/${e.name}: contains CR; LF line endings only`);
