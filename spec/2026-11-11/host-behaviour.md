@@ -49,7 +49,8 @@ When a team is created without a package, Domios uses its builtin default packag
 - `curator` runs on its `45m..2h` schedule with `model: {same_as: orchestrator}`.
 - The package defines no other models. The owner picks a model for each `with_team` manager at start, and workers use the host's dispatch defaults.
 - A package that omits an optional manager slot gets Domios's default manager for that slot.
-- Domios's builtin worker names are `worker`, `qa`, `reviewer` and `release_manager`. A package worker with one of these names, and a package manager slot, takes the Domios default role's value for each field it omits, instructions included. Builtins the package does not name stay available.
+- **The Domios host profile** lists the built-in worker names `worker`, `qa`, `reviewer` and `release_manager`. When Domios runs the reference validator, this profile is the default ([index.md section 10.7](index.md#107-roles-with-host-defaults)).
+- A package worker with one of these names, and a package manager slot, takes the Domios default role's value for each field it omits, instructions included. Built-in workers that the package does not name stay available.
 - Teams with no role registrations, including Teams restored from before packages existed, resolve to the default package.
 
 ## 3. Domios-specific behaviour
@@ -92,7 +93,7 @@ The rest of this page describes Domios as the reference host. Other hosts are no
 - An unsupported `reasoning` value is quietly clamped to the nearest supported value.
 - Renamed model ids get ranked suggestions of close ids. Remote roles use the target peer's catalogue.
 - Owner choices are kept in the Team's registrations or in local preferences, never in the package.
-- A curator `schedule` is clamped to Domios's own bounds and keeps the existing Curator modes (Auto, Heartbeat, Off).
+- Domios clamps a valid curator `schedule` range to its own bounds and keeps the existing Curator modes (Auto, Heartbeat, Off). Clamping is host policy. It is not a format error: the format rejects only malformed durations and a `<min>` greater than `<max>`.
 
 ### 3.5 Memory recall
 

@@ -21,7 +21,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - **Writer:** software that produces a package, such as a host's exporter.
 - **Host:** software that starts a team from a package. Domios is the reference host.
 - **Role:** one manager slot or one worker definition ([section 10](#10-managers-and-workers)).
-- **Host default role:** the role a host provides for a manager slot or for one of its builtin worker names when a package does not define every field of it ([section 10.7](#107-roles-with-host-defaults)).
+- **Host profile:** an optional validator input that lists a host's built-in worker names ([section 10.7](#107-roles-with-host-defaults)).
+- **Host default role:** the role a host provides for a manager slot, or for one of its built-in worker names, supplying the fields a package does not define ([section 10.7](#107-roles-with-host-defaults)).
 - **Reference:** a key in the package document that points at other package content ([section 4.4](#44-references)).
 - **Error:** a condition that makes a package invalid. A reader MUST refuse an invalid package.
 - **Warning:** a condition that a reader MUST report and that leaves the package valid.
@@ -279,7 +280,8 @@ The payload is content the package brings to the team: `files`, `memory`, `skill
 
 1. Every top-level `skills` entry MUST be an object. A bare string is an error (**bare-string skill**).
 2. A path-form skill is a reference ([section 4.4](#44-references)). It cannot be used in the single-file form.
-3. A role refers to a package skill by its bare name in the role's `skills` list ([section 10.3](#103-role-fields)).
+3. The `SKILL.md` of a path-form skill MUST have a `name` in its frontmatter. A `SKILL.md` without one is an error (**skill without name**). There is no fallback to the folder name.
+4. A role refers to a package skill by its bare name in the role's `skills` list ([section 10.3](#103-role-fields)).
 
 Canonical inline skill:
 
@@ -345,8 +347,8 @@ automation:
 
 1. A worker name MUST match `[a-z][a-z0-9_]*` (**invalid role name**). Canonical names: `researcher`, `checker`, `qa`, `writer`.
 2. A worker MUST NOT be named `orchestrator`, `planner`, `cartographer` or `curator` (**reserved worker name**).
-3. A worker whose name is one of the host's builtin worker names takes the host default role's value for each field it omits ([section 10.7](#107-roles-with-host-defaults)). Builtin workers that the package does not name stay available.
-4. A worker with any other name MUST set `instructions` or `instructions_file` (**missing instructions**).
+3. A worker whose name is one of the host's built-in worker names takes the host default role's value for each field it omits ([section 10.7](#107-roles-with-host-defaults)). Built-in workers that the package does not name stay available.
+4. A worker that sets neither `instructions` nor `instructions_file` is checked against the host profile ([section 10.7](#107-roles-with-host-defaults), rules 5 to 7).
 5. A host may run several instances of a worker. A worker that must run alone says so in its instructions.
 6. Workers default to `start: on_demand`.
 
@@ -386,7 +388,9 @@ curator:
     schedule: 45m..2h
 ```
 
-The canonical examples write durations with `m` (minutes) and `h` (hours). The full duration grammar is pending: generated from the Domios reference implementation. A host can clamp a schedule to its own bounds (see [host-behaviour.md](host-behaviour.md)).
+1. Each duration MUST match `<positive integer>(m|h)`, where `m` means minutes and `h` means hours, for example `45m` or `2h`. Any other duration is an error (**invalid schedule**).
+2. `<min>` MUST NOT be greater than `<max>`. A greater `<min>` is an error (**invalid schedule**).
+3. A host may clamp a valid range to its own bounds. Clamping is host policy, not a format error (see [host-behaviour.md](host-behaviour.md)).
 
 ### 10.5 Model
 
@@ -422,12 +426,14 @@ curator:
 
 ### 10.7 Roles with host defaults
 
-1. A manager slot, and a worker whose name is one of the host's builtin worker names, has a host default role.
+1. A manager slot, and a worker whose name is one of the host's built-in worker names, has a host default role.
 2. For each role field that the package omits, such a role takes the host default role's value. This includes `instructions`.
 3. A field that the package sets replaces the host default role's value for that field.
-4. A worker with a new name has no host default role. Fields it omits take the defaults in [section 10.3](#103-role-fields), and it MUST carry its own instructions ([section 10.2](#102-workers)).
-
-The builtin worker names are host-defined. [host-behaviour.md](host-behaviour.md) lists Domios's names.
+4. The format fixes only the manager slots (`orchestrator`, `planner`, `cartographer`, `curator`). Built-in worker names are a host input, not part of the format. A validator takes an OPTIONAL **host profile** that lists a host's built-in worker names. [host-behaviour.md](host-behaviour.md) lists the Domios profile.
+5. Without a host profile, a worker that sets neither `instructions` nor `instructions_file` is a warning (**inherits host default role**). The warning reads: the worker inherits the host's default role `<name>`, and is invalid on hosts without one.
+6. With a host profile, such a worker is valid when its name is a built-in worker name in the profile.
+7. With a host profile, such a worker is an error when its name is not in the profile (**missing instructions**).
+8. A worker with a name that is not built in has no host default role. Fields it omits take the defaults in [section 10.3](#103-role-fields).
 
 ## 11. Removed fields
 
@@ -490,7 +496,9 @@ Each condition below is named by its rule. Stable error codes are pending: gener
 | invalid model id | error | [10.5](#105-model).1 |
 | invalid role name | error | [10.2](#102-workers).1 |
 | reserved worker name | error | [10.2](#102-workers).2 |
-| missing instructions | error | [10.2](#102-workers).4, [10.7](#107-roles-with-host-defaults).4 |
+| missing instructions (with a host profile) | error | [10.7](#107-roles-with-host-defaults).7 |
+| skill without name | error | [9.3](#93-skills).3 |
+| invalid schedule | error | [10.4](#104-start).1, [10.4](#104-start).2 |
 | input default not in choices | error | [8](#8-start-asks-block) (`inputs` full form) |
 | removed field | error | [11](#11-removed-fields) |
 | bare-string skill | error | [9.3](#93-skills).1 |
@@ -504,6 +512,7 @@ Each condition below is named by its rule. Stable error codes are pending: gener
 | unsafe path (`..`, absolute path, symbolic link) | error | [4.2](#42-zip-and-folder-forms).4 |
 | bound exceeded | error | [4.3](#43-bounds) |
 | unresolved skill reference | warning | [10.3](#103-role-fields) |
+| inherits host default role (without a host profile) | warning | [10.7](#107-roles-with-host-defaults).5 |
 
 A reader MUST refuse a package that has any error. A warning leaves the package valid. A host can, for example, start a team whose role names a skill that does not exist yet.
 
@@ -514,7 +523,7 @@ The following artifacts come from the Domios reference implementation. Until the
 - **JSON Schema and `$schema` URL:** pending: generated from the Domios reference implementation.
 - **Stable error codes** for the conditions in [section 15](#15-error-and-warning-conditions): pending: generated from the Domios reference implementation.
 - **Bound values** ([section 4.3](#43-bounds)) and the **ZIP entry order** ([section 4.2](#42-zip-and-folder-forms).5): pending: generated from the Domios reference implementation.
-- **Duration grammar** ([section 10.4](#104-start)) and the **`reasoning` value set** ([section 10.3](#103-role-fields)): pending: generated from the Domios reference implementation.
+- **`reasoning` value set** ([section 10.3](#103-role-fields)): pending: generated from the Domios reference implementation.
 - **Conformance corpus and reference validator:** pending: generated from the Domios reference implementation.
 
 ## 17. Examples
@@ -541,13 +550,5 @@ The single-file form is therefore a separate, fully inline variant of the packag
 Its role definitions show each kind of role:
 
 - `researcher`, `checker` and `writer` are new worker names. Each carries its own instructions.
-- `qa` uses one of the reference host's builtin worker names. It sets some fields and takes the rest from the host default role.
+- `qa` uses a built-in worker name of the Domios host profile. It sets some fields and takes the rest from the host default role.
 - `cartographer` and `curator` set only `start` and `model`, and take their instructions from the host default role.
-
-## Appendix A. Open issues (non-normative)
-
-These points are not settled by this version:
-
-1. **Builtin worker names in host-independent validation.** Whether a worker name is a builtin name ([section 10.2](#102-workers), rules 3 and 4) depends on the host. A validator that runs without a host needs a list of builtin names to decide the **missing instructions** condition. This version does not publish one. Domios's names are listed in [host-behaviour.md](host-behaviour.md).
-2. **A path-form skill whose `SKILL.md` has no frontmatter `name`.** This version does not define the outcome.
-3. **Schedule bounds order.** This version does not say whether `<min>` greater than `<max>` in a `schedule` is an error.
