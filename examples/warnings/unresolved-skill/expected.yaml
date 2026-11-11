@@ -1,6 +1,7 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # Valid package: it produces a warning, not an error.
-# Stable warning codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 case: unresolved-skill
 form: single-file
 input: input.team.yaml
@@ -17,4 +18,5 @@ warnings:
       line: 14
       detail: the package has no top-level skills entry named market-sizing
     severity: warning
-    code: pending
+    code: unresolved_skill
+    corpus_case: valid/unresolved-skill.team.yaml

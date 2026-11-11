@@ -7,6 +7,8 @@
 //                           date is "current" (spec/current/ points at it).
 //   packages/**, examples/** copied byte-for-byte, plus a generated index.html
 //                           listing for every directory.
+//   schema/**, corpus/**,   generated Domios artifacts (PROVENANCE.md), copied
+//   validator/**            byte-for-byte with listings, each only when it exists.
 //   catalog.json            generated from the served packages/ bytes and the commit
 //                           at HEAD by scripts/build-catalog.mjs (never committed),
 //                           plus the catalog/ page rendered from it.
@@ -348,6 +350,17 @@ const exampleFiles = buildCollection(
   'examples',
   '<p>Example inputs for the Agentic Team Protocol, including invalid packages with their expected errors. Files are served exactly as committed.</p>',
 );
+// Generated artifacts from the Domios reference implementation (PROVENANCE.md),
+// served byte-for-byte only once they exist in the repository.
+const GENERATED = [
+  ['schema', '<p>JSON Schema for Agentic Team Protocol packages, generated from the Domios reference implementation, laid out as <code>schema/&lt;spec version&gt;/team.schema.json</code>. Files are served exactly as committed. A published dated schema never changes.</p>'],
+  ['corpus', '<p>Agentic Team Protocol conformance corpus, generated from the Domios reference implementation, laid out as <code>corpus/&lt;spec version&gt;/</code>. <code>cases.json</code> lists every case with its expected codes. Files are served exactly as committed. A published dated corpus never changes.</p>'],
+  ['validator', '<p>Agentic Team Protocol reference validator, built from the Domios reference implementation. Files are served exactly as committed.</p>'],
+];
+const generatedFiles = {};
+for (const [name, intro] of GENERATED) {
+  if (fs.existsSync(path.join(ROOT, name))) generatedFiles[name] = buildCollection(name, intro);
+}
 const catalog = buildCatalog();
 copyExact(path.join(ROOT, 'LICENSE'), path.join(OUT, 'LICENSE.txt'));
 
@@ -365,5 +378,7 @@ for (const w of warnings) console.warn(`warning: ${w}`);
 console.log(
   `built _site/: ${renderedPages.length} pages; spec versions: ${spec.dates.length}` +
     `${spec.current ? ` (current ${spec.current})` : ''}; packages files: ${packageFiles}; ` +
-    `examples files: ${exampleFiles}; catalog.json: ${catalog} entries`,
+    `examples files: ${exampleFiles}; ` +
+    Object.entries(generatedFiles).map(([name, count]) => `${name} files: ${count}; `).join('') +
+    `catalog.json: ${catalog} entries`,
 );

@@ -4,7 +4,9 @@ Each case directory holds one input in the form it tests (`input.team.yaml`,
 `input/` folder or `input.team` ZIP) and an `expected.yaml` that names every
 rule the input breaks: the rule, the exact source sentence it traces to, the
 location (file, path or archive entry, line), the severity and the error code.
-Stable codes are `pending` until the Domios reference validator publishes them.
+Codes come from the Domios conformance corpus, `corpus/2026-11-11/cases.json`:
+`corpus_case` names the corpus case that defines the same rule. A code stays
+`pending` where the corpus has no case for the rule.
 
 - `invalid/`: inputs that must be refused.
 - `warnings/`: valid inputs that must produce the listed warnings and no errors.

@@ -2,3 +2,7 @@
 # survive every checkout, so git never converts their line endings.
 packages/** -text
 examples/** -text
+# Generated Domios artifacts (PROVENANCE.md): byte-identical to their source.
+schema/** -text
+corpus/** -text
+validator/** -text

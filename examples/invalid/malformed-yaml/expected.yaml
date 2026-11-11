@@ -1,5 +1,6 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# The code stays pending: the Domios conformance corpus (corpus/2026-11-11/cases.json)
+# has no case for this rule.
 case: malformed-yaml
 form: single-file
 input: input.team.yaml

@@ -1,5 +1,6 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 case: yaml-alias-anchor
 form: single-file
 input: input.team.yaml
@@ -15,7 +16,8 @@ errors:
       column: 12
       detail: anchor &shared_model
     severity: error
-    code: pending
+    code: yaml_anchor
+    corpus_case: invalid/anchor-alias.team.yaml
   - rule: YAML aliases are not allowed.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
@@ -27,5 +29,6 @@ errors:
       column: 12
       detail: alias *shared_model
     severity: error
-    code: pending
+    code: yaml_alias
+    corpus_case: invalid/anchor-alias.team.yaml
 warnings: []

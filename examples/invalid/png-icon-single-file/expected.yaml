@@ -1,5 +1,8 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule. The first code stays
+# pending: the corpus reports this rule (binary_inline, invalid/icon-png-inline.team.yaml)
+# only for a PNG icon with inline content; this input has none.
 case: png-icon-single-file
 form: single-file
 input: input.team.yaml
@@ -25,5 +28,6 @@ errors:
       line: 4
       detail: assets/logo.png
     severity: error
-    code: pending
+    code: missing_file
+    corpus_case: invalid/icon-missing.team.yaml
 warnings: []

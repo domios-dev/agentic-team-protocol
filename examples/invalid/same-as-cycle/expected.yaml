@@ -1,5 +1,7 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule. As in the corpus, the
+# cycle is reported once for each role on it.
 case: same-as-cycle
 form: single-file
 input: input.team.yaml
@@ -14,5 +16,18 @@ errors:
       line: 15
       detail: researcher (line 15) -> checker (line 21) -> researcher
     severity: error
-    code: pending
+    code: same_as_cycle
+    corpus_case: invalid/same-as-cycle.team.yaml
+  - rule: same_as references must not form a cycle.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "a reference to an unknown role or a same_as cycle is a validation error."
+    location:
+      file: input.team.yaml
+      path: workers.checker.model.same_as
+      line: 21
+      detail: checker (line 21) -> researcher (line 15) -> checker
+    severity: error
+    code: same_as_cycle
+    corpus_case: invalid/same-as-cycle.team.yaml
 warnings: []

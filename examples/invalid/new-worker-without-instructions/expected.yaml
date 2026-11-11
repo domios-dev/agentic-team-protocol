@@ -1,5 +1,8 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes and locations come from the Domios conformance corpus,
+# corpus/2026-11-11/cases.json; corpus_case names the case that defines the same
+# rule (the corpus runs with the Domios host profile). The warning code stays
+# pending: the corpus has no case without a host profile.
 # sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
 # Builtin worker names are a host input: an optional validator host profile.
 # The Domios profile's builtin workers are worker, qa, reviewer and release_manager.
@@ -17,11 +20,12 @@ errors:
     quote: "Built-in worker names are a host input (optional validator host profile; Domios profile = worker, qa, reviewer, release_manager). ... with the Domios profile it is an ERROR."
     location:
       file: input.team.yaml
-      path: workers.analyst
+      path: workers.analyst.instructions
       line: 12
       detail: analyst is not a builtin worker of the Domios profile and has neither instructions nor instructions_file
     severity: error
-    code: pending
+    code: missing_field
+    corpus_case: invalid/new-worker-no-instructions.team.yaml
 warnings:
   - host_profile: none
     rule: Without a host profile, a worker with neither instructions nor instructions_file inherits the host's default role of that name.
