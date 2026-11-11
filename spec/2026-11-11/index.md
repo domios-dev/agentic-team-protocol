@@ -519,12 +519,22 @@ The following artifacts come from the Domios reference implementation. Until the
 
 ## 17. Examples
 
-The published example is the canonical reference package `com.example/research-desk` 2.1.0, which shows every field and form. It is added to this repository separately.
+The published example is the canonical reference package `com.example/research-desk` 2.1.0, which shows every field and form.
 
-It has path-only and binary references: `data/competitors.csv`, `assets/logo.png`, `skills/market-sizing`, `blueprints/digest.yaml` and `workers/checker.md`. By [section 4.1](#41-single-file-form) it is therefore valid only in the ZIP and folder forms:
+Its package document (the root `team.yaml` of the ZIP and folder forms) has path-only and binary references: `data/competitors.csv`, `assets/logo.png`, `skills/market-sizing`, `blueprints/digest.yaml` and `workers/checker.md`. By [section 4.1](#41-single-file-form), that document as written is invalid as a lone `.team.yaml` file (**missing referenced file**). The invalid fixture `examples/invalid/path-only-in-single-file/` is this exact case.
+
+The single-file form is therefore a separate, fully inline variant of the package:
+
+- every `files` entry has inline `content`
+- the skill and the automation entry are inline
+- the `checker` worker's instructions are inline
+- the logo is an inline SVG at `assets/logo.svg`
+
+`packages/README.md` lists every difference between this variant and the package document.
 
 | Form | Path |
 |---|---|
+| Single file (fully inline variant) | `packages/com.example/research-desk/2.1.0/research-desk.team.yaml` |
 | ZIP | `packages/com.example/research-desk/2.1.0/research-desk.team` |
 | Folder | `packages/com.example/research-desk/2.1.0/research-desk/team.yaml` |
 
