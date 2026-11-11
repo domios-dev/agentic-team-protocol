@@ -1,0 +1,11 @@
+name: com.example/invalid-derived-from
+version: 1.1.0
+description: Package whose derived_from is a string instead of a name and version.
+authors:
+  - name: Example Author
+    url: https://example.com
+derived_from: com.example/research-desk@2.0.3
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.

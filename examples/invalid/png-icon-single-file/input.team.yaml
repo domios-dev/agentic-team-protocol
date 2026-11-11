@@ -1,0 +1,11 @@
+name: com.example/png-icon-single-file
+version: 1.0.0
+description: Single-file package whose icon is a PNG.
+icon: assets/logo.png
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.

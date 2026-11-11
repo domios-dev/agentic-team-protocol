@@ -1,0 +1,16 @@
+name: com.example/removed-field-kind
+version: 1.0.0
+description: Package whose worker still declares the removed kind field.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+workers:
+  builder:
+    kind: worker
+    description: Implements one task.
+    instructions: |
+      Implement exactly one task.

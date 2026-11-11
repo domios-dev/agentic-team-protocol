@@ -1,0 +1,11 @@
+name: com.example/malformed-yaml
+version: 1.0.0
+description: Package whose YAML does not parse.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    model: [claude:sonnet, codex:gpt-6.1-sol
+    instructions: |
+      Coordinate the team.

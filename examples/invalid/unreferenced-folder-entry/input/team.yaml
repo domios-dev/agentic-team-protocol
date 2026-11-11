@@ -1,0 +1,13 @@
+name: com.example/unreferenced-folder-entry
+version: 1.0.0
+description: Folder package holding a file that team.yaml never references.
+authors:
+  - name: Example Author
+    url: https://example.com
+files:
+  - path: notes/guide.md
+    description: Notes for the orchestrator
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team and read the notes before planning.

@@ -1,0 +1,39 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+# A minimal authored package in the superseded `roles:` shape (top-level
+# instructions plus a roles block instead of managers/workers).
+case: removed-roles-instructions
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: There is no top-level `instructions` field.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "There are no top-level instructions and no brief: every role carries its own instructions, the team's overall way of working is written in the orchestrator's instructions, and a starting hint for the planner lives in the planner's instructions."
+    location:
+      file: input.team.yaml
+      path: instructions
+      line: 10
+    severity: error
+    code: pending
+  - rule: The superseded top-level `roles` block is an unknown key.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Every other non-`x-` key is strictly typed and unknown keys are errors; there are no top-level coordinator/planner fields."
+    location:
+      file: input.team.yaml
+      path: roles
+      line: 14
+    severity: error
+    code: pending
+  - rule: managers.orchestrator is required.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Required: only name, version, description and managers.orchestrator."
+    location:
+      file: input.team.yaml
+      path: managers.orchestrator
+      detail: the document has no managers mapping
+    severity: error
+    code: pending
+warnings: []

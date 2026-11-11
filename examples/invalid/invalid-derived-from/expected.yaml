@@ -1,0 +1,18 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+case: invalid-derived-from
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: derived_from is a mapping {name, version}, not a string.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "derived_from: {name, version}."
+    also: "Every other non-`x-` key is strictly typed and unknown keys are errors; there are no top-level coordinator/planner fields."
+    location:
+      file: input.team.yaml
+      path: derived_from
+      line: 7
+    severity: error
+    code: pending
+warnings: []

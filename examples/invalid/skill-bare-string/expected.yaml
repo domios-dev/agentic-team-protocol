@@ -1,0 +1,17 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+case: skill-bare-string
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A top-level skills entry is an object, never a bare string.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Top-level `skills` entries are objects only ({path} or inline {name, description, content, files}); a bare string there is invalid."
+    location:
+      file: input.team.yaml
+      path: skills[0]
+      line: 8
+    severity: error
+    code: pending
+warnings: []

@@ -1,0 +1,18 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+case: same-as-unknown-role
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: same_as must name a role in the team.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "a reference to an unknown role or a same_as cycle is a validation error."
+    location:
+      file: input.team.yaml
+      path: managers.curator.model.same_as
+      line: 15
+      detail: the team has no role named coordinator
+    severity: error
+    code: pending
+warnings: []

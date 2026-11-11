@@ -1,0 +1,17 @@
+name: com.example/removed-persona-includes
+version: 1.0.0
+description: Package whose worker still declares the removed persona and includes fields.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+workers:
+  builder:
+    description: Implements one task.
+    persona: Builder
+    includes: [worker-disciplines]
+    instructions: |
+      Implement exactly one task.

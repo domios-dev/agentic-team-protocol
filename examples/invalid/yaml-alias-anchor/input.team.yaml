@@ -1,0 +1,21 @@
+name: com.example/yaml-alias-anchor
+version: 1.0.0
+description: Package that reuses a model list through a YAML anchor and alias.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+workers:
+  researcher:
+    description: Researches one angle.
+    model: &shared_model [claude:sonnet, codex:gpt-6.1-sol]
+    instructions: |
+      Research exactly one angle.
+  writer:
+    description: Writes the report.
+    model: *shared_model
+    instructions: |
+      Write the report from the merged findings.

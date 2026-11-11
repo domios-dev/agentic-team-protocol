@@ -1,0 +1,15 @@
+name: com.example/same-as-unknown-role
+version: 1.0.0
+description: Package whose curator follows the model of a role the team does not have.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+  curator:
+    start:
+      schedule: 45m..2h
+    model:
+      same_as: coordinator

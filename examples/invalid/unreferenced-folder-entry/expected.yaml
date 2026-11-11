@@ -1,0 +1,17 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+case: unreferenced-folder-entry
+form: folder
+input: input/
+errors:
+  - rule: Every folder file other than the root team.yaml is referenced by team.yaml.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Archive and folder rules: exactly one root team.yaml; unreferenced entries are an error; relative paths only (no `..`, no absolute paths, no symlinks); explicit size and count bounds; deterministic entry order so export > import > export is byte-identical."
+    location:
+      file: input/notes/stray.md
+      entry: notes/stray.md
+      detail: team.yaml references only notes/guide.md
+    severity: error
+    code: pending
+warnings: []
