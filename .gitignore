@@ -1,0 +1,9 @@
+# Build output and dependencies
+/_site/
+/node_modules/
+
+# Local editor and agent settings
+/.vscode/settings.json
+/rust-analyzer.toml
+/.claude/settings.json
+/.claude/settings.local.json
