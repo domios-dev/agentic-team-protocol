@@ -1,0 +1,15 @@
+name: com.example/schedule-bad-duration
+version: 1.0.0
+description: Package whose curator schedule uses a duration with an unknown unit.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+  curator:
+    start:
+      schedule: "45x..2h"
+    model:
+      same_as: orchestrator

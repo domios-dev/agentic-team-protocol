@@ -1,0 +1,14 @@
+name: com.example/new-worker-without-instructions
+version: 1.0.0
+description: Package with a new worker that has neither instructions nor instructions_file.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+workers:
+  analyst:
+    description: Analyses one dataset.
+    model: [claude:sonnet]

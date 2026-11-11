@@ -1,0 +1,18 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+# sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
+case: worker-named-as-slot
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A worker must not be named after a manager slot (orchestrator, planner, cartographer, curator).
+    spec: Orchestrator-relayed owner decision (Elgar, binding)
+    spec_section: ATP package format, roles and model choice
+    quote: "worker-named-as-slot (a worker named `planner`)"
+    location:
+      file: input.team.yaml
+      path: workers.planner
+      line: 12
+    severity: error
+    code: pending
+warnings: []

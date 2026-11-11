@@ -1,0 +1,18 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+case: same-as-cycle
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: same_as references must not form a cycle.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "a reference to an unknown role or a same_as cycle is a validation error."
+    location:
+      file: input.team.yaml
+      path: workers.researcher.model.same_as
+      line: 15
+      detail: researcher (line 15) -> checker (line 21) -> researcher
+    severity: error
+    code: pending
+warnings: []

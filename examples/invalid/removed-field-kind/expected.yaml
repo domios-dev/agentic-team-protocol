@@ -1,0 +1,17 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+case: removed-field-kind
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: The removed role field `kind` is refused.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Removed from the format: kind, persona, extends, single, includes, intent, needs."
+    location:
+      file: input.team.yaml
+      path: workers.builder.kind
+      line: 13
+    severity: error
+    code: pending
+warnings: []

@@ -1,0 +1,22 @@
+name: com.example/release-desk
+version: 1.0.0
+title: Release desk
+description: Qualifies a release candidate; written in the superseded roles shape.
+authors:
+  - name: Example Author
+    url: https://example.com
+license: Apache-2.0
+
+instructions: |
+  The conductor coordinates and integrates; workers implement.
+  Never publish without the owner's explicit approval.
+
+roles:
+  conductor:
+    description: Coordinates the release; dispatches, reviews, integrates.
+    instructions: |
+      Integrate accepted lanes by real merge.
+  qa:
+    description: Verifies the candidate live.
+    instructions: |
+      Verify live first, then run unit tests.

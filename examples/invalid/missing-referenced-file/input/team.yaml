@@ -1,0 +1,11 @@
+name: com.example/missing-referenced-file
+version: 1.0.0
+description: Folder package whose icon target is missing.
+icon: assets/icon.svg
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.

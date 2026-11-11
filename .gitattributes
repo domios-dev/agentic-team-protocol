@@ -1,0 +1,4 @@
+# Published package and fixture bytes are evidence: their checksums must
+# survive every checkout, so git never converts their line endings.
+packages/** -text
+examples/** -text

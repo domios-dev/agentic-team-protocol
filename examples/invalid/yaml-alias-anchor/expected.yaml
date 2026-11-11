@@ -1,0 +1,31 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+case: yaml-alias-anchor
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: YAML anchors are not allowed.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "YAML rules: text uses literal blocks (`|`, with an indentation indicator when the first line starts with whitespace); no anchors/aliases or duplicate keys; CRLF is normalized; tabs never indent; explicit size bounds; no interpolation in instructions."
+    location:
+      file: input.team.yaml
+      path: workers.researcher.model
+      line: 14
+      column: 12
+      detail: anchor &shared_model
+    severity: error
+    code: pending
+  - rule: YAML aliases are not allowed.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "YAML rules: text uses literal blocks (`|`, with an indentation indicator when the first line starts with whitespace); no anchors/aliases or duplicate keys; CRLF is normalized; tabs never indent; explicit size bounds; no interpolation in instructions."
+    location:
+      file: input.team.yaml
+      path: workers.writer.model
+      line: 19
+      column: 12
+      detail: alias *shared_model
+    severity: error
+    code: pending
+warnings: []

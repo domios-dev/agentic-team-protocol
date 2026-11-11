@@ -1,0 +1,16 @@
+name: com.example/unresolved-skill
+version: 1.0.0
+description: Valid package whose worker names a skill the package does not ship yet.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+workers:
+  researcher:
+    description: Researches one angle.
+    skills: [market-sizing]
+    instructions: |
+      Research exactly one angle.

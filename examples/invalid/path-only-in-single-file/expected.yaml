@@ -1,0 +1,69 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+# The input is the canonical com.example/research-desk 2.1.0 team.yaml, byte for
+# byte, used as a single file. It is valid only as a folder or .team ZIP.
+case: path-only-in-single-file
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: Missing referenced file. In the single-file form a path-only files entry has no target.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Three forms of one package. `name.team.yaml` is one file with everything inline: the default export and exchange form."
+    decision: "Orchestrator-relayed owner decision (Elgar, binding): in the single-file form every reference must resolve inline; a path-only reference with no inline content is a missing referenced file."
+    location:
+      file: input.team.yaml
+      path: files[3].path
+      line: 69
+      detail: data/competitors.csv has no content; workers.researcher.files (line 149) names it too
+    severity: error
+    code: pending
+  - rule: Missing referenced file. In the single-file form a path-only files entry has no target.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Three forms of one package. `name.team.yaml` is one file with everything inline: the default export and exchange form."
+    decision: "Orchestrator-relayed owner decision (Elgar, binding): in the single-file form every reference must resolve inline; a path-only reference with no inline content is a missing referenced file."
+    location:
+      file: input.team.yaml
+      path: files[4].path
+      line: 71
+      detail: assets/logo.png has no content (a binary asset)
+    severity: error
+    code: pending
+  - rule: Missing referenced file. In the single-file form a skill path has no target.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Three forms of one package. `name.team.yaml` is one file with everything inline: the default export and exchange form."
+    decision: "Orchestrator-relayed owner decision (Elgar, binding): in the single-file form every reference must resolve inline; a path-only reference with no inline content is a missing referenced file."
+    location:
+      file: input.team.yaml
+      path: skills[1].path
+      line: 97
+      detail: skills/market-sizing
+    severity: error
+    code: pending
+  - rule: Missing referenced file. In the single-file form an automation path has no target.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Three forms of one package. `name.team.yaml` is one file with everything inline: the default export and exchange form."
+    decision: "Orchestrator-relayed owner decision (Elgar, binding): in the single-file form every reference must resolve inline; a path-only reference with no inline content is a missing referenced file."
+    location:
+      file: input.team.yaml
+      path: automation[0].path
+      line: 100
+      detail: blueprints/digest.yaml
+    severity: error
+    code: pending
+  - rule: Missing referenced file. In the single-file form instructions_file has no target.
+    spec: sp_b3v164
+    spec_section: ATP package format, roles and model choice
+    quote: "Three forms of one package. `name.team.yaml` is one file with everything inline: the default export and exchange form."
+    decision: "Orchestrator-relayed owner decision (Elgar, binding): in the single-file form every reference must resolve inline; a path-only reference with no inline content is a missing referenced file."
+    location:
+      file: input.team.yaml
+      path: workers.checker.instructions_file
+      line: 158
+      detail: workers/checker.md
+    severity: error
+    code: pending
+warnings: []

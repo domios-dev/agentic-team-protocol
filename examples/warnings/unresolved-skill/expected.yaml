@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Valid package: it produces a warning, not an error.
+# Stable warning codes stay pending until the Domios reference validator publishes them.
+case: unresolved-skill
+form: single-file
+input: input.team.yaml
+errors: []
+warnings:
+  - rule: A role skill name that no package skill provides is an unresolved skill reference, reported as a warning with an explanation.
+    spec: sp_b3v164
+    spec_section: "Templates: one existing Team creation rail and default package"
+    quote: "An unresolved skill reference is a warning with an explanation, shown in the preview and returned by start, so a template can ship before its skill exists; malformed packages still refuse."
+    also: "Role-level `skills` are bare names referencing package skills."
+    location:
+      file: input.team.yaml
+      path: workers.researcher.skills[0]
+      line: 14
+      detail: the package has no top-level skills entry named market-sizing
+    severity: warning
+    code: pending

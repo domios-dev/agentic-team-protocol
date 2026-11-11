@@ -1,0 +1,37 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+# sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
+# Builtin worker names are a host input: an optional validator host profile.
+# The Domios profile's builtin workers are worker, qa, reviewer and release_manager.
+# The outcome depends on the profile, so each expectation names its host_profile:
+#   none   -> warning (the validator cannot know the host's builtin names)
+#   domios -> error   (analyst is not a Domios builtin worker)
+case: new-worker-without-instructions
+form: single-file
+input: input.team.yaml
+errors:
+  - host_profile: domios
+    rule: A worker with a name that is not a builtin of the host profile carries instructions or instructions_file.
+    spec: Orchestrator-relayed owner decision (Elgar, binding)
+    spec_section: ATP package format, roles and model choice
+    quote: "Built-in worker names are a host input (optional validator host profile; Domios profile = worker, qa, reviewer, release_manager). ... with the Domios profile it is an ERROR."
+    location:
+      file: input.team.yaml
+      path: workers.analyst
+      line: 12
+      detail: analyst is not a builtin worker of the Domios profile and has neither instructions nor instructions_file
+    severity: error
+    code: pending
+warnings:
+  - host_profile: none
+    rule: Without a host profile, a worker with neither instructions nor instructions_file inherits the host's default role of that name.
+    spec: Orchestrator-relayed owner decision (Elgar, binding)
+    spec_section: ATP package format, roles and model choice
+    quote: "without a host profile it is a WARNING (\"inherits the host's default role analyst; invalid on hosts without one\")"
+    location:
+      file: input.team.yaml
+      path: workers.analyst
+      line: 12
+      detail: inherits the host's default role analyst; invalid on hosts without one
+    severity: warning
+    code: pending

@@ -1,0 +1,16 @@
+name: com.example/duplicate-key
+version: 1.0.0
+description: Package with a key repeated inside one mapping.
+authors:
+  - name: Example Author
+    url: https://example.com
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.
+workers:
+  researcher:
+    description: Researches one angle.
+    instructions: |
+      Research exactly one angle.
+    description: Researches one market angle.

@@ -1,0 +1,12 @@
+name: com.example/path-skill-without-name
+version: 1.0.0
+description: Folder package whose path skill has no name in its SKILL.md frontmatter.
+authors:
+  - name: Example Author
+    url: https://example.com
+skills:
+  - path: skills/source-check
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.

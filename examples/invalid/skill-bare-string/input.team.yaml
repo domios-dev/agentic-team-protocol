@@ -1,0 +1,12 @@
+name: com.example/skill-bare-string
+version: 1.0.0
+description: Package whose top-level skills entry is a bare string.
+authors:
+  - name: Example Author
+    url: https://example.com
+skills:
+  - source-check
+managers:
+  orchestrator:
+    instructions: |
+      Coordinate the team.

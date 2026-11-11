@@ -1,0 +1,21 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+# sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
+case: path-skill-without-name
+form: folder
+input: input/
+errors:
+  - rule: A path skill's SKILL.md frontmatter carries a name; the folder name is never used as a fallback.
+    spec: Orchestrator-relayed owner decision (Elgar, binding)
+    spec_section: ATP package format, roles and model choice
+    quote: "a skills entry with `path: skills/x` whose SKILL.md has no frontmatter `name`. ERROR (Agent Skills requires name; no folder-name fallback)."
+    also_section: "Templates: one existing Team creation rail and default package"
+    also: "skills (inline {name, description, content as SKILL.md, files[]} or {path: <SKILL.md folder>}) register as Team-scoped skills."
+    location:
+      file: input/skills/source-check/SKILL.md
+      path: frontmatter.name
+      line: 1
+      detail: the frontmatter (lines 1-3) has description but no name; referenced from input/team.yaml skills[0].path (line 8)
+    severity: error
+    code: pending
+warnings: []
