@@ -19,6 +19,8 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # Full history: the immutability check compares packages/ with the base commit.
+          fetch-depth: 0
 
       - name: Set up Node.js 22
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -29,8 +31,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # A published package version never changes: compare packages/ with the PR
+      # base, or with the previous main commit on a push.
+      - name: Check published versions are immutable
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: node scripts/check-immutability.mjs --base "$BASE_SHA" --head HEAD
+
+      # Also generates _site/catalog.json from git (scripts/build-catalog.mjs).
       - name: Build site
         run: npm run build
+
+      # Every catalog checksum must equal the SHA-256 of the bytes _site/ serves,
+      # and catalog.json must be byte-identical to a fresh generation.
+      - name: Verify catalog checksums against served bytes
+        run: node scripts/build-catalog.mjs --verify
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0

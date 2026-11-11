@@ -7,7 +7,9 @@
 //                           date is "current" (spec/current/ points at it).
 //   packages/**, examples/** copied byte-for-byte, plus a generated index.html
 //                           listing for every directory.
-//   catalog.json            copied byte-for-byte when an earlier step produced it.
+//   catalog.json            generated from the served packages/ bytes and the commit
+//                           at HEAD by scripts/build-catalog.mjs (never committed),
+//                           plus the catalog/ page rendered from it.
 //   LICENSE                 copied byte-for-byte to LICENSE.txt.
 //
 // Absent or empty spec/, packages/ and examples/ are valid inputs. The output is
@@ -18,6 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Marked } from 'marked';
+import { generateCatalog } from './build-catalog.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, '_site');
@@ -282,21 +285,50 @@ function buildCollection(name, intro) {
 
 // --- catalog and license --------------------------------------------------
 
+// Generates _site/catalog.json from the served package bytes and the commit at HEAD
+// (scripts/build-catalog.mjs) and renders the catalog page from it.
 function buildCatalog() {
-  const src = path.join(ROOT, 'catalog.json');
-  const present = fs.existsSync(src);
-  if (present) copyExact(src, path.join(OUT, 'catalog.json'));
+  let catalog;
+  try {
+    catalog = generateCatalog({ root: ROOT, out: OUT });
+  } catch (e) {
+    console.error(`error: ${e.message}`);
+    process.exit(1);
+  }
+  const link = (rel, text) => `<a href="../${hrefFor(rel)}">${escapeHtml(text)}</a>`;
+  const short = (sum) => `<code title="${sum}">${sum.slice(0, 12)}…</code>`;
+  const rows = catalog.packages.map((e) => {
+    const derived = e.derived_from
+      ? escapeHtml([e.derived_from.name, e.derived_from.version].filter(Boolean).join(' '))
+      : '—';
+    const forms = [
+      `${link(e.forms.zip.path, '.team')} ${short(e.forms.zip.checksum)}`,
+      `${link(e.forms.single_file.path, '.team.yaml')} ${short(e.forms.single_file.checksum)}`,
+      `${link(e.forms.folder.path, 'folder')} (${e.forms.folder.files.length} files)`,
+    ].join('<br>');
+    return [
+      '<tr>',
+      `<td><code>${escapeHtml(e.name)}</code></td>`,
+      `<td>${escapeHtml(e.version)}</td>`,
+      `<td><strong>${escapeHtml(e.title ?? e.name)}</strong><br>${escapeHtml(e.description)}</td>`,
+      `<td>${derived}</td>`,
+      `<td>${forms}</td>`,
+      '</tr>',
+    ].join('');
+  });
   writePage('catalog/index.html', {
     title: 'Catalog',
+    notice: 'Validation by the reference validator is pending (Phase 2): the validator is generated from the Domios reference implementation. Entries are listed, not yet validated.',
     body: [
       '<h1>Catalog</h1>',
-      '<p>The catalog is a static, read-only JSON index of published packages, generated from this repository in CI. It has no write, upload or authentication endpoints.</p>',
-      present
-        ? '<p><a href="../catalog.json">catalog.json</a></p>'
-        : '<p>No catalog has been generated in this build yet.</p>',
+      '<p>The Agentic Team Protocol catalog is a static, read-only JSON file, <a href="../catalog.json">catalog.json</a>, generated from this repository in CI on every build and never committed. It has one entry per published package version with its identity fields parsed from <code>team.yaml</code>, and a SHA-256 checksum of the exact bytes this site serves for every file of every form. A published version never changes; a change is a new version. There is no write, upload or authentication endpoint.</p>',
+      `<p>Source commit: <code>${escapeHtml(catalog.source_commit)}</code>. Full checksums are in catalog.json.</p>`,
+      rows.length
+        ? `<table class="catalog">\n<thead><tr><th>Name</th><th>Version</th><th>Package</th><th>Derived from</th><th>Forms (SHA-256)</th></tr></thead>\n<tbody>\n${rows.join('\n')}\n</tbody>\n</table>`
+        : '<p>No package version is published yet.</p>',
     ].join('\n'),
   });
-  return present;
+  return catalog.packages.length;
 }
 
 // --- main -----------------------------------------------------------------
@@ -331,5 +363,5 @@ for (const w of warnings) console.warn(`warning: ${w}`);
 console.log(
   `built _site/: ${renderedPages.length} pages; spec versions: ${spec.dates.length}` +
     `${spec.current ? ` (current ${spec.current})` : ''}; packages files: ${packageFiles}; ` +
-    `examples files: ${exampleFiles}; catalog.json: ${catalog ? 'copied' : 'absent'}`,
+    `examples files: ${exampleFiles}; catalog.json: ${catalog} entries`,
 );
