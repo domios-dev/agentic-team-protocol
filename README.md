@@ -7,7 +7,7 @@ secrets it asks its host to grant. A package comes in three equivalent forms: a 
 `name.team.yaml` file, a `name.team` ZIP archive, or a folder with the same layout. Domios is
 the reference implementation; any host can implement the format.
 
-Site: https://domios-dev.github.io/agentic-team-protocol/ (not yet published)
+Site: https://atp.domios.dev/ (not yet published)
 
 ## Repository layout
 
