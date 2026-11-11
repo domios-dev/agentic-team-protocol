@@ -1,0 +1,105 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1d2125;
+  --muted: #5b636b;
+  --line: #d9dde1;
+  --accent: #1f5fae;
+  --code-bg: #f3f5f7;
+  --notice-bg: #fff6dd;
+  --notice-line: #e2c26b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181b;
+    --fg: #e4e7ea;
+    --muted: #9aa3ab;
+    --line: #2d3338;
+    --accent: #7fb0ec;
+    --code-bg: #1f2428;
+    --notice-bg: #2c2615;
+    --notice-line: #7a6522;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a { color: var(--accent); }
+
+.site-header,
+main,
+.site-footer {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-name {
+  font-weight: 700;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.site-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+main { padding-top: 1.5rem; padding-bottom: 2rem; }
+
+h1, h2, h3 { line-height: 1.25; }
+
+code, pre {
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.92em;
+}
+
+code { background: var(--code-bg); padding: 0.1em 0.3em; border-radius: 3px; }
+
+pre {
+  background: var(--code-bg);
+  padding: 0.8rem 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+pre code { background: none; padding: 0; }
+
+table { border-collapse: collapse; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--line); padding: 0.35rem 0.6rem; text-align: left; }
+
+.notice {
+  background: var(--notice-bg);
+  border-left: 4px solid var(--notice-line);
+  padding: 0.6rem 0.9rem;
+}
+
+.listing { list-style: none; padding-left: 0; }
+.listing li { padding: 0.15rem 0; }
+.size { color: var(--muted); font-size: 0.9em; margin-left: 0.5rem; }
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9em;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
