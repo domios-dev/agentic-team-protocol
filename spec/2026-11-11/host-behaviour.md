@@ -42,14 +42,14 @@ A role's instructions reach the agent exactly as written: nothing is substituted
 
 ### 2.6 Default-package semantics
 
-When a team is created without a package, Domios uses its builtin default package, `dev.domios/default` 1.0.0:
+When a team is created without a package, Domios uses its builtin default package. That package is pre-release and is not published with this version of the specification. Its host default roles behave as follows:
 
 - The `with_team` managers, `orchestrator` and `planner`, start with the team.
 - `cartographer` (`on_demand`) and the workers `worker`, `qa`, `reviewer` and `release_manager` (`on_demand`) are registered, not pre-spawned. The orchestrator starts them when it needs them.
 - `curator` runs on its `45m..2h` schedule with `model: {same_as: orchestrator}`.
 - The package defines no other models. The owner picks a model for each `with_team` manager at start, and workers use the host's dispatch defaults.
 - A package that omits an optional manager slot gets Domios's default manager for that slot.
-- A package worker named `worker`, `qa`, `reviewer` or `release_manager` replaces that Domios builtin entirely. Builtins the package does not name stay available.
+- Domios's builtin worker names are `worker`, `qa`, `reviewer` and `release_manager`. A package worker with one of these names, and a package manager slot, takes the Domios default role's value for each field it omits, instructions included. Builtins the package does not name stay available.
 - Teams with no role registrations, including Teams restored from before packages existed, resolve to the default package.
 
 ## 3. Domios-specific behaviour
