@@ -85,6 +85,7 @@ pre code { background: none; padding: 0; }
 
 table { border-collapse: collapse; display: block; overflow-x: auto; }
 th, td { border: 1px solid var(--line); padding: 0.35rem 0.6rem; text-align: left; }
+.catalog td { vertical-align: top; }
 
 .notice {
   background: var(--notice-bg);
