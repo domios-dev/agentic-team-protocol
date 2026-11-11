@@ -38,6 +38,11 @@ jobs:
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
         run: node scripts/check-immutability.mjs --base "$BASE_SHA" --head HEAD
 
+      # Each .team ZIP holds exactly its folder's files byte for byte and re-packs
+      # identically, so the catalog's per-form checksums describe one package.
+      - name: Check package forms
+        run: node scripts/check-forms.mjs
+
       # Also generates _site/catalog.json from git (scripts/build-catalog.mjs).
       - name: Build site
         run: npm run build
