@@ -93,6 +93,7 @@ function slugify(html) {
     .replace(/<[^>]*>/g, '')
     .replace(/&[a-z0-9#]+;/gi, '')
     .toLowerCase()
+    .replace(/\./g, '') // GitHub-compatible: "10.1 Manager slots" -> 101-manager-slots
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'section';
 }
