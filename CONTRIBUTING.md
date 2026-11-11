@@ -20,6 +20,11 @@ specification and published packages stable for everyone who depends on them.
 
 - Published package versions under `packages/<scope>/<name>/<version>/` are immutable.
   To change a package, publish a new version.
+- The only exception is a one-time entry in `packages/IMMUTABILITY-EXCEPTIONS.json` naming the
+  exact version directory, the reason and the approver, added in the same pull request as the
+  change. `scripts/check-immutability.mjs` then accepts modified (not added or deleted) files
+  in that version, and only while the entry is new relative to the base commit, so once merged
+  it allows nothing further; a malformed exceptions file fails the check.
 - Package files are served exactly as committed. Do not reformat or re-encode them.
 - Each package states its own license. Published packages and examples contain no personal
   names, handles or personal URLs; use `com.example` and neutral authors.

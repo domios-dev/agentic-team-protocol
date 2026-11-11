@@ -16,6 +16,7 @@
 
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -55,6 +56,53 @@ function resolveCommit(ref, label) {
   }
 }
 
+// One-time exceptions, recorded in packages/IMMUTABILITY-EXCEPTIONS.json:
+//   { "exceptions": [ { "version": "packages/<scope>/<name>/<version>",
+//                       "reason": "...", "approver": "..." } ] }
+// An entry lets files of that published version be modified (status M only; adding,
+// deleting or type-changing a file still fails), and only while the entry is new:
+// its version is not listed in the file at --base. Once merged, the entry is in every
+// later base and allows nothing. A malformed file at --base or --head exits 2.
+const EXCEPTIONS = 'packages/IMMUTABILITY-EXCEPTIONS.json';
+const VERSION_DIR = /^packages\/[^/]+\/[^/]+\/[^/]+$/;
+
+function readExceptions(ref) {
+  const where = `${EXCEPTIONS} at ${ref ?? 'the working tree'}`;
+  let text;
+  if (ref) {
+    if (!git(['ls-tree', '--name-only', ref, '--', EXCEPTIONS]).trim()) return [];
+    text = git(['show', `${ref}:${EXCEPTIONS}`]);
+  } else {
+    const file = path.join(ROOT, EXCEPTIONS);
+    if (!existsSync(file)) return [];
+    text = readFileSync(file, 'utf8');
+  }
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    usage(`${where} is not valid JSON: ${e.message}`);
+  }
+  const keys = (o) => Object.keys(o).sort().join(',');
+  const isObject = (o) => o !== null && typeof o === 'object' && !Array.isArray(o);
+  if (!isObject(data) || keys(data) !== 'exceptions' || !Array.isArray(data.exceptions)) {
+    usage(`${where} must be an object with only an "exceptions" array`);
+  }
+  const seen = new Set();
+  for (const [i, e] of data.exceptions.entries()) {
+    const ok =
+      isObject(e) &&
+      keys(e) === 'approver,reason,version' &&
+      [e.version, e.reason, e.approver].every((v) => typeof v === 'string' && v.trim() !== '') &&
+      VERSION_DIR.test(e.version) &&
+      !e.version.split('/').some((p) => p === '.' || p === '..');
+    if (!ok) usage(`${where}: exceptions[${i}] needs exactly non-empty "version" (packages/<scope>/<name>/<version>), "reason" and "approver"`);
+    if (seen.has(e.version)) usage(`${where}: exceptions[${i}] repeats ${e.version}`);
+    seen.add(e.version);
+  }
+  return data.exceptions;
+}
+
 const opts = parseArgs(process.argv.slice(2));
 const base = resolveCommit(opts.base, '--base');
 const head = opts.head ? resolveCommit(opts.head, '--head') : null;
@@ -74,10 +122,14 @@ if (!head) {
 const VERB = { A: 'added to', D: 'deleted from', M: 'modified in', T: 'type changed in' };
 const violations = [];
 const added = new Set();
+const baseExceptions = new Set(readExceptions(base).map((e) => e.version));
+const excepted = new Set(readExceptions(head).map((e) => e.version).filter((v) => !baseExceptions.has(v)));
+const applied = new Set();
 for (const [status, file] of changes) {
   const dir = versionDir(file);
   if (!dir) continue;
-  if (published.has(dir)) violations.push(`${file}: ${VERB[status[0]] ?? `changed (${status}) in`} published version ${dir}`);
+  if (published.has(dir) && status === 'M' && excepted.has(dir)) applied.add(dir);
+  else if (published.has(dir)) violations.push(`${file}: ${VERB[status[0]] ?? `changed (${status}) in`} published version ${dir}`);
   else if (status === 'A') added.add(dir);
 }
 
@@ -90,5 +142,6 @@ if (violations.length) {
 }
 console.log(
   `ok: ${published.size} published version(s) at base ${base} unchanged in ${target}` +
-    (added.size ? `; new version(s): ${[...added].sort().join(', ')}` : '; no new versions'),
+    (added.size ? `; new version(s): ${[...added].sort().join(', ')}` : '; no new versions') +
+    (applied.size ? `; except modified under a new one-time entry in ${EXCEPTIONS} for ${[...applied].sort().join(', ')}` : ''),
 );
