@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Stable error codes stay pending until the Domios reference validator publishes them.
+# sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
+case: schedule-bad-duration
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: Each schedule bound is a duration matching <positive integer>(m|h).
+    spec: Orchestrator-relayed owner decision (Elgar, binding)
+    spec_section: ATP package format, roles and model choice
+    quote: "ERROR: min > max, or a duration not matching `<positive integer>(m|h)`."
+    also: "start (with_team | on_demand | {schedule: \"<min>..<max>\"}; workers default to on_demand, orchestrator and planner are with_team)"
+    location:
+      file: input.team.yaml
+      path: managers.curator.start.schedule
+      line: 13
+      detail: min 45x has unit x; only m and h are allowed
+    severity: error
+    code: pending
+warnings: []
