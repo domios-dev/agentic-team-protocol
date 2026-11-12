@@ -4,6 +4,12 @@
       "version": "packages/com.example/research-desk/2.1.0",
       "reason": "Replace the example author's personal-looking GitHub URL with https://example.com/jane in all three forms before the version is first publicly served; no other byte of the version changes.",
       "approver": "goal owner, before first public serving"
+    },
+    {
+      "version": "packages/dev.domios/default/1.0.0",
+      "reason": "Add the single-file form default.team.yaml, byte for byte as the Domios exporter wrote it (team export dev.domios/default --format yaml), before the version is first publicly served; no existing byte of the version changes.",
+      "approver": "goal owner, before first public serving",
+      "added": ["default.team.yaml"]
     }
   ]
 }

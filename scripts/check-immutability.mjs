@@ -66,11 +66,15 @@ function resolveCommit(ref, label) {
 
 // One-time exceptions, recorded in packages/IMMUTABILITY-EXCEPTIONS.json:
 //   { "exceptions": [ { "version": "packages/<scope>/<name>/<version>",
-//                       "reason": "...", "approver": "..." } ] }
+//                       "reason": "...", "approver": "...",
+//                       "added": ["<path relative to the version directory>"] } ] }
 // An entry lets files of that published version be modified (status M only; adding,
 // deleting or type-changing a file still fails), and only while the entry is new:
 // its version is not listed in the file at --base. Once merged, the entry is in every
-// later base and allows nothing. A malformed file at --base or --head exits 2.
+// later base and allows nothing. An entry with the optional "added" array instead
+// allows only those exact files to be added (status A), and each listed file must
+// really be added; any other change to that version, a modification included, still
+// fails. A malformed file at --base or --head exits 2.
 const EXCEPTIONS = 'packages/IMMUTABILITY-EXCEPTIONS.json';
 const VERSION_DIR = /^packages\/[^/]+\/[^/]+\/[^/]+$/;
 
@@ -97,14 +101,26 @@ function readExceptions(ref) {
     usage(`${where} must be an object with only an "exceptions" array`);
   }
   const seen = new Set();
+  const safeFile = (f) =>
+    typeof f === 'string' && !/[\\:\0]/.test(f) && f.split('/').every((p) => p !== '' && p !== '.' && p !== '..');
   for (const [i, e] of data.exceptions.entries()) {
     const ok =
       isObject(e) &&
-      keys(e) === 'approver,reason,version' &&
+      (keys(e) === 'approver,reason,version' ||
+        (keys(e) === 'added,approver,reason,version' &&
+          Array.isArray(e.added) &&
+          e.added.length > 0 &&
+          e.added.every(safeFile) &&
+          new Set(e.added).size === e.added.length)) &&
       [e.version, e.reason, e.approver].every((v) => typeof v === 'string' && v.trim() !== '') &&
       VERSION_DIR.test(e.version) &&
       !e.version.split('/').some((p) => p === '.' || p === '..');
-    if (!ok) usage(`${where}: exceptions[${i}] needs exactly non-empty "version" (packages/<scope>/<name>/<version>), "reason" and "approver"`);
+    if (!ok) {
+      usage(
+        `${where}: exceptions[${i}] needs exactly non-empty "version" (packages/<scope>/<name>/<version>), "reason" and "approver", ` +
+          'and optionally "added": a non-empty array of distinct relative file paths without "", ".", ".." segments',
+      );
+    }
     if (seen.has(e.version)) usage(`${where}: exceptions[${i}] repeats ${e.version}`);
     seen.add(e.version);
   }
@@ -131,14 +147,24 @@ const VERB = { A: 'added to', D: 'deleted from', M: 'modified in', T: 'type chan
 const violations = [];
 const added = new Set();
 const baseExceptions = new Set(readExceptions(base).map((e) => e.version));
-const excepted = new Set(readExceptions(head).map((e) => e.version).filter((v) => !baseExceptions.has(v)));
+const excepted = new Map(readExceptions(head).filter((e) => !baseExceptions.has(e.version)).map((e) => [e.version, e]));
+// Files a new entry's "added" array lists, as full paths; each must really be added.
+const listed = new Set([...excepted.values()].flatMap((e) => (e.added ?? []).map((f) => `${e.version}/${f}`)));
 const applied = new Set();
+const addedListed = new Set();
 for (const [status, file] of changes) {
   const dir = versionDir(file);
   if (!dir) continue;
-  if (published.has(dir) && status === 'M' && excepted.has(dir)) applied.add(dir);
-  else if (published.has(dir)) violations.push(`${file}: ${VERB[status[0]] ?? `changed (${status}) in`} published version ${dir}`);
+  const entry = published.has(dir) ? excepted.get(dir) : undefined;
+  if (entry && !entry.added && status === 'M') applied.add(dir);
+  else if (entry?.added && status === 'A' && listed.has(file)) {
+    applied.add(dir);
+    addedListed.add(file);
+  } else if (published.has(dir)) violations.push(`${file}: ${VERB[status[0]] ?? `changed (${status}) in`} published version ${dir}`);
   else if (status === 'A') added.add(dir);
+}
+for (const file of listed) {
+  if (!addedListed.has(file)) violations.push(`${file}: listed in "added" in ${EXCEPTIONS} but not added to a published version`);
 }
 
 const target = head ? head : 'the working tree';
@@ -151,5 +177,6 @@ if (violations.length) {
 console.log(
   `ok: ${published.size} published version(s) at base ${base} unchanged in ${target}` +
     (added.size ? `; new version(s): ${[...added].sort().join(', ')}` : '; no new versions') +
-    (applied.size ? `; except modified under a new one-time entry in ${EXCEPTIONS} for ${[...applied].sort().join(', ')}` : ''),
+    (applied.size ? `; except changes under a new one-time entry in ${EXCEPTIONS} for ${[...applied].sort().join(', ')}` : '') +
+    (addedListed.size ? ` (added: ${[...addedListed].sort().join(', ')})` : ''),
 );
