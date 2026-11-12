@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-// Packs every Agentic Team Protocol package folder into its `.team` ZIP, and
-// builds the archive-only invalid fixtures, deterministically.
+// Packs the Agentic Team Protocol package versions listed in PACK_TEAM_VERSIONS
+// into their `.team` ZIP, and builds the archive-only invalid fixtures,
+// deterministically. Every other package version publishes the Domios
+// exporter's `.team` bytes as-is (CONTRIBUTING.md); this script never writes it.
 //
 // Folder  packages/<scope>/<name>/<version>/<name>/   ->  <name>.team beside it
 //
@@ -113,7 +115,12 @@ export function readFolder(dir) {
   return out.sort(byteOrder);
 }
 
-// [{ folder, zip, single }] for packages/<scope>/<name>/<version>/<name>/
+// The package versions whose `.team` this script packed and keeps packing: an
+// explicit, closed list. Never add a version here; later versions publish the
+// Domios exporter's archive unchanged.
+export const PACK_TEAM_VERSIONS = Object.freeze(['com.example/research-desk@2.1.0', 'dev.domios/default@1.0.0']);
+
+// [{ id, folder, zip, single, packTeam }] for packages/<scope>/<name>/<version>/<name>/
 export function packageForms() {
   const base = join(ROOT, 'packages');
   const dirs = (d) => readdirSync(d, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort();
@@ -122,13 +129,17 @@ export function packageForms() {
     for (const name of dirs(join(base, scope)))
       for (const version of dirs(join(base, scope, name))) {
         const vdir = join(base, scope, name, version);
+        const id = `${scope}/${name}@${version}`;
         forms.push({
-          id: `${scope}/${name}@${version}`,
+          id,
           folder: join(vdir, name),
           zip: join(vdir, `${name}.team`),
           single: join(vdir, `${name}.team.yaml`),
+          packTeam: PACK_TEAM_VERSIONS.includes(id),
         });
       }
+  for (const id of PACK_TEAM_VERSIONS)
+    if (!forms.some((f) => f.id === id)) throw new Error(`PACK_TEAM_VERSIONS lists ${id}, but packages/ has no such version`);
   return forms;
 }
 
@@ -177,10 +188,11 @@ export const ZIP_FIXTURES = [
   },
 ].map((f) => ({ zip: join(ROOT, f.zip), entries: f.entries.map((e) => ({ name: e.name, data: Buffer.from(e.text, 'utf8') })) }));
 
-// Every archive this script owns: [{ zip, bytes }]
+// Every archive this script owns: [{ zip, bytes }]. Exporter archives (versions
+// not in PACK_TEAM_VERSIONS) are not among them.
 export function allArchives() {
   const out = [];
-  for (const f of packageForms()) {
+  for (const f of packageForms().filter((f) => f.packTeam)) {
     if (!existsSync(f.folder)) throw new Error(`missing folder form for ${f.id}: ${f.folder}`);
     out.push({ zip: f.zip, bytes: buildZip(readFolder(f.folder)) });
   }
