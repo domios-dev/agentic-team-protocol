@@ -24,7 +24,7 @@ errors:
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
     quote: "Every other non-`x-` key is strictly typed and unknown keys are errors; there are no top-level coordinator/planner fields."
-    note: The reference implementation reports top-level `roles` as a removed field, not an unknown key; the public spec section 11 does not list it yet.
+    note: The reference implementation reports top-level `roles` as a removed field, not an unknown key; public spec 2026-11-11 section 11 lists it.
     location:
       file: input.team.yaml
       path: roles

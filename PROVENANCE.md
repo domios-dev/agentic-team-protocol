@@ -29,6 +29,13 @@ The corpus is exported without line-ending conversion: with `core.autocrlf=true`
 (`invalid/unreferenced-entry/notes.txt`, `valid/reference/data/competitors.csv`), and the
 bytes no longer match the source blobs.
 
+The corpus case `valid/reference/` is a separate fixture, not a copy of the published
+package `packages/com.example/research-desk/2.1.0/`: its `team.yaml` is identical to that
+version's folder-form `team.yaml`, while its other files (`assets/logo.png`,
+`blueprints/digest.yaml`, `data/competitors.csv`, `skills/market-sizing/SKILL.md`,
+`workers/checker.md`) and `valid/reference-inline.team.yaml` differ from the published
+package's files.
+
 Each SHA-256 below is of the source blob (`git cat-file blob <blob>` in the Domios
 repository) and equals the SHA-256 of the committed file.
 
