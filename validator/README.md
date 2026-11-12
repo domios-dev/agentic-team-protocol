@@ -9,7 +9,10 @@ source commit, build commands, toolchain and checksums. Domios is not needed to 
 run it.
 
 Version: `2026.11.11`, the artifact version the owner chose (the crates are version 0.0.0;
-the generated files embed no version string). License: pending owner decision.
+the generated files embed no version string). License: Apache-2.0, the license of this
+repository ([LICENSE](../LICENSE)); the Domios crates `codeterm-team-package` and
+`codeterm-team-package-wasm` and the team templates they embed are licensed Apache-2.0 at
+the source commit, see [PROVENANCE.md](../PROVENANCE.md#licenses).
 
 | Build | Where |
 | --- | --- |

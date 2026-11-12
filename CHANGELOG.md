@@ -50,7 +50,9 @@ artifacts (JSON Schema, conformance corpus, reference validator) are pending.
 - Generated artifacts (Phase 2), recorded in `PROVENANCE.md`: the JSON Schema
   `schema/2026-11-11/team.schema.json`, the conformance corpus `corpus/2026-11-11/` and
   the reference validator `validator/` (version `2026.11.11`,
-  chosen by the owner), built by `.github/workflows/validator.yml`. The stable codes in
+  chosen by the owner), built by `.github/workflows/validator.yml` from Domios
+  `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` and licensed Apache-2.0 like the Domios
+  components they come from. The stable codes in
   `examples/**/expected.yaml` and specification section 15 come from the corpus and from
   the validator's run over the examples. Catalog entries are not yet validated by the
   reference validator.

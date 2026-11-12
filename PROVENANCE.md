@@ -9,6 +9,19 @@ produced the bytes, the builder, and the SHA-256 of every committed file.
 A published dated directory (`schema/<YYYY-MM-DD>/`, `corpus/<YYYY-MM-DD>/`) never changes;
 `scripts/check-immutability.mjs` enforces it. A correction is a new dated directory.
 
+## Licenses
+
+`schema/`, `corpus/` and `validator/` are licensed under the Apache License 2.0, the
+license of this repository ([LICENSE](LICENSE)). Each Domios component they are generated
+from is licensed Apache-2.0 at Domios commit `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49`
+(`domios-dev/domios`). That commit is also the source commit of every artifact below.
+
+| Component (Domios path) | Used for | License | Taken from, at `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` |
+| --- | --- | --- | --- |
+| Crate `codeterm-team-package` (`src-tauri/crates/codeterm-team-package`) | the corpus (its `fixtures/corpus/`), the JSON Schema generator, the `atp-validate` binaries, the validation code in the WebAssembly module | Apache-2.0 | `Cargo.toml` (`license = "Apache-2.0"`) and the crate's `LICENSE` |
+| Crate `codeterm-team-package-wasm` (`src-tauri/crates/codeterm-team-package-wasm`) | the WebAssembly wrapper in `validator/2026.11.11/` | Apache-2.0 | `Cargo.toml` (`license = "Apache-2.0"`) and the crate's `LICENSE` |
+| Team templates (`src-tauri/team-templates`), embedded in the crate through `include_dir!` | the built-in templates compiled into the binaries and the WebAssembly module | Apache-2.0 | `LICENSE` and the notice in `README.md` of that directory |
+
 ## Conformance corpus 2026-11-11
 
 | Field | Value |
@@ -20,8 +33,7 @@ A published dated directory (`schema/<YYYY-MM-DD>/`, `corpus/<YYYY-MM-DD>/`) nev
 | Source path | `src-tauri/crates/codeterm-team-package/fixtures/corpus/` |
 | Generator command | `git -c core.autocrlf=false -c core.eol=lf archive --format=tar abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49 -- src-tauri/crates/codeterm-team-package/fixtures/corpus \| tar -x --strip-components=5 -C corpus/2026-11-11` |
 | Builder | none (git export) |
-| Source license | AGPL-3.0-only (crate `Cargo.toml`) |
-| License in this repository | pending: owner decision |
+| License | Apache-2.0 (see [Licenses](#licenses)) |
 | Files | 41 |
 
 The corpus is exported without line-ending conversion: with `core.autocrlf=true`, a plain
@@ -104,8 +116,7 @@ file the run produced, the exact commands, the toolchains and the run URL.
 | Toolchain | rustc 1.99.1 (58cf8f9c3 2026-10-13), cargo 1.99.1 (5f94df478 2026-08-27), from Domios `rust-toolchain.toml` |
 | wasm-bindgen | crate and CLI 0.2.130 (resolved in the generated `Cargo.lock`) |
 | Builder | GitHub Actions, workflow `validator.yml` |
-| Source license | AGPL-3.0-only (crate `Cargo.toml`) |
-| License in this repository | pending: owner decision |
+| License | Apache-2.0 (see [Licenses](#licenses)) |
 
 | Target | Runner image | Command (run in the Domios checkout) |
 | --- | --- | --- |

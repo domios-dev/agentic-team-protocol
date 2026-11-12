@@ -45,4 +45,6 @@ The build writes a static site to `_site/`. Missing or empty `spec/`, `packages/
 ## License
 
 The Agentic Team Protocol specification is licensed under the Apache License 2.0; see
-[LICENSE](LICENSE). Each package carries its own license.
+[LICENSE](LICENSE). The generated JSON Schema, conformance corpus and reference validator
+(`schema/`, `corpus/`, `validator/`) are licensed under the Apache License 2.0 as well; see
+[PROVENANCE.md](PROVENANCE.md#licenses). Each package carries its own license.

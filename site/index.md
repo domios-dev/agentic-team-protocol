@@ -53,6 +53,8 @@ These artifacts are generated from the reference implementation, not written by 
 - [Reference validator](validator/): the `atp-validate` command-line tool and a
   WebAssembly module, usable without Domios.
 
+Like the specification, these artifacts are licensed under Apache-2.0.
+
 ## Reference implementation
 
 Domios is the reference implementation of the Agentic Team Protocol and uses the format for
