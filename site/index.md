@@ -43,10 +43,11 @@ Site address: https://atp.domios.dev/ (not yet published)
 
 ## Generated artifacts
 
-These artifacts will be generated from the reference implementation, not written by hand:
+These artifacts are generated from the reference implementation, not written by hand:
 
 - JSON Schema: _pending: generated from the Domios reference implementation_
-- Conformance corpus: _pending: generated from the Domios reference implementation_
+- [Conformance corpus](corpus/2026-11-11/): valid and invalid packages for specification
+  version 2026-11-11, with the codes each case expects in `cases.json`.
 - Reference validator: _pending: generated from the Domios reference implementation_
 
 ## Reference implementation

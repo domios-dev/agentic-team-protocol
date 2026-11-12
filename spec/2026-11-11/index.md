@@ -3,7 +3,7 @@
 - **Version:** 2026-11-11
 - **Status:** Draft. This version stays a draft until its first publication on the Agentic Team Protocol site. After that publication its text is immutable, and any change requires a new dated version.
 - **Companion page:** [Host behaviour (non-normative)](host-behaviour.md)
-- **Generated artifacts:** the JSON Schema (`$schema` URL), stable error codes, conformance corpus and reference validator are pending: generated from the Domios reference implementation (see [section 16](#16-pending-generated-artifacts)).
+- **Generated artifacts:** the conformance corpus is published at [corpus/2026-11-11/](../../corpus/2026-11-11/) and defines the stable codes in [section 15](#15-error-and-warning-conditions). The JSON Schema (`$schema` URL) and reference validator are pending: generated from the Domios reference implementation (see [section 16](#16-generated-artifacts)).
 
 ## 1. Scope
 
@@ -27,7 +27,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - **Error:** a condition that makes a package invalid. A reader MUST refuse an invalid package.
 - **Warning:** a condition that a reader MUST report and that leaves the package valid.
 
-Error and warning conditions are named by the rule that defines them. [Section 15](#15-error-and-warning-conditions) lists them. Their stable error codes are pending.
+Error and warning conditions are named by the rule that defines them. [Section 15](#15-error-and-warning-conditions) lists them with their stable codes, taken from the conformance corpus; a condition without a corpus case keeps its code pending.
 
 ## 3. Versioning
 
@@ -481,50 +481,51 @@ A host appends its own runtime text to a role's instructions when it composes th
 
 ## 15. Error and warning conditions
 
-Each condition below is named by its rule. Stable error codes are pending: generated from the Domios reference implementation.
+Each condition below is named by its rule. Its stable code is the one the conformance corpus ([section 16](#16-generated-artifacts)) expects for that condition. A condition that no corpus case covers yet keeps the code pending: generated from the Domios reference implementation.
 
-| Condition | Kind | Rule |
-|---|---|---|
-| malformed YAML | error | [5](#5-yaml-rules).9 |
-| YAML anchor or alias | error | [5](#5-yaml-rules).2 |
-| duplicate key | error | [5](#5-yaml-rules).3 |
-| tab indentation | error | [5](#5-yaml-rules).4 |
-| missing required key | error | [6](#6-top-level-structure).2, [10.1](#101-manager-slots).1 |
-| unknown key | error | [6](#6-top-level-structure).3, [10.1](#101-manager-slots).2, [10.3](#103-role-fields), [12](#12-extensions).1 |
-| invalid value | error | [6](#6-top-level-structure).4 |
-| invalid package name | error | [7](#7-identity-block) (`name`, `derived_from.name`) |
-| invalid model id | error | [10.5](#105-model).1 |
-| invalid role name | error | [10.2](#102-workers).1 |
-| reserved worker name | error | [10.2](#102-workers).2 |
-| missing instructions (with a host profile) | error | [10.7](#107-roles-with-host-defaults).7 |
-| skill without name | error | [9.3](#93-skills).3 |
-| invalid schedule | error | [10.4](#104-start).1, [10.4](#104-start).2 |
-| input default not in choices | error | [8](#8-start-asks-block) (`inputs` full form) |
-| removed field | error | [11](#11-removed-fields) |
-| bare-string skill | error | [9.3](#93-skills).1 |
-| unknown same_as role | error | [10.5](#105-model).2 |
-| same_as cycle | error | [10.5](#105-model).2 |
-| instructions and instructions_file both set | error | [10.3](#103-role-fields).2 |
-| invalid icon | error | [7.1](#71-icon).3 |
-| missing referenced file | error | [4.1](#41-single-file-form).3, [4.4](#44-references).2, [7.1](#71-icon).2, [9.1](#91-files).2, [10.3](#103-role-fields), [10.6](#106-instructions).4 |
-| missing or duplicate root team.yaml | error | [4.2](#42-zip-and-folder-forms).1 |
-| unreferenced entry | error | [4.2](#42-zip-and-folder-forms).3 |
-| unsafe path (`..`, absolute path, symbolic link) | error | [4.2](#42-zip-and-folder-forms).4 |
-| bound exceeded | error | [4.3](#43-bounds) |
-| unresolved skill reference | warning | [10.3](#103-role-fields) |
-| inherits host default role (without a host profile) | warning | [10.7](#107-roles-with-host-defaults).5 |
+| Condition | Kind | Rule | Code |
+|---|---|---|---|
+| malformed YAML | error | [5](#5-yaml-rules).9 | pending |
+| YAML anchor or alias | error | [5](#5-yaml-rules).2 | `yaml_anchor`, `yaml_alias` |
+| duplicate key | error | [5](#5-yaml-rules).3 | `duplicate_key` |
+| tab indentation | error | [5](#5-yaml-rules).4 | `tab_indentation` |
+| missing required key | error | [6](#6-top-level-structure).2, [10.1](#101-manager-slots).1 | `missing_field` |
+| unknown key | error | [6](#6-top-level-structure).3, [10.1](#101-manager-slots).2, [10.3](#103-role-fields), [12](#12-extensions).1 | `unknown_field` |
+| invalid value | error | [6](#6-top-level-structure).4 | pending |
+| invalid package name | error | [7](#7-identity-block) (`name`, `derived_from.name`) | `derived_from.name`: `invalid_derived_from`; `name`: pending |
+| invalid model id | error | [10.5](#105-model).1 | `invalid_model` |
+| invalid role name | error | [10.2](#102-workers).1 | pending |
+| reserved worker name | error | [10.2](#102-workers).2 | `reserved_role_name` |
+| missing instructions (with a host profile) | error | [10.7](#107-roles-with-host-defaults).7 | `missing_field` |
+| skill without name | error | [9.3](#93-skills).3 | pending |
+| invalid schedule | error | [10.4](#104-start).1, [10.4](#104-start).2 | `invalid_schedule` |
+| input default not in choices | error | [8](#8-start-asks-block) (`inputs` full form) | pending |
+| removed field | error | [11](#11-removed-fields) | `removed_field`; `removed_inherit` for `inherit` |
+| bare-string skill | error | [9.3](#93-skills).1 | `expected_mapping` |
+| unknown same_as role | error | [10.5](#105-model).2 | `unknown_same_as` |
+| same_as cycle | error | [10.5](#105-model).2 | `same_as_cycle` |
+| instructions and instructions_file both set | error | [10.3](#103-role-fields).2 | pending |
+| invalid icon | error | [7.1](#71-icon).3 | `icon_not_image` |
+| missing referenced file | error | [4.1](#41-single-file-form).3, [4.4](#44-references).2, [7.1](#71-icon).2, [9.1](#91-files).2, [10.3](#103-role-fields), [10.6](#106-instructions).4 | `missing_file` |
+| missing or duplicate root team.yaml | error | [4.2](#42-zip-and-folder-forms).1 | pending |
+| unreferenced entry | error | [4.2](#42-zip-and-folder-forms).3 | `unreferenced_entry` |
+| unsafe path (`..`, absolute path, symbolic link) | error | [4.2](#42-zip-and-folder-forms).4 | pending |
+| bound exceeded | error | [4.3](#43-bounds) | pending |
+| unresolved skill reference | warning | [10.3](#103-role-fields) | `unresolved_skill` |
+| inherits host default role (without a host profile) | warning | [10.7](#107-roles-with-host-defaults).5 | pending |
 
 A reader MUST refuse a package that has any error. A warning leaves the package valid. A host can, for example, start a team whose role names a skill that does not exist yet.
 
-## 16. Pending generated artifacts
+## 16. Generated artifacts
 
-The following artifacts come from the Domios reference implementation. Until they are generated and published, each one is pending:
+The following artifacts come from the Domios reference implementation. Each one is generated, never written by hand; until it is generated and published, it is pending:
 
+- **Conformance corpus:** [corpus/2026-11-11/](../../corpus/2026-11-11/). Valid and invalid packages; `cases.json` lists each case with the codes, paths and lines it expects. Its source commit and checksums are in `PROVENANCE.md` in the repository.
+- **Stable error codes** for the conditions in [section 15](#15-error-and-warning-conditions): taken from the conformance corpus. A condition without a corpus case keeps its code pending.
 - **JSON Schema and `$schema` URL:** pending: generated from the Domios reference implementation.
-- **Stable error codes** for the conditions in [section 15](#15-error-and-warning-conditions): pending: generated from the Domios reference implementation.
+- **Reference validator:** pending: built from the Domios reference implementation.
 - **Bound values** ([section 4.3](#43-bounds)) and the **ZIP entry order** ([section 4.2](#42-zip-and-folder-forms).5): pending: generated from the Domios reference implementation.
 - **`reasoning` value set** ([section 10.3](#103-role-fields)): pending: generated from the Domios reference implementation.
-- **Conformance corpus and reference validator:** pending: generated from the Domios reference implementation.
 
 ## 17. Examples
 
