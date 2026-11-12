@@ -31,7 +31,9 @@ specification and published packages stable for everyone who depends on them.
 - Every package version published from now on publishes the `.team` bytes the Domios exporter
   writes (`team export --format team`) as-is, so the archive has one writer; it is never
   re-packed here. com.example/research-desk 2.1.0 and dev.domios/default 1.0.0 keep the
-  archives `scripts/pack-team.mjs` packed for them.
+  archives `scripts/pack-team.mjs` packed for them; that script lists exactly these two in
+  `PACK_TEAM_VERSIONS` and writes only them, and `scripts/check-forms.mjs` checks every
+  other version's `.team` against the exporter's container profile.
 - Package files are served exactly as committed. Do not reformat or re-encode them.
 - Each package states its own license. Published packages and examples contain no personal
   names, handles or personal URLs; use `com.example` and neutral authors.
