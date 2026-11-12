@@ -1,0 +1,686 @@
+{
+  "$id": "https://atp.domios.dev/schema/2026-11-11/team.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "AuthorRole": {
+      "enum": [
+        "author",
+        "maintainer",
+        "contributor"
+      ],
+      "type": "string"
+    },
+    "InlineSkill": {
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "files": {
+          "items": {
+            "$ref": "#/definitions/SkillFile"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "description",
+        "name"
+      ],
+      "type": "object"
+    },
+    "MemoryKind": {
+      "enum": [
+        "fact",
+        "rule",
+        "learning"
+      ],
+      "type": "string"
+    },
+    "ModelPreference": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "properties": {
+            "same_as": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "same_as"
+          ],
+          "type": "object"
+        }
+      ],
+      "description": "An ordered `harness:model` preference list, or the resolved model of another role."
+    },
+    "PackageAuthor": {
+      "properties": {
+        "email": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AuthorRole"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "PackageAutomation": {
+      "anyOf": [
+        {
+          "properties": {
+            "description": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "description": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "content",
+            "name"
+          ],
+          "type": "object"
+        }
+      ],
+      "description": "Host-defined automation (Domios: Blueprints), inline or by path."
+    },
+    "PackageFile": {
+      "description": "A package file, inline when `content` is present and otherwise read from the archive or folder.",
+      "properties": {
+        "content": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "PackageInput": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/definitions/PackageInputSpec"
+        }
+      ],
+      "description": "`key: description`, or the full form."
+    },
+    "PackageInputSpec": {
+      "properties": {
+        "choices": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "default": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "required": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "description"
+      ],
+      "type": "object"
+    },
+    "PackageLineage": {
+      "description": "The package this one was baked from.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "type": "object"
+    },
+    "PackageLinks": {
+      "properties": {
+        "docs": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "homepage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "issues": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repository": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "PackageMemory": {
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/definitions/MemoryKind"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "body",
+        "kind",
+        "title"
+      ],
+      "type": "object"
+    },
+    "PackageNetwork": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      ],
+      "description": "`true`/`false`, or the hosts the package may reach (wildcards allowed)."
+    },
+    "PackagePermissions": {
+      "properties": {
+        "browser": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "network": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PackageNetwork"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repo_write": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "shell": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "PackageRequires": {
+      "properties": {
+        "harnesses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "PackageSecret": {
+      "description": "A secret the package asks for by name; values never travel.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "required": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "purpose"
+      ],
+      "type": "object"
+    },
+    "PackageSkill": {
+      "anyOf": [
+        {
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "type": "object"
+        },
+        {
+          "$ref": "#/definitions/InlineSkill"
+        }
+      ],
+      "description": "A skill folder in the package, or an inline Agent Skill."
+    },
+    "ProjectNeed": {
+      "enum": [
+        "required",
+        "none"
+      ],
+      "type": "string"
+    },
+    "RoleStart": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/StartMode"
+        },
+        {
+          "properties": {
+            "schedule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "schedule"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SkillFile": {
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "path"
+      ],
+      "type": "object"
+    },
+    "StartMode": {
+      "enum": [
+        "with_team",
+        "on_demand"
+      ],
+      "type": "string"
+    },
+    "TeamManagers": {
+      "description": "Fixed manager slots with host-known duties.",
+      "properties": {
+        "cartographer": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TeamRole"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "curator": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TeamRole"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "orchestrator": {
+          "$ref": "#/definitions/TeamRole"
+        },
+        "planner": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TeamRole"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "orchestrator"
+      ],
+      "type": "object"
+    },
+    "TeamRole": {
+      "description": "The same field set serves manager slots and workers.",
+      "properties": {
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "files": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "instructions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "instructions_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ModelPreference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reasoning": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "skills": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RoleStart"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tools": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "description": "One ATP package document: the typed form of `team.yaml`, in protocol field order.",
+  "properties": {
+    "authors": {
+      "items": {
+        "$ref": "#/definitions/PackageAuthor"
+      },
+      "type": "array"
+    },
+    "automation": {
+      "items": {
+        "$ref": "#/definitions/PackageAutomation"
+      },
+      "type": "array"
+    },
+    "derived_from": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PackageLineage"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "files": {
+      "items": {
+        "$ref": "#/definitions/PackageFile"
+      },
+      "type": "array"
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "inputs": {
+      "additionalProperties": {
+        "$ref": "#/definitions/PackageInput"
+      },
+      "type": "object"
+    },
+    "license": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "links": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PackageLinks"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "managers": {
+      "$ref": "#/definitions/TeamManagers"
+    },
+    "memory": {
+      "items": {
+        "$ref": "#/definitions/PackageMemory"
+      },
+      "type": "array"
+    },
+    "name": {
+      "type": "string"
+    },
+    "permissions": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PackagePermissions"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "project": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ProjectNeed"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "requires": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PackageRequires"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "secrets": {
+      "items": {
+        "$ref": "#/definitions/PackageSecret"
+      },
+      "type": "array"
+    },
+    "skills": {
+      "items": {
+        "$ref": "#/definitions/PackageSkill"
+      },
+      "type": "array"
+    },
+    "title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "version": {
+      "type": "string"
+    },
+    "when": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "workers": {
+      "additionalProperties": {
+        "$ref": "#/definitions/TeamRole"
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "description",
+    "managers",
+    "name",
+    "version"
+  ],
+  "title": "TeamDocument",
+  "type": "object"
+}

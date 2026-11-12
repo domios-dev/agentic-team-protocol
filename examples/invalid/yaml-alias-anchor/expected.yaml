@@ -1,6 +1,8 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
-# corpus_case names the case that defines the same rule.
+# corpus_case names the case that defines the same rule. Locations, and the
+# invalid_model error at the alias, come from a run of the reference validator
+# (validator_run): an alias is read as an empty value.
 case: yaml-alias-anchor
 form: single-file
 input: input.team.yaml
@@ -13,8 +15,8 @@ errors:
       file: input.team.yaml
       path: workers.researcher.model
       line: 14
-      column: 12
-      detail: anchor &shared_model
+      column: 26
+      detail: anchor &shared_model on the flow sequence that starts at column 26
     severity: error
     code: yaml_anchor
     corpus_case: invalid/anchor-alias.team.yaml
@@ -31,4 +33,17 @@ errors:
     severity: error
     code: yaml_alias
     corpus_case: invalid/anchor-alias.team.yaml
+  - rule: A model is a list of model ids or a same_as mapping; the alias leaves no model value.
+    spec: spec/2026-11-11
+    spec_section: "15.1 Conditions as the reference implementation reports them"
+    quote: "a model list entry that is not <harness>:<model>, reported at that entry; also an empty model list, or a model scalar other than inherit."
+    location:
+      file: input.team.yaml
+      path: workers.writer.model
+      line: 19
+      column: 12
+      detail: the alias *shared_model is read as an empty scalar
+    severity: error
+    code: invalid_model
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
 warnings: []

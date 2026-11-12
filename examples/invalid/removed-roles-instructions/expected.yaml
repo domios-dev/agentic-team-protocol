@@ -39,8 +39,11 @@ errors:
     location:
       file: input.team.yaml
       path: managers
-      detail: the document has no managers mapping
+      line: 1
+      column: 5
+      detail: the document has no managers mapping; the reference validator reports it at the document's first key (validator_run)
     severity: error
     code: missing_field
     corpus_case: invalid/release-train.team.yaml
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
 warnings: []

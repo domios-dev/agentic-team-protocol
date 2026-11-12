@@ -4,9 +4,11 @@ Each case directory holds one input in the form it tests (`input.team.yaml`,
 `input/` folder or `input.team` ZIP) and an `expected.yaml` that names every
 rule the input breaks: the rule, the exact source sentence it traces to, the
 location (file, path or archive entry, line), the severity and the error code.
-Codes come from the Domios conformance corpus, `corpus/2026-11-11/cases.json`:
-`corpus_case` names the corpus case that defines the same rule. A code stays
-`pending` where the corpus has no case for the rule.
+Codes come from the Domios conformance corpus, `corpus/2026-11-11/cases.json`
+(`corpus_case` names the corpus case that defines the same rule), or from a run of
+the reference validator over these examples (`validator_run` names the run; see
+`PROVENANCE.md`). Every expected result matches that run exactly: each listed
+diagnostic is reported, and nothing else is.
 
 - `invalid/`: inputs that must be refused.
 - `warnings/`: valid inputs that must produce the listed warnings and no errors.

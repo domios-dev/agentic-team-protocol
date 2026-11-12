@@ -1,7 +1,7 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# The code stays pending: the Domios conformance corpus (corpus/2026-11-11/cases.json)
-# has invalid derived_from values (invalid/invalid-derived-from.team.yaml), but no
-# case where derived_from is not a mapping.
+# The code and location come from a run of the reference validator (validator_run):
+# the conformance corpus has invalid derived_from values, but no case where
+# derived_from is not a mapping.
 case: invalid-derived-from
 form: single-file
 input: input.team.yaml
@@ -15,6 +15,8 @@ errors:
       file: input.team.yaml
       path: derived_from
       line: 7
+      column: 15
     severity: error
-    code: pending
+    code: expected_mapping
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
 warnings: []

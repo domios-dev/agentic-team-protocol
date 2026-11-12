@@ -45,10 +45,13 @@ Site address: https://atp.domios.dev/ (not yet published)
 
 These artifacts are generated from the reference implementation, not written by hand:
 
-- JSON Schema: _pending: generated from the Domios reference implementation_
+- [JSON Schema](schema/2026-11-11/team.schema.json) for specification version
+  2026-11-11 (JSON Schema draft-07), at its immutable URL
+  `https://atp.domios.dev/schema/2026-11-11/team.schema.json`.
 - [Conformance corpus](corpus/2026-11-11/): valid and invalid packages for specification
   version 2026-11-11, with the codes each case expects in `cases.json`.
-- Reference validator: _pending: generated from the Domios reference implementation_
+- [Reference validator](validator/): the `atp-validate` command-line tool and a
+  WebAssembly module, usable without Domios.
 
 ## Reference implementation
 

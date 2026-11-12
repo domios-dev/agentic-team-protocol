@@ -1,8 +1,9 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # Codes and locations come from the Domios conformance corpus,
 # corpus/2026-11-11/cases.json; corpus_case names the case that defines the same
-# rule (the corpus runs with the Domios host profile). The warning code stays
-# pending: the corpus has no case without a host profile.
+# rule (the corpus runs with the Domios host profile). The warning's code and
+# location come from a run of the reference validator (validator_run) with host
+# profile none; the corpus has no case without a host profile.
 # sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
 # Builtin worker names are a host input: an optional validator host profile.
 # The Domios profile's builtin workers are worker, qa, reviewer and release_manager.
@@ -34,8 +35,9 @@ warnings:
     quote: "without a host profile it is a WARNING (\"inherits the host's default role analyst; invalid on hosts without one\")"
     location:
       file: input.team.yaml
-      path: workers.analyst
+      path: workers.analyst.instructions
       line: 12
       detail: inherits the host's default role analyst; invalid on hosts without one
     severity: warning
-    code: pending
+    code: inherits_host_role
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
