@@ -6,9 +6,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: A top-level skills entry is an object, never a bare string.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "Top-level `skills` entries are objects only ({path} or inline {name, description, content, files}); a bare string there is invalid."
+    spec: spec/2026-11-11
+    spec_section: "9.3.1"
+    quote: "Every top-level `skills` entry MUST be an object. A bare string is an error (bare-string skill)."
     location:
       file: input.team.yaml
       path: skills[0]

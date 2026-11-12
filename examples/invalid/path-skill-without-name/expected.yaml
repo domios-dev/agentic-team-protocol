@@ -2,17 +2,14 @@
 # The code and location come from a run of the reference validator (validator_run);
 # the conformance corpus has no case for this rule. The validator reports the
 # missing name at the skills entry in team.yaml, not inside SKILL.md.
-# sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
 case: path-skill-without-name
 form: folder
 input: input/
 errors:
   - rule: A path skill's SKILL.md frontmatter carries a name; the folder name is never used as a fallback.
-    spec: Orchestrator-relayed owner decision (Elgar, binding)
-    spec_section: ATP package format, roles and model choice
-    quote: "a skills entry with `path: skills/x` whose SKILL.md has no frontmatter `name`. ERROR (Agent Skills requires name; no folder-name fallback)."
-    also_section: "Templates: one existing Team creation rail and default package"
-    also: "skills (inline {name, description, content as SKILL.md, files[]} or {path: <SKILL.md folder>}) register as Team-scoped skills."
+    spec: spec/2026-11-11
+    spec_section: "9.3.3"
+    quote: "The `SKILL.md` of a path-form skill MUST have a `name` in its frontmatter. A `SKILL.md` without one is an error (skill without name). There is no fallback to the folder name."
     location:
       file: input/team.yaml
       path: skills[0].path

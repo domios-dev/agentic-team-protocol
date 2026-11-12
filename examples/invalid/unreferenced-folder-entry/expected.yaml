@@ -6,9 +6,9 @@ form: folder
 input: input/
 errors:
   - rule: Every folder file other than the root team.yaml is referenced by team.yaml.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "Archive and folder rules: exactly one root team.yaml; unreferenced entries are an error; relative paths only (no `..`, no absolute paths, no symlinks); explicit size and count bounds; deterministic entry order so export > import > export is byte-identical."
+    spec: spec/2026-11-11
+    spec_section: "4.2.3"
+    quote: "Every entry other than the root `team.yaml` MUST be the target of a reference (section 4.4). An unreferenced entry is an error (unreferenced entry)."
     location:
       file: input/notes/stray.md
       entry: notes/stray.md

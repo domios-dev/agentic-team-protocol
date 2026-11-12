@@ -6,9 +6,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: The removed role field `kind` is refused.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "Removed from the format: kind, persona, extends, single, includes, intent, needs."
+    spec: spec/2026-11-11
+    spec_section: "11"
+    quote: "The following fields are removed from the format. A package that contains one is invalid (removed field):"
     location:
       file: input.team.yaml
       path: workers.builder.kind

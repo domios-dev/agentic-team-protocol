@@ -10,9 +10,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: There is no top-level `instructions` field.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "There are no top-level instructions and no brief: every role carries its own instructions, the team's overall way of working is written in the orchestrator's instructions, and a starting hint for the planner lives in the planner's instructions."
+    spec: spec/2026-11-11
+    spec_section: "11"
+    quote: "top-level `instructions` (a role's own `instructions` stays valid)"
     location:
       file: input.team.yaml
       path: instructions
@@ -21,10 +21,9 @@ errors:
     code: removed_field
     corpus_case: invalid/removed-top-instructions.team.yaml
   - rule: The superseded top-level `roles` block is refused as a removed field.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "Every other non-`x-` key is strictly typed and unknown keys are errors; there are no top-level coordinator/planner fields."
-    note: The reference implementation reports top-level `roles` as a removed field, not an unknown key; public spec 2026-11-11 section 11 lists it.
+    spec: spec/2026-11-11
+    spec_section: "11"
+    quote: "top-level `roles` (roles are declared under `managers` and `workers`)"
     location:
       file: input.team.yaml
       path: roles
@@ -33,9 +32,9 @@ errors:
     code: removed_field
     corpus_case: invalid/release-train.team.yaml
   - rule: managers.orchestrator is required, so the managers mapping is required.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "Required: only name, version, description and managers.orchestrator."
+    spec: spec/2026-11-11
+    spec_section: "6.2"
+    quote: "The REQUIRED keys are `name`, `version`, `description` and `managers.orchestrator`. All other top-level keys are OPTIONAL. A missing required key is an error (missing required key)."
     location:
       file: input.team.yaml
       path: managers

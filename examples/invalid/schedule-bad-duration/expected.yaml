@@ -2,16 +2,14 @@
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule. The corpus case exercises
 # min > max; the reference implementation reports both conditions as one rule.
-# sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
 case: schedule-bad-duration
 form: single-file
 input: input.team.yaml
 errors:
   - rule: Each schedule bound is a duration matching <positive integer>(m|h).
-    spec: Orchestrator-relayed owner decision (Elgar, binding)
-    spec_section: ATP package format, roles and model choice
-    quote: "ERROR: min > max, or a duration not matching `<positive integer>(m|h)`."
-    also: "start (with_team | on_demand | {schedule: \"<min>..<max>\"}; workers default to on_demand, orchestrator and planner are with_team)"
+    spec: spec/2026-11-11
+    spec_section: "10.4.1"
+    quote: "Each duration MUST match `<positive integer>(m|h)`, where `m` means minutes and `h` means hours, for example `45m` or `2h`. Any other duration is an error (invalid schedule)."
     location:
       file: input.team.yaml
       path: managers.curator.start.schedule

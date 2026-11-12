@@ -6,10 +6,9 @@ form: folder
 input: input/
 errors:
   - rule: Missing referenced file. The icon must point at a file that exists in the package.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "The validator refuses a missing or non-image target."
-    decision: "Orchestrator-relayed owner decision (Elgar, binding): a missing target of any reference (files entry, instructions_file, skill path, automation path, icon) is missing-referenced-file."
+    spec: spec/2026-11-11
+    spec_section: "7.1.2"
+    quote: "A missing icon target is an error (missing referenced file)."
     location:
       file: input/team.yaml
       path: icon

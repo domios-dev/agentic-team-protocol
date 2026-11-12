@@ -527,6 +527,8 @@ Each condition below is named by its rule. Its stable code is the one the confor
 
 A reader MUST refuse a package that has any error. A warning leaves the package valid. A host can, for example, start a team whose role names a skill that does not exist yet.
 
+Conformance is judged per case of the conformance corpus and of the examples ([section 16](#16-generated-artifacts), [section 17](#17-examples)). For any implementation, the normative result of a case is whether the package is accepted or refused, and the error and warning codes reported: each code the case lists, and no other. The location of a diagnostic (file, YAML path, archive entry, line and column) and its message are informative.
+
 ### 15.1 Conditions as the reference implementation reports them
 
 The reference implementation is normative for the conditions below. Each names the conformance corpus case or the example that shows it.

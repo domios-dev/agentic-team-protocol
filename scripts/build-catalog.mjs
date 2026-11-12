@@ -23,16 +23,20 @@
 //  - identity fields (name, version, title, description, derived_from) are parsed
 //    from team.yaml (YAML 1.2, no duplicate keys, no aliases) in every form present;
 //    they must agree, name must be "<scope>/<name>" and version the directory name;
-//  - every checksum is the SHA-256 (lowercase hex) of the bytes served at that path.
+//  - every checksum is the SHA-256 (lowercase hex) of the bytes served at that path;
+//  - the reference validator (the committed WebAssembly module validator/<version>/,
+//    its bytes checked against PROVENANCE.md) accepts the served .team ZIP and, when
+//    present, the single file, under host profiles none and domios, and reports the
+//    entry's own name and version. Any error fails the build. The folder holds the
+//    ZIP's files byte for byte (scripts/check-forms.mjs); scripts/conformance.mjs
+//    validates it with the command-line tool. Each entry records the validator
+//    version in `validation`, with any warnings.
 // `path` and `checksum` name the .team ZIP, the complete package. `forms` lists
 // every served file of the version; `forms.single_file` is null exactly when the
 // version has no single-file form. Paths are relative to the site root (the
 // directory serving catalog.json). Output is deterministic: entries and files in
 // byte order of their path, fixed key order, no timestamps; the only commit-bound
 // value is source_commit.
-//
-// This is not the reference validator, which is pending (generated from the
-// Domios reference implementation in Phase 2); `reference_validation` says so.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -41,6 +45,7 @@ import zlib from 'node:zlib';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { parseDocument } from 'yaml';
+import { referenceWasm, PROFILES, VALIDATOR_VERSION } from './conformance.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const CATALOG_FILE = 'catalog.json';
@@ -254,6 +259,29 @@ export function buildCatalogData({ root = ROOT, out = path.join(ROOT, '_site') }
     if (id.name !== `${scope}/${pkg}`) errors.push(`${dir}: name "${id.name}" does not match the directory ${scope}/${pkg}`);
     if (id.version !== version) errors.push(`${dir}: version "${id.version}" does not match the directory ${version}`);
 
+    // Reference validation of every served form the WebAssembly module reads.
+    const wasm = referenceWasm(root);
+    const warnings = [];
+    const validated = [['zip', zip, (b, p) => wasm.checkArchive(b, p)]];
+    if (hasSingle) validated.push(['single_file', single, (b, p) => wasm.checkYaml(b.toString('utf8'), p)]);
+    for (const [form, rel, run] of validated) {
+      for (const profile of PROFILES) {
+        const report = run(read(rel), profile);
+        const where = `${dir}/${rel} [host profile ${profile}]`;
+        for (const d of report.diagnostics ?? []) {
+          const text = `${d.severity} ${d.code} at ${d.file}${d.path ? ` ${d.path}` : ''}${d.line != null ? ` line ${d.line}` : ''}: ${d.message}`;
+          if (d.severity === 'warning') warnings.push({ form, host_profile: profile, code: d.code, file: d.file, path: d.path, line: d.line ?? null });
+          else errors.push(`${where}: reference validator ${VALIDATOR_VERSION}: ${text}`);
+        }
+        if (!report.valid && !(report.diagnostics ?? []).some((d) => d.severity !== 'warning')) {
+          errors.push(`${where}: reference validator ${VALIDATOR_VERSION}: invalid`);
+        }
+        if (report.valid && (report.name !== id.name || report.version !== id.version)) {
+          errors.push(`${where}: reference validator reads ${report.name}@${report.version}, not ${id.name}@${id.version}`);
+        }
+      }
+    }
+
     const ref = (rel) => ({ path: `${dir}/${rel}`, checksum: sha256(read(rel)) });
     const zipRef = ref(zip);
     entries.push({
@@ -269,6 +297,13 @@ export function buildCatalogData({ root = ROOT, out = path.join(ROOT, '_site') }
         zip: zipRef,
         folder: { path: `${dir}/${folder}`, files: folderFiles.map(ref) },
       },
+      validation: {
+        validator_version: VALIDATOR_VERSION,
+        forms: validated.map(([form]) => form),
+        host_profiles: PROFILES,
+        valid: true,
+        warnings,
+      },
     });
   }
 
@@ -278,7 +313,12 @@ export function buildCatalogData({ root = ROOT, out = path.join(ROOT, '_site') }
   return {
     source_commit: commit,
     checksum_algorithm: 'sha256',
-    reference_validation: 'pending: the reference validator is generated from the Domios reference implementation in Phase 2',
+    reference_validation: {
+      validator: 'atp-validate',
+      validator_version: VALIDATOR_VERSION,
+      module: `validator/${VALIDATOR_VERSION}/atp_validate_bg.wasm`,
+      note: 'Every entry is valid under the reference validator in the forms and host profiles its validation lists; the folder holds the same files as the ZIP.',
+    },
     packages: entries,
   };
 }

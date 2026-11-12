@@ -5,6 +5,46 @@ All notable changes to the Agentic Team Protocol repository are documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 specification is versioned by date (`spec/<YYYY-MM-DD>/`) rather than by semantic version.
 
+## [Unreleased]: Phase 2
+
+Phase 2 adds the generated JSON Schema, conformance corpus and reference validator
+(recorded in `PROVENANCE.md`; see Pending below) and makes them a CI gate that an
+outside consumer can reproduce without Domios.
+
+### Added
+
+- `scripts/conformance.mjs`: runs the released `atp-validate` 2026.11.11 (its SHA-256
+  checked against `validator/README.md` and `PROVENANCE.md`) and the committed
+  WebAssembly module over every package version in every form it ships, every
+  `examples/` case and every corpus case, under host profiles `none` and `domios`
+  (the corpus under `domios`, as the reference implementation runs it). Packages must be
+  valid with no diagnostic; examples must produce exactly their listed diagnostics,
+  locations included; corpus cases must match `valid`, report every listed diagnostic
+  and no unlisted code; the WebAssembly report must equal the command-line report. It
+  also checks that every example quote appears in the cited specification section.
+- `.github/workflows/conformance.yml`: on fresh Linux, macOS and Windows runners without
+  Domios, installs the validator from the GitHub Release `validator-2026.11.11` with the
+  install commands of `validator/README.md`, verifies `SHA256SUMS`, runs
+  `scripts/conformance.mjs`, and requires identical result summaries on every platform.
+- `scripts/check-served.mjs <base-url>`: fetches every schema, corpus and validator file
+  recorded in `PROVENANCE.md` and every path in the served `catalog.json`, and compares
+  their SHA-256 with the records and this checkout. `PUBLICATION.md` is the evidence
+  template filled from it after the owner's publication approval.
+
+### Changed
+
+- The catalog build validates every entry's `.team` ZIP and single file with the
+  reference validator under host profiles `none` and `domios` and fails on any error;
+  each entry records the validator version in `validation`. The catalog page no longer
+  says validation is pending.
+- `validator/README.md` links the release `validator-2026.11.11` and gives copyable
+  install commands for Linux, macOS and Windows.
+- The specification (section 15) and `examples/README.md` state that accept or refuse
+  plus the error and warning codes are normative, and locations informative.
+- `examples/**/expected.yaml` cite the public specification by section number with a
+  verbatim quote; internal planning references are removed. Codes, locations and
+  inputs are unchanged.
+
 ## [Unreleased]: Phase 1
 
 Phase 1 publishes the static, read-only Agentic Team Protocol site: overview, the dated
@@ -54,8 +94,8 @@ artifacts (JSON Schema, conformance corpus, reference validator) are pending.
   `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` and licensed Apache-2.0 like the Domios
   components they come from. The stable codes in
   `examples/**/expected.yaml` and specification section 15 come from the corpus and from
-  the validator's run over the examples. Catalog entries are not yet validated by the
-  reference validator.
+  the validator's run over the examples. Catalog entries are validated by the reference
+  validator (see Phase 2).
 - Builtin package `dev.domios/default` 1.0.0 (Phase 2): published in the folder and
   `.team` ZIP forms, byte-identical to `src-tauri/team-templates/default/` at Domios
   commit `46078622b77e6bbb4aeca70a779e7cef819fd60d`.

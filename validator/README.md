@@ -16,18 +16,54 @@ the source commit, see [PROVENANCE.md](../PROVENANCE.md#licenses).
 
 | Build | Where |
 | --- | --- |
-| `atp-validate` command-line tool (Linux, macOS, Windows) | GitHub Release of this repository (pending: created on owner approval) |
+| `atp-validate` command-line tool (Linux, macOS, Windows) | GitHub Release [`validator-2026.11.11`](https://github.com/domios-dev/agentic-team-protocol/releases/tag/validator-2026.11.11) of this repository: four binaries and `SHA256SUMS` |
 | WebAssembly module for browsers and JavaScript runtimes | [`2026.11.11/`](2026.11.11/) |
 
 ## Command-line tool
 
 ### Install
 
-1. Download the binary for your platform from the GitHub Release.
-2. Check its SHA-256 against the table below, for example `sha256sum <file>` (on macOS,
-   `shasum -a 256 <file>`).
-3. Rename it to `atp-validate` (`atp-validate.exe` on Windows) and put it on your `PATH`.
-   On Linux and macOS, run `chmod +x atp-validate` first.
+1. Download the binary for your platform and `SHA256SUMS` from the release
+   [`validator-2026.11.11`](https://github.com/domios-dev/agentic-team-protocol/releases/tag/validator-2026.11.11).
+2. Check the binary's SHA-256 against `SHA256SUMS` and the table below.
+3. Rename it to `atp-validate` (`atp-validate.exe` on Windows) and put it in a directory
+   on your `PATH`. On Linux and macOS, make it executable first.
+
+On Linux or macOS (set `target` to `aarch64-apple-darwin` on Apple silicon or
+`x86_64-apple-darwin` on an Intel Mac):
+
+<!-- install:posix -->
+```sh
+target=x86_64-unknown-linux-musl
+release=https://github.com/domios-dev/agentic-team-protocol/releases/download/validator-2026.11.11
+curl -fsSLO "$release/atp-validate-$target"
+curl -fsSLO "$release/SHA256SUMS"
+grep " atp-validate-$target\$" SHA256SUMS | shasum -a 256 -c -
+chmod +x "atp-validate-$target"
+mkdir -p "$HOME/.local/bin"
+mv "atp-validate-$target" "$HOME/.local/bin/atp-validate"
+```
+
+On Windows (PowerShell):
+
+<!-- install:powershell -->
+```powershell
+$file = 'atp-validate-x86_64-pc-windows-msvc.exe'
+$release = 'https://github.com/domios-dev/agentic-team-protocol/releases/download/validator-2026.11.11'
+Invoke-WebRequest "$release/$file" -OutFile $file
+Invoke-WebRequest "$release/SHA256SUMS" -OutFile SHA256SUMS
+$expected = (Select-String -Path SHA256SUMS -Pattern " $file$").Line.Split(' ')[0]
+if ((Get-FileHash $file -Algorithm SHA256).Hash -ne $expected) { throw "SHA-256 mismatch: $file" }
+New-Item -ItemType Directory -Force "$HOME\bin" | Out-Null
+Move-Item -Force $file "$HOME\bin\atp-validate.exe"
+```
+
+Then add `$HOME/.local/bin` (Windows: `$HOME\bin`) to your `PATH` if it is not on it, and
+run `atp-validate <path>`. The binaries are not code-signed; on macOS, remove the
+quarantine attribute if the system blocks the binary
+(`xattr -d com.apple.quarantine "$HOME/.local/bin/atp-validate"`).
+
+The release binaries and their SHA-256:
 
 | File | Platform | SHA-256 |
 | --- | --- | --- |
@@ -103,3 +139,12 @@ The JSON report has `format`, `valid`, `name` and `version` (when readable) and
 package-relative `file`, the YAML `path` of the node, `line` and `column` where known, and a
 `message`. The conformance corpus in `corpus/<spec version>/cases.json` lists the codes,
 paths and lines each case expects.
+
+## Conformance run
+
+With the command-line tool installed as above, `npm ci` and then
+`node scripts/conformance.mjs` in a checkout of this repository run it, and the
+WebAssembly module, over every package form, every example and every corpus case, and
+fail on any difference from the recorded results. The workflow
+`.github/workflows/conformance.yml` does the same on fresh Linux, macOS and Windows
+runners, installing the tool with the commands above.

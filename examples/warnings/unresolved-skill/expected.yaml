@@ -8,10 +8,9 @@ input: input.team.yaml
 errors: []
 warnings:
   - rule: A role skill name that no package skill provides is an unresolved skill reference, reported as a warning with an explanation.
-    spec: sp_b3v164
-    spec_section: "Templates: one existing Team creation rail and default package"
-    quote: "An unresolved skill reference is a warning with an explanation, shown in the preview and returned by start, so a template can ship before its skill exists; malformed packages still refuse."
-    also: "Role-level `skills` are bare names referencing package skills."
+    spec: spec/2026-11-11
+    spec_section: "10.3"
+    quote: "A name that matches no package skill is a warning, not an error (unresolved skill reference)."
     location:
       file: input.team.yaml
       path: workers.researcher.skills[0]
