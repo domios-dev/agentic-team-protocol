@@ -25,6 +25,13 @@ specification and published packages stable for everyone who depends on them.
   change. `scripts/check-immutability.mjs` then accepts modified (not added or deleted) files
   in that version, and only while the entry is new relative to the base commit, so once merged
   it allows nothing further; a malformed exceptions file fails the check.
+- An entry may instead carry an `"added"` array of exact file paths relative to the version
+  directory: then only those files may be added, each must really be added, and every other
+  change to that version, a modification included, still fails.
+- Every package version published from now on publishes the `.team` bytes the Domios exporter
+  writes (`team export --format team`) as-is, so the archive has one writer; it is never
+  re-packed here. com.example/research-desk 2.1.0 and dev.domios/default 1.0.0 keep the
+  archives `scripts/pack-team.mjs` packed for them.
 - Package files are served exactly as committed. Do not reformat or re-encode them.
 - Each package states its own license. Published packages and examples contain no personal
   names, handles or personal URLs; use `com.example` and neutral authors.

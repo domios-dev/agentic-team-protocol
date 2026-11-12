@@ -52,8 +52,17 @@ artifacts (JSON Schema, conformance corpus, reference validator) are pending.
   validated by the reference validator.
 - Builtin package `dev.domios/default` 1.0.0 (Phase 2): published in the folder and
   `.team` ZIP forms, byte-identical to `src-tauri/team-templates/default/` at Domios
-  commit `46078622b77e6bbb4aeca70a779e7cef819fd60d`. Its single-file form is pending: it
-  will come from the Domios exporter and is never authored here.
+  commit `46078622b77e6bbb4aeca70a779e7cef819fd60d`.
+- `dev.domios/default` 1.0.0 single-file form `default.team.yaml`: the Domios exporter's
+  output byte for byte (`team export dev.domios/default --format yaml` at Domios commit
+  `a7374d38447289ded47f01849bbdb45799720ce8`, SHA-256
+  `55dd56f313a78fc666f304bfd9d613cbcf6804a394487815f592cfa012b45a91`), added before first
+  public serving. The version now ships all three forms; its packed `.team` ZIP is unchanged.
+- `scripts/check-immutability.mjs`: a one-time entry may carry an `"added"` array of exact
+  file paths; only those files may then be added to the published version, each must be
+  added, and any other change still fails. A malformed `"added"` array exits 2.
+- From the next published package version on, the `.team` archive is the Domios exporter's
+  output as-is (`team export --format team`) and is never re-packed in this repository.
 - The single-file form is optional per published version. The format still defines three
   forms; the ZIP and folder forms stay mandatory. `scripts/check-forms.mjs` prints a
   `note` for a version without a single file. `scripts/build-catalog.mjs` emits

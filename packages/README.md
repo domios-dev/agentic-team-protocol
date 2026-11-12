@@ -28,7 +28,11 @@ The root `.gitattributes` disables line-ending conversion for `packages/**` and
 `examples/**`, so the bytes and their checksums survive any checkout.
 
 Phase 1 published com.example/research-desk 2.1.0. Phase 2 adds the builtin
-dev.domios/default 1.0.0 from the Domios tree.
+dev.domios/default 1.0.0 from the Domios tree, in all three forms.
+
+Both versions above keep the `.team` ZIP packed here by `scripts/pack-team.mjs`.
+Every later published version publishes the `.team` bytes of the Domios exporter
+as-is (see [CONTRIBUTING.md](../CONTRIBUTING.md)).
 
 ## dev.domios/default 1.0.0
 
@@ -46,12 +50,41 @@ the header comment of `team.yaml`. Nothing is added, removed or reformatted.
 - `icon.svg`: the package icon
 - `managers/*.md`, `workers/*.md`: each role's `instructions_file`
 
-### Single file: none yet
+### Single file: `default.team.yaml`
 
-Domios ships no single-file form of this package at that commit, so this version
-has none. Its document uses `instructions_file`, which is valid only in the ZIP and
-folder forms. The single-file form is to come from the Domios exporter; it is not
-authored or derived here.
+`default.team.yaml` is the output of the Domios exporter, byte for byte. It was not
+authored, derived or reformatted here. It was added after the version's first
+commit through a one-time entry in `IMMUTABILITY-EXCEPTIONS.json` that allows
+exactly this file to be added; no other byte of the version changed.
+
+Provenance:
+
+- Domios commit: `a7374d38447289ded47f01849bbdb45799720ce8`
+- Command: `team export dev.domios/default --format yaml` (Domios CLI)
+- SHA-256: `55dd56f313a78fc666f304bfd9d613cbcf6804a394487815f592cfa012b45a91`
+  (LF line endings only)
+- `team check` on the exported file at export time: valid, 0 warnings
+- The same export with `--format folder` wrote the 10 files of `default/`, each
+  byte-identical to the file committed here.
+
+### ZIP: packed here, same entries as the exporter's
+
+For this version the contract is the per-file contents, and `default.team` stays
+the archive packed here (SHA-256
+`10ac7cf261e66da38c885ddcf85bacaae0689b4632f8aed7dddab7f413a2bb9b`). The same
+export with `--format team` produced an archive with SHA-256
+`575bd0e4f1105c85e4a6a566fd0c78abb73cdfc82e86ee8dfa5f52744b6c6fd4`. Both hold the same
+10 entry names with identical bytes, both are 60675 bytes long, store every entry
+uncompressed with the timestamp 1980-01-01 00:00:00 and carry no extra fields,
+comments or data descriptors. The containers differ only in these fields:
+
+| Field | Packed here | Domios exporter |
+| --- | --- | --- |
+| Entry order | byte order of the path (`team.yaml` sixth) | `team.yaml` first, then byte order |
+| Version made by | 20 (2.0), MS-DOS host | 10 (1.0), Unix host |
+| Version needed to extract | 20 (2.0) | 10 (1.0) |
+| General purpose flags | `0x0800` (UTF-8 names) | `0x0000` (all names are ASCII) |
+| External attributes | `0` | `0x81A40000` (Unix regular file, mode 0644) |
 
 ## com.example/research-desk 2.1.0
 
