@@ -16,12 +16,15 @@ form when its package does not ship one, for example because its document uses
 `node scripts/check-forms.mjs` prints a `note` line for each such version, and its
 catalog entry has `forms.single_file: null`.
 
-`node scripts/pack-team.mjs` builds every `.team` from its folder. Archives are
-deterministic: entries sorted by byte order of their path, files only, stored
-without compression, fixed timestamp 1980-01-01 00:00, zero attributes, no extra
-fields or comments. `node scripts/check-forms.mjs` checks that each ZIP holds
-exactly the folder's files byte for byte, that a re-pack is byte-identical, and
-that text files use LF only. The [reference validator](../validator/) checks every
+`node scripts/pack-team.mjs` builds the `.team` from its folder only for the versions
+listed in its `PACK_TEAM_VERSIONS` (com.example/research-desk 2.1.0 and
+dev.domios/default 1.0.0). Those archives are deterministic: entries sorted by byte
+order of their path, files only, stored without compression, fixed timestamp
+1980-01-01 00:00, zero attributes, no extra fields or comments. Every later version
+ships the `.team` the Domios exporter writes, unchanged; the script never writes it.
+`node scripts/check-forms.mjs` checks that each ZIP holds exactly the folder's files
+byte for byte and matches its writer's container profile, that a re-pack of the
+listed versions is byte-identical, and that text files use LF only. The [reference validator](../validator/) checks every
 form: `node scripts/conformance.mjs` runs it on each form under host profiles `none`
 and `domios`, and the catalog build fails when a version does not validate.
 
