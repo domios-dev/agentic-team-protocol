@@ -1,5 +1,6 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# The code and location come from a run of the reference validator (validator_run);
+# the conformance corpus has no case for this rule.
 case: malformed-yaml
 form: single-file
 input: input.team.yaml
@@ -10,10 +11,11 @@ errors:
     quote: "An unresolved skill reference is a warning with an explanation, shown in the preview and returned by start, so a template can ship before its skill exists; malformed packages still refuse."
     location:
       file: input.team.yaml
-      path: managers.orchestrator.model
-      line: 9
-      column: 12
-      detail: the flow sequence opened at this `[` is never closed; a parser reports it here or at the next key (line 10)
+      path: ""
+      line: 10
+      column: 17
+      detail: the flow sequence opened on line 9 is never closed; the reference validator reports it at line 10
     severity: error
-    code: pending
+    code: yaml_syntax
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
 warnings: []

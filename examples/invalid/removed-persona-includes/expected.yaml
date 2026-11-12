@@ -1,5 +1,7 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule (the removed-field rule;
+# the corpus exercises it with kind, includes, instructions, brief and roles).
 case: removed-persona-includes
 form: single-file
 input: input.team.yaml
@@ -13,7 +15,8 @@ errors:
       path: workers.builder.persona
       line: 14
     severity: error
-    code: pending
+    code: removed_field
+    corpus_case: invalid/removed-kind.team.yaml
   - rule: The removed role field `includes` is refused.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
@@ -23,5 +26,6 @@ errors:
       path: workers.builder.includes
       line: 15
     severity: error
-    code: pending
+    code: removed_field
+    corpus_case: invalid/role-includes.team.yaml
 warnings: []

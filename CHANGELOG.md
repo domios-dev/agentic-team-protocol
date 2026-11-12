@@ -47,9 +47,15 @@ artifacts (JSON Schema, conformance corpus, reference validator) are pending.
 ### Pending
 
 - `com.example/research-desk` 2.1.0 author URL is `https://example.com/jane`, corrected before first public serving through a one-time entry in `packages/IMMUTABILITY-EXCEPTIONS.json` honoured by `scripts/check-immutability.mjs`.
-- JSON Schema, conformance corpus and reference validator: pending, generated from the
-  Domios reference implementation in Phase 2. Until then catalog entries are not
-  validated by the reference validator.
+- Generated artifacts (Phase 2), recorded in `PROVENANCE.md`: the JSON Schema
+  `schema/2026-11-11/team.schema.json`, the conformance corpus `corpus/2026-11-11/` and
+  the reference validator `validator/` (version `2026.11.11`,
+  chosen by the owner), built by `.github/workflows/validator.yml` from Domios
+  `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` and licensed Apache-2.0 like the Domios
+  components they come from. The stable codes in
+  `examples/**/expected.yaml` and specification section 15 come from the corpus and from
+  the validator's run over the examples. Catalog entries are not yet validated by the
+  reference validator.
 - Builtin package `dev.domios/default` 1.0.0 (Phase 2): published in the folder and
   `.team` ZIP forms, byte-identical to `src-tauri/team-templates/default/` at Domios
   commit `46078622b77e6bbb4aeca70a779e7cef819fd60d`. Its single-file form is pending: it

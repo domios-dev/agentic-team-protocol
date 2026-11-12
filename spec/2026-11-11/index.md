@@ -3,7 +3,7 @@
 - **Version:** 2026-11-11
 - **Status:** Draft. This version stays a draft until its first publication on the Agentic Team Protocol site. After that publication its text is immutable, and any change requires a new dated version.
 - **Companion page:** [Host behaviour (non-normative)](host-behaviour.md)
-- **Generated artifacts:** the JSON Schema (`$schema` URL), stable error codes, conformance corpus and reference validator are pending: generated from the Domios reference implementation (see [section 16](#16-pending-generated-artifacts)).
+- **Generated artifacts:** the JSON Schema is published at [https://atp.domios.dev/schema/2026-11-11/team.schema.json](../../schema/2026-11-11/team.schema.json) (JSON Schema draft-07), the conformance corpus at [corpus/2026-11-11/](../../corpus/2026-11-11/), and the reference validator at [validator/](../../validator/). The corpus and the validator define the stable codes in [section 15](#15-error-and-warning-conditions) (see [section 16](#16-generated-artifacts)).
 
 ## 1. Scope
 
@@ -27,7 +27,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - **Error:** a condition that makes a package invalid. A reader MUST refuse an invalid package.
 - **Warning:** a condition that a reader MUST report and that leaves the package valid.
 
-Error and warning conditions are named by the rule that defines them. [Section 15](#15-error-and-warning-conditions) lists them. Their stable error codes are pending.
+Error and warning conditions are named by the rule that defines them. [Section 15](#15-error-and-warning-conditions) lists them with their stable codes, taken from the conformance corpus and the reference validator; a condition that neither covers keeps its code pending.
 
 ## 3. Versioning
 
@@ -173,7 +173,7 @@ derived_from:
 2. A missing icon target is an error (**missing referenced file**).
 3. A reader MUST validate the icon by its content, not by its file name. A target that is not an SVG or PNG image is an error (**invalid icon**).
 4. In the single-file form, an SVG icon resolves inline through a `files` entry whose `path` equals the `icon` path and which has `content` ([section 9.1](#91-files)).
-5. A PNG icon needs the ZIP or folder form.
+5. A PNG icon needs the ZIP or folder form. A PNG icon whose path names a `files` entry with inline `content` is an error (**inline binary icon**): only an SVG icon can be inline. A PNG icon path with no inline content and no package file is a missing referenced file (item 2).
 
 Canonical example:
 
@@ -450,6 +450,9 @@ The following fields are removed from the format. A package that contains one is
 - top-level `instructions` (a role's own `instructions` stays valid)
 - top-level `instructions_file` (a role's own `instructions_file` stays valid)
 - top-level `brief`
+- top-level `roles` (roles are declared under `managers` and `workers`)
+
+The error is reported at the removed key. `model: inherit` is reported with its own code ([section 15.1](#151-conditions-as-the-reference-implementation-reports-them)).
 
 Role count is set by the group instead ([section 10.1](#101-manager-slots), [section 10.2](#102-workers)). Machine placement is not an author field in this version. Placement is host-side registration data.
 
@@ -481,50 +484,81 @@ A host appends its own runtime text to a role's instructions when it composes th
 
 ## 15. Error and warning conditions
 
-Each condition below is named by its rule. Stable error codes are pending: generated from the Domios reference implementation.
+Each condition below is named by its rule. Its stable code is the one the conformance corpus ([section 16](#16-generated-artifacts)) expects for that condition or, where the corpus has no case, the one the reference validator reports for the matching example under `examples/`. A condition that neither covers yet keeps the code pending: generated from the Domios reference implementation.
 
-| Condition | Kind | Rule |
-|---|---|---|
-| malformed YAML | error | [5](#5-yaml-rules).9 |
-| YAML anchor or alias | error | [5](#5-yaml-rules).2 |
-| duplicate key | error | [5](#5-yaml-rules).3 |
-| tab indentation | error | [5](#5-yaml-rules).4 |
-| missing required key | error | [6](#6-top-level-structure).2, [10.1](#101-manager-slots).1 |
-| unknown key | error | [6](#6-top-level-structure).3, [10.1](#101-manager-slots).2, [10.3](#103-role-fields), [12](#12-extensions).1 |
-| invalid value | error | [6](#6-top-level-structure).4 |
-| invalid package name | error | [7](#7-identity-block) (`name`, `derived_from.name`) |
-| invalid model id | error | [10.5](#105-model).1 |
-| invalid role name | error | [10.2](#102-workers).1 |
-| reserved worker name | error | [10.2](#102-workers).2 |
-| missing instructions (with a host profile) | error | [10.7](#107-roles-with-host-defaults).7 |
-| skill without name | error | [9.3](#93-skills).3 |
-| invalid schedule | error | [10.4](#104-start).1, [10.4](#104-start).2 |
-| input default not in choices | error | [8](#8-start-asks-block) (`inputs` full form) |
-| removed field | error | [11](#11-removed-fields) |
-| bare-string skill | error | [9.3](#93-skills).1 |
-| unknown same_as role | error | [10.5](#105-model).2 |
-| same_as cycle | error | [10.5](#105-model).2 |
-| instructions and instructions_file both set | error | [10.3](#103-role-fields).2 |
-| invalid icon | error | [7.1](#71-icon).3 |
-| missing referenced file | error | [4.1](#41-single-file-form).3, [4.4](#44-references).2, [7.1](#71-icon).2, [9.1](#91-files).2, [10.3](#103-role-fields), [10.6](#106-instructions).4 |
-| missing or duplicate root team.yaml | error | [4.2](#42-zip-and-folder-forms).1 |
-| unreferenced entry | error | [4.2](#42-zip-and-folder-forms).3 |
-| unsafe path (`..`, absolute path, symbolic link) | error | [4.2](#42-zip-and-folder-forms).4 |
-| bound exceeded | error | [4.3](#43-bounds) |
-| unresolved skill reference | warning | [10.3](#103-role-fields) |
-| inherits host default role (without a host profile) | warning | [10.7](#107-roles-with-host-defaults).5 |
+| Condition | Kind | Rule | Code |
+|---|---|---|---|
+| malformed YAML | error | [5](#5-yaml-rules).9 | `yaml_syntax` |
+| more than one YAML document | error | [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `multiple_documents` |
+| YAML anchor or alias | error | [5](#5-yaml-rules).2 | `yaml_anchor`, `yaml_alias` |
+| duplicate key | error | [5](#5-yaml-rules).3 | `duplicate_key` |
+| tab indentation | error | [5](#5-yaml-rules).4 | `tab_indentation` |
+| missing required key | error | [6](#6-top-level-structure).2, [10.1](#101-manager-slots).1 | `missing_field` |
+| unknown key | error | [6](#6-top-level-structure).3, [10.1](#101-manager-slots).2, [10.3](#103-role-fields), [12](#12-extensions).1 | `unknown_field` |
+| invalid value | error | [6](#6-top-level-structure).4 | pending |
+| invalid package name | error | [7](#7-identity-block) (`name`) | pending |
+| invalid derived_from | error | [7](#7-identity-block) (`derived_from.name`, `derived_from.version`) | `invalid_derived_from` |
+| invalid model id | error | [10.5](#105-model).1 | `invalid_model` |
+| invalid role name | error | [10.2](#102-workers).1 | pending |
+| reserved worker name | error | [10.2](#102-workers).2 | `reserved_role_name` |
+| missing instructions (with a host profile) | error | [10.7](#107-roles-with-host-defaults).7 | `missing_field` |
+| skill without name | error | [9.3](#93-skills).3 | `missing_field` |
+| invalid schedule | error | [10.4](#104-start).1, [10.4](#104-start).2 | `invalid_schedule` |
+| orchestrator not started with the team | error | [10.1](#101-manager-slots), [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `invalid_start` |
+| plan, spec or task template | error | [14](#14-out-of-scope-for-this-version), [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `plan_template_unsupported` |
+| input default not in choices | error | [8](#8-start-asks-block) (`inputs` full form) | pending |
+| removed field | error | [11](#11-removed-fields) | `removed_field` |
+| removed `model: inherit` | error | [11](#11-removed-fields), [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `removed_inherit` |
+| bare-string skill | error | [9.3](#93-skills).1 | `expected_mapping` |
+| unknown same_as role | error | [10.5](#105-model).2 | `unknown_same_as` |
+| same_as cycle | error | [10.5](#105-model).2 | `same_as_cycle` |
+| instructions and instructions_file both set | error | [10.3](#103-role-fields).2 | pending |
+| invalid icon | error | [7.1](#71-icon).3 | `icon_not_image` |
+| SVG icon with script | error | [7.1](#71-icon).3, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `svg_script` |
+| SVG icon with external reference | error | [7.1](#71-icon).3, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `svg_external_reference` |
+| inline binary icon | error | [7.1](#71-icon).5 | `binary_inline` |
+| missing referenced file | error | [4.1](#41-single-file-form).3, [4.4](#44-references).2, [7.1](#71-icon).2, [9.1](#91-files).2, [10.3](#103-role-fields), [10.6](#106-instructions).4 | `missing_file` |
+| missing or duplicate root team.yaml | error | [4.2](#42-zip-and-folder-forms).1 | pending |
+| unreferenced entry | error | [4.2](#42-zip-and-folder-forms).3 | `unreferenced_entry` |
+| unsafe path (`..`, absolute path, symbolic link) | error | [4.2](#42-zip-and-folder-forms).4 | `..`: `path_escape`; absolute path: `absolute_path`; symbolic link: pending |
+| bound exceeded | error | [4.3](#43-bounds) | pending |
+| unresolved skill reference | warning | [10.3](#103-role-fields) | `unresolved_skill` |
+| inherits host default role (without a host profile) | warning | [10.7](#107-roles-with-host-defaults).5 | `inherits_host_role` |
 
 A reader MUST refuse a package that has any error. A warning leaves the package valid. A host can, for example, start a team whose role names a skill that does not exist yet.
 
-## 16. Pending generated artifacts
+### 15.1 Conditions as the reference implementation reports them
 
-The following artifacts come from the Domios reference implementation. Until they are generated and published, each one is pending:
+The reference implementation is normative for the conditions below. Each names the conformance corpus case or the example that shows it.
 
-- **JSON Schema and `$schema` URL:** pending: generated from the Domios reference implementation.
-- **Stable error codes** for the conditions in [section 15](#15-error-and-warning-conditions): pending: generated from the Domios reference implementation.
+- **malformed YAML** (`yaml_syntax`): reported at the line and column where the YAML parser detects the error, which can be after the construct that causes it. Example: `examples/invalid/malformed-yaml/` (an unclosed flow sequence on line 9, reported on line 10).
+- **skill without name** (`missing_field`): reported in the package document at the skill's `skills[].path`, not inside `SKILL.md`. Example: `examples/invalid/path-skill-without-name/`.
+- **unsafe path** (`path_escape`, `absolute_path`): reported for the archive entry and for each reference that names it; such a reference is also a missing referenced file (`missing_file`). Examples: `examples/invalid/zip-entry-dotdot/`, `examples/invalid/zip-entry-absolute/`.
+- **inherits host default role** (`inherits_host_role`): without a host profile, reported at the worker's `instructions` path. Example: `examples/invalid/new-worker-without-instructions/`.
+- **YAML anchor or alias** (`yaml_anchor`, `yaml_alias`): an anchor is reported at its node; an alias is reported at its position and read as an empty value, so the key that holds it usually also has a type error. Corpus: `invalid/anchor-alias.team.yaml`; example: `examples/invalid/yaml-alias-anchor/`.
+
+- **more than one YAML document** (`multiple_documents`): a package document holds exactly one YAML document. A second document start is an error, reported at that line. Corpus: `invalid/build-owner.md`.
+- **tab indentation** (`tab_indentation`): a line that starts with a tab character is an error, reported at the first such line. Corpus: `invalid/tab-indentation.team.yaml`.
+- **unknown key** (`unknown_field`): reported at the key. Corpus: `invalid/unknown-field.team.yaml` (top-level `colour`).
+- **invalid derived_from** (`invalid_derived_from`): `derived_from.name` that does not follow the package name grammar of [section 7](#7-identity-block), or `derived_from.version` that is not a semantic version. Each is reported at its own key. Corpus: `invalid/invalid-derived-from.team.yaml`.
+- **invalid model id** (`invalid_model`): a model list entry that is not `<harness>:<model>`, reported at that entry; also an empty model list, or a `model` scalar other than `inherit`. Corpus: `invalid/invalid-model.team.yaml` (`model: [opus]`).
+- **removed `model: inherit`** (`removed_inherit`): the removed form `model: inherit`; use `model: {same_as: <role>}`. Corpus: `invalid/removed-inherit.team.yaml`.
+- **orchestrator not started with the team** (`invalid_start`): the orchestrator always starts with the team, so a `start` other than `with_team` on `managers.orchestrator` is an error, reported at `managers.orchestrator.start`. Corpus: `invalid/orchestrator-on-demand.team.yaml`.
+- **plan, spec or task template** (`plan_template_unsupported`): a top-level `plan`, `plans`, `spec`, `specs`, `tasks` or `goal` key is an error ([section 14](#14-out-of-scope-for-this-version)). Corpus: `invalid/plan-template.team.yaml`.
+- **SVG icon with script** (`svg_script`): an SVG icon that contains a `script` or `foreignObject` element, or an attribute whose name starts with `on`. Reported at `icon`. Corpus: `invalid/icon-svg-script.team.yaml`.
+- **SVG icon with external reference** (`svg_external_reference`): an SVG icon with an `href`, `*:href` or `src` attribute, or a CSS `url(...)`, whose target is not an in-document `#` reference; or one that uses `@import` or `javascript:`, or declares a DTD. Reported at `icon`. Corpus: `invalid/icon-svg-external.team.yaml`.
+- **inline binary icon** (`binary_inline`): a PNG icon whose path names a `files` entry with inline `content` ([section 7.1](#71-icon).5). Reported at `icon`. Corpus: `invalid/icon-png-inline.team.yaml`.
+
+## 16. Generated artifacts
+
+The following artifacts come from the Domios reference implementation. Each one is generated, never written by hand; until it is generated and published, it is pending:
+
+- **Conformance corpus:** [corpus/2026-11-11/](../../corpus/2026-11-11/). Valid and invalid packages; `cases.json` lists each case with the codes, paths and lines it expects. Its source commit and checksums are in `PROVENANCE.md` in the repository.
+- **Stable error codes** for the conditions in [section 15](#15-error-and-warning-conditions): taken from the conformance corpus, or, for a condition without a corpus case, from the reference validator's report on the examples. A condition that neither covers keeps its code pending.
+- **JSON Schema:** [https://atp.domios.dev/schema/2026-11-11/team.schema.json](../../schema/2026-11-11/team.schema.json), which is also its `$id`. It is written in JSON Schema draft-07 (`$schema`: `http://json-schema.org/draft-07/schema#`); the generator has no 2020-12 mode. The schema describes the structure of a package document. The rules in this document that the schema cannot express, such as references, `same_as` resolution and archive rules, are checked by the reference validator. A published dated schema never changes.
+- **Reference validator:** [validator/](../../validator/): the `atp-validate` command-line tool and a WebAssembly module, with installation and use described there.
 - **Bound values** ([section 4.3](#43-bounds)) and the **ZIP entry order** ([section 4.2](#42-zip-and-folder-forms).5): pending: generated from the Domios reference implementation.
 - **`reasoning` value set** ([section 10.3](#103-role-fields)): pending: generated from the Domios reference implementation.
-- **Conformance corpus and reference validator:** pending: generated from the Domios reference implementation.
 
 ## 17. Examples
 

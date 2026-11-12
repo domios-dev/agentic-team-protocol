@@ -1,5 +1,6 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 case: same-as-unknown-role
 form: single-file
 input: input.team.yaml
@@ -14,5 +15,6 @@ errors:
       line: 15
       detail: the team has no role named coordinator
     severity: error
-    code: pending
+    code: unknown_same_as
+    corpus_case: invalid/same-as-unknown.team.yaml
 warnings: []

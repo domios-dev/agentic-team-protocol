@@ -1,15 +1,19 @@
 #!/usr/bin/env node
-// Keeps every published Agentic Team Protocol package version immutable.
+// Keeps every published Agentic Team Protocol package version, dated JSON Schema
+// and dated conformance corpus immutable.
 //
 //   node scripts/check-immutability.mjs --base <ref> [--head <ref>]
 //
-// A published version is a directory packages/<scope>/<name>/<version>/ that exists
-// in --base (the pull request base, or the previous main commit on a push). Compared
-// with --head (default: the working tree, including untracked files), any modified,
-// deleted, type-changed or added file inside a published version fails; a change
-// needs a new version directory. Adding files in a new version directory passes.
-// Files outside version directories (for example packages/README.md) are not
-// published versions and are not checked.
+// A published version is a directory that exists in --base (the pull request base,
+// or the previous main commit on a push) and is one of:
+//   packages/<scope>/<name>/<version>/
+//   schema/<YYYY-MM-DD>/   (the generated JSON Schema for that spec version)
+//   corpus/<YYYY-MM-DD>/   (the generated conformance corpus for that spec version)
+// Compared with --head (default: the working tree, including untracked files), any
+// modified, deleted, type-changed or added file inside a published version fails; a
+// change needs a new version directory. Adding files in a new version directory
+// passes. Files outside version directories (for example packages/README.md) are
+// not published versions and are not checked.
 //
 // Exit codes: 0 no published version changed; 1 a published version changed;
 // 2 usage error or an unresolvable ref (fails closed).
@@ -20,13 +24,17 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const PACKAGES = 'packages/';
+const ROOTS = ['packages/', 'schema/', 'corpus/'];
+const DATED = new Set(['schema', 'corpus']);
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const git = (args) => execFileSync('git', args, { cwd: ROOT, maxBuffer: 256 * 1024 * 1024 }).toString('utf8');
 const nul = (s) => s.split('\0').filter(Boolean);
 const versionDir = (file) => {
   const parts = file.split('/');
-  return parts.length >= 5 && parts[0] === 'packages' ? parts.slice(0, 4).join('/') : null;
+  if (parts[0] === 'packages') return parts.length >= 5 ? parts.slice(0, 4).join('/') : null;
+  if (DATED.has(parts[0])) return parts.length >= 3 && DATE.test(parts[1]) ? parts.slice(0, 2).join('/') : null;
+  return null;
 };
 
 function usage(message) {
@@ -108,15 +116,15 @@ const base = resolveCommit(opts.base, '--base');
 const head = opts.head ? resolveCommit(opts.head, '--head') : null;
 
 const published = new Set(
-  nul(git(['ls-tree', '-r', '-z', '--name-only', '--full-tree', base, '--', PACKAGES])).map(versionDir).filter(Boolean),
+  nul(git(['ls-tree', '-r', '-z', '--name-only', '--full-tree', base, '--', ...ROOTS])).map(versionDir).filter(Boolean),
 );
 
 // [status, path] pairs; statuses A, D, M, T (rename detection off).
 const changes = [];
-const diff = nul(git(['diff', '--name-status', '-z', '--no-renames', base, ...(head ? [head] : []), '--', PACKAGES]));
+const diff = nul(git(['diff', '--name-status', '-z', '--no-renames', base, ...(head ? [head] : []), '--', ...ROOTS]));
 for (let i = 0; i + 1 < diff.length; i += 2) changes.push([diff[i], diff[i + 1]]);
 if (!head) {
-  for (const file of nul(git(['ls-files', '-z', '--others', '--exclude-standard', '--', PACKAGES]))) changes.push(['A', file]);
+  for (const file of nul(git(['ls-files', '-z', '--others', '--exclude-standard', '--', ...ROOTS]))) changes.push(['A', file]);
 }
 
 const VERB = { A: 'added to', D: 'deleted from', M: 'modified in', T: 'type changed in' };
@@ -135,7 +143,7 @@ for (const [status, file] of changes) {
 
 const target = head ? head : 'the working tree';
 if (violations.length) {
-  console.error(`error: published package versions are immutable (base ${base}, compared with ${target}).`);
+  console.error(`error: published package versions, dated schemas and dated corpora are immutable (base ${base}, compared with ${target}).`);
   console.error('Publish the change as a new version directory instead.');
   for (const v of violations.sort()) console.error(`  ${v}`);
   process.exit(1);

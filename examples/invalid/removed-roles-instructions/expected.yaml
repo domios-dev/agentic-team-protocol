@@ -1,5 +1,8 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes and locations come from the Domios conformance corpus,
+# corpus/2026-11-11/cases.json; corpus_case names the case that defines the same
+# rule. The corpus reports a top-level `roles` block as a removed field and a
+# missing `managers` mapping at `managers`.
 # A minimal authored package in the superseded `roles:` shape (top-level
 # instructions plus a roles block instead of managers/workers).
 case: removed-roles-instructions
@@ -15,25 +18,32 @@ errors:
       path: instructions
       line: 10
     severity: error
-    code: pending
-  - rule: The superseded top-level `roles` block is an unknown key.
+    code: removed_field
+    corpus_case: invalid/removed-top-instructions.team.yaml
+  - rule: The superseded top-level `roles` block is refused as a removed field.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
     quote: "Every other non-`x-` key is strictly typed and unknown keys are errors; there are no top-level coordinator/planner fields."
+    note: The reference implementation reports top-level `roles` as a removed field, not an unknown key; public spec 2026-11-11 section 11 lists it.
     location:
       file: input.team.yaml
       path: roles
       line: 14
     severity: error
-    code: pending
-  - rule: managers.orchestrator is required.
+    code: removed_field
+    corpus_case: invalid/release-train.team.yaml
+  - rule: managers.orchestrator is required, so the managers mapping is required.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
     quote: "Required: only name, version, description and managers.orchestrator."
     location:
       file: input.team.yaml
-      path: managers.orchestrator
-      detail: the document has no managers mapping
+      path: managers
+      line: 1
+      column: 5
+      detail: the document has no managers mapping; the reference validator reports it at the document's first key (validator_run)
     severity: error
-    code: pending
+    code: missing_field
+    corpus_case: invalid/release-train.team.yaml
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
 warnings: []

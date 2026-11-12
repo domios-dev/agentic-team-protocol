@@ -1,5 +1,7 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule. The unresolved-skill
+# warning comes from a run of the reference validator (validator_run).
 # The input is the canonical com.example/research-desk 2.1.0 team.yaml, byte for
 # byte, used as a single file. It is valid only as a folder or .team ZIP.
 case: path-only-in-single-file
@@ -17,7 +19,8 @@ errors:
       line: 69
       detail: data/competitors.csv has no content; workers.researcher.files (line 149) names it too
     severity: error
-    code: pending
+    code: missing_file
+    corpus_case: invalid/missing-file.team.yaml
   - rule: Missing referenced file. In the single-file form a path-only files entry has no target.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
@@ -29,7 +32,8 @@ errors:
       line: 71
       detail: assets/logo.png has no content (a binary asset)
     severity: error
-    code: pending
+    code: missing_file
+    corpus_case: invalid/missing-file.team.yaml
   - rule: Missing referenced file. In the single-file form a skill path has no target.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
@@ -41,7 +45,8 @@ errors:
       line: 97
       detail: skills/market-sizing
     severity: error
-    code: pending
+    code: missing_file
+    corpus_case: invalid/distributed-bets.team.yaml
   - rule: Missing referenced file. In the single-file form an automation path has no target.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
@@ -53,7 +58,8 @@ errors:
       line: 100
       detail: blueprints/digest.yaml
     severity: error
-    code: pending
+    code: missing_file
+    corpus_case: invalid/distributed-bets.team.yaml
   - rule: Missing referenced file. In the single-file form instructions_file has no target.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
@@ -65,5 +71,20 @@ errors:
       line: 158
       detail: workers/checker.md
     severity: error
-    code: pending
-warnings: []
+    code: missing_file
+    corpus_case: invalid/default-path-only.team.yaml
+warnings:
+  - rule: A role skill name that no package skill provides is an unresolved skill reference, reported as a warning.
+    spec: spec/2026-11-11
+    spec_section: "10.3 Role fields"
+    quote: "A name that matches no package skill is a warning, not an error (unresolved skill reference)."
+    location:
+      file: input.team.yaml
+      path: workers.researcher.skills[0]
+      line: 147
+      column: 14
+      detail: market-sizing is the path skill skills/market-sizing, whose SKILL.md has no target in the single file, so no package skill provides the name
+    severity: warning
+    code: unresolved_skill
+    corpus_case: valid/unresolved-skill.team.yaml
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169

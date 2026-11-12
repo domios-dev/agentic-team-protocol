@@ -1,19 +1,12 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule. A path-only PNG icon in
+# the single-file form is only a missing referenced file; the inline-binary-icon
+# error (binary_inline) applies to inline content (spec section 7.1, item 5).
 case: png-icon-single-file
 form: single-file
 input: input.team.yaml
 errors:
-  - rule: A PNG icon needs the folder or .team form; the single-file form cannot carry it.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "An SVG may be inline in the single-file form through a `files` entry with `content`; a PNG needs the folder or `.team` form."
-    location:
-      file: input.team.yaml
-      path: icon
-      line: 4
-    severity: error
-    code: pending
   - rule: Missing referenced file. The single file has no inline target for the icon path.
     spec: sp_b3v164
     spec_section: ATP package format, roles and model choice
@@ -25,5 +18,6 @@ errors:
       line: 4
       detail: assets/logo.png
     severity: error
-    code: pending
+    code: missing_file
+    corpus_case: invalid/icon-missing.team.yaml
 warnings: []

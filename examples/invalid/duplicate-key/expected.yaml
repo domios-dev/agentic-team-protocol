@@ -1,5 +1,6 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# Stable error codes stay pending until the Domios reference validator publishes them.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 case: duplicate-key
 form: single-file
 input: input.team.yaml
@@ -15,5 +16,6 @@ errors:
       column: 5
       detail: second `description` key; the first is on line 13
     severity: error
-    code: pending
+    code: duplicate_key
+    corpus_case: invalid/duplicate-key.team.yaml
 warnings: []
