@@ -323,10 +323,10 @@ function buildCatalog() {
   });
   writePage('catalog/index.html', {
     title: 'Catalog',
-    notice: 'Validation by the reference validator is pending (Phase 2): the validator is generated from the Domios reference implementation. Entries are listed, not yet validated.',
     body: [
       '<h1>Catalog</h1>',
       '<p>The Agentic Team Protocol catalog is a static, read-only JSON file, <a href="../catalog.json">catalog.json</a>, generated from this repository in CI on every build and never committed. It has one entry per published package version with its identity fields parsed from <code>team.yaml</code>, and a SHA-256 checksum of the exact bytes this site serves for every file of every form. A published version never changes; a change is a new version. There is no write, upload or authentication endpoint.</p>',
+      `<p>Every entry is valid under the <a href="../validator/">reference validator</a> ${escapeHtml(catalog.reference_validation.validator_version)}; the build fails when an entry does not validate, and each entry records the validator version that validated it.</p>`,
       `<p>Source commit: <code>${escapeHtml(catalog.source_commit)}</code>. Full checksums are in catalog.json.</p>`,
       rows.length
         ? `<table class="catalog">\n<thead><tr><th>Name</th><th>Version</th><th>Package</th><th>Derived from</th><th>Forms (SHA-256)</th></tr></thead>\n<tbody>\n${rows.join('\n')}\n</tbody>\n</table>`

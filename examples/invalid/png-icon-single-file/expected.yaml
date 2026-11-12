@@ -8,10 +8,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: Missing referenced file. The single file has no inline target for the icon path.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "The validator refuses a missing or non-image target."
-    decision: "Orchestrator-relayed owner decision (Elgar, binding): in the single-file form every reference must resolve inline; a path-only reference with no inline content is a missing referenced file."
+    spec: spec/2026-11-11
+    spec_section: "7.1.5"
+    quote: "A PNG icon path with no inline content and no package file is a missing referenced file (item 2)."
     location:
       file: input.team.yaml
       path: icon

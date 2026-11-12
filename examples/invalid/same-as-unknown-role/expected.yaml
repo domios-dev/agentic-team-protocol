@@ -6,9 +6,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: same_as must name a role in the team.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "a reference to an unknown role or a same_as cycle is a validation error."
+    spec: spec/2026-11-11
+    spec_section: "10.5.2"
+    quote: "A target that names no role in the package is an error (unknown same_as role)."
     location:
       file: input.team.yaml
       path: managers.curator.model.same_as

@@ -1,16 +1,14 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule.
-# sp_b3v164 has no sentence for this rule yet; the public spec is being amended to carry it.
 case: schedule-min-greater-than-max
 form: single-file
 input: input.team.yaml
 errors:
   - rule: In start {schedule "<min>..<max>"}, min must not be greater than max.
-    spec: Orchestrator-relayed owner decision (Elgar, binding)
-    spec_section: ATP package format, roles and model choice
-    quote: "ERROR: min > max, or a duration not matching `<positive integer>(m|h)`."
-    also: "start (with_team | on_demand | {schedule: \"<min>..<max>\"}; workers default to on_demand, orchestrator and planner are with_team)"
+    spec: spec/2026-11-11
+    spec_section: "10.4.2"
+    quote: "`<min>` MUST NOT be greater than `<max>`. A greater `<min>` is an error (invalid schedule)."
     location:
       file: input.team.yaml
       path: managers.curator.start.schedule

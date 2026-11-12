@@ -6,9 +6,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: A mapping must not repeat a key.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "YAML rules: text uses literal blocks (`|`, with an indentation indicator when the first line starts with whitespace); no anchors/aliases or duplicate keys; CRLF is normalized; tabs never indent; explicit size bounds; no interpolation in instructions."
+    spec: spec/2026-11-11
+    spec_section: "5.3"
+    quote: "A mapping MUST NOT contain a duplicate key (duplicate key)."
     location:
       file: input.team.yaml
       path: workers.researcher.description

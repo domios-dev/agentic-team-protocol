@@ -7,9 +7,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: same_as references must not form a cycle.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "a reference to an unknown role or a same_as cycle is a validation error."
+    spec: spec/2026-11-11
+    spec_section: "10.5.2"
+    quote: "A chain of `same_as` references that returns to a role already in the chain, including a role that names itself, is an error (same_as cycle)."
     location:
       file: input.team.yaml
       path: workers.researcher.model.same_as
@@ -19,9 +19,9 @@ errors:
     code: same_as_cycle
     corpus_case: invalid/same-as-cycle.team.yaml
   - rule: same_as references must not form a cycle.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "a reference to an unknown role or a same_as cycle is a validation error."
+    spec: spec/2026-11-11
+    spec_section: "10.5.2"
+    quote: "A chain of `same_as` references that returns to a role already in the chain, including a role that names itself, is an error (same_as cycle)."
     location:
       file: input.team.yaml
       path: workers.checker.model.same_as

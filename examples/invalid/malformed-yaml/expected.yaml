@@ -6,9 +6,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: A package that is not well-formed YAML is refused.
-    spec: sp_b3v164
-    spec_section: "Templates: one existing Team creation rail and default package"
-    quote: "An unresolved skill reference is a warning with an explanation, shown in the preview and returned by start, so a template can ship before its skill exists; malformed packages still refuse."
+    spec: spec/2026-11-11
+    spec_section: "5.9"
+    quote: "A document that is not well-formed YAML is an error (malformed YAML)."
     location:
       file: input.team.yaml
       path: ""

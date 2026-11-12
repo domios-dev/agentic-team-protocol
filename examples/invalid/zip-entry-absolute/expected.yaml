@@ -8,9 +8,9 @@ form: team-zip
 input: input.team
 errors:
   - rule: Archive entries and package paths are relative; absolute paths are refused.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "Archive and folder rules: exactly one root team.yaml; unreferenced entries are an error; relative paths only (no `..`, no absolute paths, no symlinks); explicit size and count bounds; deterministic entry order so export > import > export is byte-identical."
+    spec: spec/2026-11-11
+    spec_section: "4.2.4"
+    quote: "Every entry path MUST be relative. A path containing a `..` segment, an absolute path, and a symbolic link are errors (unsafe path)."
     location:
       file: input.team
       entry: /shared/notes.md
@@ -20,7 +20,7 @@ errors:
     validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
   - rule: Package paths are relative; an absolute reference path is refused.
     spec: spec/2026-11-11
-    spec_section: "4.4 References"
+    spec_section: "4.4.3"
     quote: "Paths are package-relative and follow the safety rule of section 4.2."
     location:
       file: input.team
@@ -33,7 +33,7 @@ errors:
     validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
   - rule: Missing referenced file. The refused absolute path resolves to no package entry.
     spec: spec/2026-11-11
-    spec_section: "4.4 References"
+    spec_section: "4.4.2"
     quote: "A reference whose target is missing is an error (missing referenced file)."
     location:
       file: input.team

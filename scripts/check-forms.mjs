@@ -8,7 +8,7 @@
 //    (lexical check: a path, or a file inside a referenced skill folder);
 //  - published text files use LF line endings only;
 //  - re-packing every archive (packages and archive fixtures) is byte-identical.
-// This is a form check, not the reference validator (pending, Phase 2).
+// This is a form check; scripts/conformance.mjs runs the reference validator.
 // Node 22, no dependencies. Exits 1 on any failure.
 
 import { readFileSync, existsSync } from 'node:fs';

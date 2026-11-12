@@ -8,9 +8,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: YAML anchors are not allowed.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "YAML rules: text uses literal blocks (`|`, with an indentation indicator when the first line starts with whitespace); no anchors/aliases or duplicate keys; CRLF is normalized; tabs never indent; explicit size bounds; no interpolation in instructions."
+    spec: spec/2026-11-11
+    spec_section: "5.2"
+    quote: "A package document MUST NOT contain anchors or aliases (YAML anchor or alias)."
     location:
       file: input.team.yaml
       path: workers.researcher.model
@@ -21,9 +21,9 @@ errors:
     code: yaml_anchor
     corpus_case: invalid/anchor-alias.team.yaml
   - rule: YAML aliases are not allowed.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "YAML rules: text uses literal blocks (`|`, with an indentation indicator when the first line starts with whitespace); no anchors/aliases or duplicate keys; CRLF is normalized; tabs never indent; explicit size bounds; no interpolation in instructions."
+    spec: spec/2026-11-11
+    spec_section: "5.2"
+    quote: "A package document MUST NOT contain anchors or aliases (YAML anchor or alias)."
     location:
       file: input.team.yaml
       path: workers.writer.model
@@ -35,8 +35,8 @@ errors:
     corpus_case: invalid/anchor-alias.team.yaml
   - rule: A model is a list of model ids or a same_as mapping; the alias leaves no model value.
     spec: spec/2026-11-11
-    spec_section: "15.1 Conditions as the reference implementation reports them"
-    quote: "a model list entry that is not <harness>:<model>, reported at that entry; also an empty model list, or a model scalar other than inherit."
+    spec_section: "15.1"
+    quote: "a model list entry that is not `<harness>:<model>`, reported at that entry; also an empty model list, or a `model` scalar other than `inherit`."
     location:
       file: input.team.yaml
       path: workers.writer.model

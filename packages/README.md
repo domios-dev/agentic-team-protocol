@@ -21,8 +21,9 @@ deterministic: entries sorted by byte order of their path, files only, stored
 without compression, fixed timestamp 1980-01-01 00:00, zero attributes, no extra
 fields or comments. `node scripts/check-forms.mjs` checks that each ZIP holds
 exactly the folder's files byte for byte, that a re-pack is byte-identical, and
-that text files use LF only. The reference validator is pending (generated from
-the Domios reference implementation in Phase 2).
+that text files use LF only. The [reference validator](../validator/) checks every
+form: `node scripts/conformance.mjs` runs it on each form under host profiles `none`
+and `domios`, and the catalog build fails when a version does not validate.
 
 The root `.gitattributes` disables line-ending conversion for `packages/**` and
 `examples/**`, so the bytes and their checksums survive any checkout.

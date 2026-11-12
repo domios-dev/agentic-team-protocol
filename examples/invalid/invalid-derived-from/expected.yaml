@@ -7,10 +7,9 @@ form: single-file
 input: input.team.yaml
 errors:
   - rule: derived_from is a mapping {name, version}, not a string.
-    spec: sp_b3v164
-    spec_section: ATP package format, roles and model choice
-    quote: "derived_from: {name, version}."
-    also: "Every other non-`x-` key is strictly typed and unknown keys are errors; there are no top-level coordinator/planner fields."
+    spec: spec/2026-11-11
+    spec_section: "7"
+    quote: "The package this one was derived from. Keys: `name` (same grammar as top-level `name`) and `version` (a semantic version)."
     location:
       file: input.team.yaml
       path: derived_from
