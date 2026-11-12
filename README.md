@@ -3,8 +3,9 @@
 The Agentic Team Protocol is an open format for portable AI agent teams. One package
 describes a whole team: its managers and workers, each role's instructions and optional
 models, the files, memory, skills and automation it brings, and the permissions and named
-secrets it asks its host to grant. A package comes in three equivalent forms: a single
-`name.team.yaml` file, a `name.team` ZIP archive, or a folder with the same layout. Domios is
+secrets it asks its host to grant. The format defines three equivalent forms: a single
+`name.team.yaml` file, a `name.team` ZIP archive, or a folder with the same layout. A
+published version may lack the single-file form when its package does not ship one. Domios is
 the reference implementation; any host can implement the format.
 
 Site: https://atp.domios.dev/ (not yet published)

@@ -17,7 +17,7 @@ and is never part of a package, so packages stay portable between hosts.
 
 ## Three package forms
 
-One package can be written in three equivalent forms:
+The format defines three equivalent forms. A published version may lack the single-file form when its package does not ship one.
 
 | Form | Layout |
 | --- | --- |
