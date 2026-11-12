@@ -46,6 +46,7 @@ artifacts (JSON Schema, conformance corpus, reference validator) are pending.
 
 ### Pending
 
+- `com.example/research-desk` 2.1.0 author URL is `https://example.com/jane`, corrected before first public serving through a one-time entry in `packages/IMMUTABILITY-EXCEPTIONS.json` honoured by `scripts/check-immutability.mjs`.
 - JSON Schema, conformance corpus and reference validator: pending, generated from the
   Domios reference implementation in Phase 2. Until then catalog entries are not
   validated by the reference validator.

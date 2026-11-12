@@ -1,0 +1,9 @@
+{
+  "exceptions": [
+    {
+      "version": "packages/com.example/research-desk/2.1.0",
+      "reason": "Replace the example author's personal-looking GitHub URL with https://example.com/jane in all three forms before the version is first publicly served; no other byte of the version changes.",
+      "approver": "goal owner, before first public serving"
+    }
+  ]
+}
