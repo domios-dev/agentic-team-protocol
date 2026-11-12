@@ -22,7 +22,7 @@ permissions:
 
 env:
   DOMIOS_REPOSITORY: domios-dev/domios
-  DOMIOS_SHA: 46078622b77e6bbb4aeca70a779e7cef819fd60d
+  DOMIOS_SHA: abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49
   SPEC_VERSION: 2026-11-11
   CARGO_TERM_COLOR: never
 
