@@ -114,3 +114,18 @@ artifacts (JSON Schema, conformance corpus, reference validator) are pending.
   `note` for a version without a single file. `scripts/build-catalog.mjs` emits
   `forms.single_file: null` for it, and `--verify` accepts null only when no single file
   is served. The catalog page shows "no single-file form" for such a version.
+- Roles map, released in place (one-time first-release owner exception; no version bump,
+  no migration). The JSON Schema `schema/2026-11-11/team.schema.json`, the conformance
+  corpus `corpus/2026-11-11/` and the reference validator 2026.11.11 are regenerated
+  from Domios `16d5277f4ff083d487a7c55ba351f9bb72b8f084` and rewritten in place. The
+  schema and the WebAssembly module come from `validator.yml` run 43455116961, and the
+  corpus is a `git archive` of that commit. The names, the schema `$id` and the release
+  tag `validator-2026.11.11` are unchanged. The release binaries and `SHA256SUMS` are
+  replaced under the same tag after the merge to `main`. `PROVENANCE.md` records every new
+  SHA-256 and lists the superseded ones. `atp-validate` and the WebAssembly functions take
+  no host profile, and `validator.yml` checks each input once.
+- `scripts/check-immutability.mjs` also keeps `validator/<YYYY.MM.DD>/` immutable. It
+  accepts an exact-file exception entry (`directory`, `reason`, `approver`, and the exact
+  `added`, `modified` and `deleted` file lists) under `packages/`, `schema/`, `corpus/`
+  and `validator/`. The entry admits exactly those changes, and only while it is new
+  against the base. Existing entries behave as before.
