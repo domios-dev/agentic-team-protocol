@@ -26,7 +26,8 @@
 //  - corpus/<spec version>/cases.json: every case, read as the reference
 //    implementation's own corpus test reads it: `valid` must match, every listed
 //    diagnostic must be reported (matched on code, path, and line where listed), and
-//    every reported diagnostic must carry a listed code. A case's `expect` list is not
+//    every reported error must carry a listed code; unlisted warnings are not checked,
+//    as that test checks its unlisted-code rule over errors only. A case's `expect` list is not
 //    exhaustive: invalid/default-path-only.team.yaml lists 2 of its 8 missing_file errors.
 //
 // Exit codes: 0 every check matched; 1 any mismatch; 2 usage error or the validator
@@ -137,7 +138,8 @@ const show = (d) =>
 
 // Matches each expectation to a distinct diagnostic; returns problem strings. With
 // `exact`, every diagnostic must be matched; otherwise (the corpus) every unmatched
-// diagnostic must still carry one of the expected codes.
+// error must still carry one of the expected codes, and unmatched warnings are not
+// checked.
 function matchDiagnostics(expected, actual, exact) {
   const problems = [];
   const left = [...actual];
@@ -150,7 +152,7 @@ function matchDiagnostics(expected, actual, exact) {
   }
   const codes = new Set(expected.map((e) => e.fields.code));
   for (const d of left) {
-    if (exact || !codes.has(d.code)) problems.push(`unexpected ${show(d)}`);
+    if (exact || (d.severity === 'error' && !codes.has(d.code))) problems.push(`unexpected ${show(d)}`);
   }
   return problems;
 }
