@@ -1,0 +1,16 @@
+name: com.example/worker-start-with-team
+version: 1.0.0
+description: Package whose worker asks to start with the team.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  orchestrator:
+    kind: manager
+    instructions: |
+      Coordinate the team.
+  researcher:
+    kind: worker
+    start: with_team
+    instructions: |
+      Research exactly one angle.

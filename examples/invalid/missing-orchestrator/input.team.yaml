@@ -1,0 +1,16 @@
+name: com.example/missing-orchestrator
+version: 1.0.0
+description: Package whose roles map has no orchestrator.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  planner:
+    kind: manager
+    instructions: |
+      Split the question into one task per angle.
+  researcher:
+    kind: worker
+    description: Researches one angle.
+    instructions: |
+      Research exactly one angle.

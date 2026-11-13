@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
+case: worker-start-with-team
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A worker starts only on demand.
+    spec: spec/2026-11-11
+    spec_section: "10.4.4"
+    quote: "A role of kind `worker` whose `start` is `with_team` or a schedule is an error (invalid start)."
+    location:
+      file: input.team.yaml
+      path: roles.researcher.start
+      line: 14
+      detail: with_team
+    severity: error
+    code: invalid_start
+    corpus_case: invalid/worker-with-team.team.yaml
+warnings: []

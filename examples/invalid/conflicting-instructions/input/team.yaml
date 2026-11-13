@@ -1,0 +1,16 @@
+name: com.example/conflicting-instructions
+version: 1.0.0
+description: Folder package whose worker sets both instructions and instructions_file.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  orchestrator:
+    kind: manager
+    instructions: |
+      Coordinate the team.
+  researcher:
+    kind: worker
+    instructions: |
+      Research exactly one angle.
+    instructions_file: roles/researcher.md

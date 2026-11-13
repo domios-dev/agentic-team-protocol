@@ -1,0 +1,35 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
+# A role with a built-in manager name (planner) and a worker of the package's own
+# (analyst) both set neither instructions nor instructions_file: every role carries
+# its own instructions, and a built-in name supplies none.
+case: missing-instructions
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: Every role sets instructions or instructions_file, whatever its kind and name.
+    spec: spec/2026-11-11
+    spec_section: "10.3.2"
+    quote: "A role that sets neither is an error (missing instructions), whatever its kind and name."
+    location:
+      file: input.team.yaml
+      path: roles.planner.instructions
+      line: 12
+      detail: planner is a built-in manager name; it supplies no instructions
+    severity: error
+    code: missing_instructions
+    corpus_case: invalid/builtin-name-no-instructions.team.yaml
+  - rule: Every role sets instructions or instructions_file, whatever its kind and name.
+    spec: spec/2026-11-11
+    spec_section: "10.3.2"
+    quote: "A role that sets neither is an error (missing instructions), whatever its kind and name."
+    location:
+      file: input.team.yaml
+      path: roles.analyst.instructions
+      line: 15
+      detail: analyst is a worker of the package's own
+    severity: error
+    code: missing_instructions
+    corpus_case: invalid/new-worker-no-instructions.team.yaml
+warnings: []

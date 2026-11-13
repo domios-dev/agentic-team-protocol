@@ -67,23 +67,27 @@ The release binaries and their SHA-256:
 
 | File | Platform | SHA-256 |
 | --- | --- | --- |
-| `atp-validate-x86_64-unknown-linux-musl` | x86_64 Linux (static, musl) | `66a196322b0dd0bf3529a0506caac004fb61c9d99311ba824a3b008e19e420c4` |
-| `atp-validate-aarch64-apple-darwin` | Apple silicon macOS | `ac5a8ffb51986022e09ea49e7c648bc641a75bee79553a1e2ec33baee25d2f61` |
-| `atp-validate-x86_64-apple-darwin` | Intel macOS | `9cbaf22a66458ae116008614dd39a292d20c961322747c9ca1e1d03bd367d50e` |
-| `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `71e09ed921b5d7a17b24a6f6b30d55f3271f017a54de201c438fc388a0a501d7` |
+| `atp-validate-x86_64-unknown-linux-musl` | x86_64 Linux (static, musl) | `6adfa021bda8bd56a46805025c424d75891f523a44af238f8b1572aff082dc7d` |
+| `atp-validate-aarch64-apple-darwin` | Apple silicon macOS | `c8b52eae2040016837182923eaf94486e4424c37bebaf6f8880dcac4e04955cc` |
+| `atp-validate-x86_64-apple-darwin` | Intel macOS | `03e4f3e3f5ce92a023d18ef9fb960e2b64353cd494a4df543d00469777eec9dc` |
+| `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `f1da9f500caacda004545332a0224428906cc5dcd64a94c6449b1215aaf2eacc` |
+
+They come from build run
+[43468853771](https://github.com/domios-dev/agentic-team-protocol/actions/runs/43468853771)
+at Domios commit `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`. The release was replaced once,
+in place, under the owner's first-release exception recorded in
+[PROVENANCE.md](../PROVENANCE.md#owner-exception), which also lists the superseded
+checksums.
 
 ### Use
 
 ```text
-usage: atp-validate <path> [--host-profile none|domios] [--json]
+usage: atp-validate <path> [--json]
        atp-validate schema --spec-version <YYYY-MM-DD>
 ```
 
-- `<path>` is a `name.team.yaml` file, a `name.team` archive or a package folder.
-- `--host-profile` names the host whose built-in worker names apply; the default is `none`.
-  With `none`, a worker without instructions is a warning (`inherits_host_role`); with
-  `domios`, a worker that is not a Domios built-in worker needs instructions
-  (`missing_field`).
+- `<path>` is a `name.team.yaml` file, a `name.team` archive or a package folder. The
+  validator takes no host input such as a host profile.
 - `--json` prints the report as JSON instead of text.
 - `atp-validate schema --spec-version 2026-11-11` prints the JSON Schema of that
   specification version, byte-identical to `schema/2026-11-11/team.schema.json`.
@@ -92,7 +96,8 @@ Text output names the file, line and column, severity, code and YAML path of eac
 diagnostic, then a summary line:
 
 ```text
-team.yaml:21:7: error[same_as_cycle] workers.checker.model.same_as: `same_as` from `checker` leads back to itself
+team.yaml:23:7: error[same_as_cycle] roles.checker.model.same_as: `same_as` from `checker` leads back to itself
+team.yaml:16:7: error[same_as_cycle] roles.researcher.model.same_as: `same_as` from `researcher` leads back to itself
 invalid com.example/same-as-cycle@1.0.0: 2 error(s), 0 warning(s)
 ```
 
@@ -109,18 +114,18 @@ Exit codes:
 [`2026.11.11/`](2026.11.11/) holds a `wasm-bindgen --target web` module:
 `atp_validate.js`, `atp_validate_bg.wasm` and their TypeScript declarations. It exports:
 
-- `check_yaml(text, profile)`: checks the single-file form given as text.
-- `check_archive(bytes, profile)`: checks the `.team` ZIP form given as bytes.
+- `check_yaml(text)`: checks the single-file form given as text.
+- `check_archive(bytes)`: checks the `.team` ZIP form given as bytes.
 
-`profile` is `none` or `domios`; any other value throws. Each returns the same JSON report as
-`atp-validate --json`. The module has no folder entry point.
+Each returns the same JSON report as `atp-validate --json`. The module has no folder entry
+point.
 
 In a browser, the default export loads `atp_validate_bg.wasm` from next to the module:
 
 ```js
 import init, { check_yaml } from './atp_validate.js';
 await init();
-const report = JSON.parse(check_yaml(text, 'none'));
+const report = JSON.parse(check_yaml(text));
 ```
 
 In Node.js, pass the WebAssembly bytes to `initSync`:
@@ -129,7 +134,7 @@ In Node.js, pass the WebAssembly bytes to `initSync`:
 import { readFileSync } from 'node:fs';
 import { initSync, check_yaml } from './atp_validate.js';
 initSync({ module: readFileSync(new URL('./atp_validate_bg.wasm', import.meta.url)) });
-const report = JSON.parse(check_yaml(readFileSync('team.yaml', 'utf8'), 'domios'));
+const report = JSON.parse(check_yaml(readFileSync('team.yaml', 'utf8')));
 ```
 
 ## Report format

@@ -5,7 +5,8 @@ authors:
   - name: Example Author
     url: https://example.com
 derived_from: com.example/research-desk@2.0.3
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Coordinate the team.

@@ -1,0 +1,31 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule (an unknown top-level key).
+# Top-level managers and workers are plain unknown keys; roles exist only under roles.
+case: unknown-key-managers-workers
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A top-level key that does not start with x- is one the format lists.
+    spec: spec/2026-11-11
+    spec_section: "6.3"
+    quote: "A top-level key that does not start with `x-` MUST be one listed above. An unknown key is an error (unknown key)."
+    location:
+      file: input.team.yaml
+      path: managers
+      line: 12
+    severity: error
+    code: unknown_field
+    corpus_case: invalid/old-shape.team.yaml
+  - rule: A top-level key that does not start with x- is one the format lists.
+    spec: spec/2026-11-11
+    spec_section: "6.3"
+    quote: "A top-level key that does not start with `x-` MUST be one listed above. An unknown key is an error (unknown key)."
+    location:
+      file: input.team.yaml
+      path: workers
+      line: 16
+    severity: error
+    code: unknown_field
+    corpus_case: invalid/old-shape.team.yaml
+warnings: []

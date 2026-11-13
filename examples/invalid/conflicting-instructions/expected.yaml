@@ -1,0 +1,22 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule. A folder, so that
+# instructions_file has a target and the only defect is the conflict.
+case: conflicting-instructions
+form: folder
+input: input/
+errors:
+  - rule: A role sets instructions or instructions_file, never both.
+    spec: spec/2026-11-11
+    spec_section: "10.3.3"
+    quote: "Setting both `instructions` and `instructions_file` is an error (conflicting fields)."
+    location:
+      file: input/team.yaml
+      path: roles.researcher
+      line: 13
+      column: 9
+      detail: researcher sets instructions (line 14) and instructions_file (line 16); input/roles/researcher.md exists
+    severity: error
+    code: conflicting_fields
+    corpus_case: invalid/instructions-both.team.yaml
+warnings: []

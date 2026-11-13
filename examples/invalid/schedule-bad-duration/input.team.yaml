@@ -4,12 +4,16 @@ description: Package whose curator schedule uses a duration with an unknown unit
 authors:
   - name: Example Author
     url: https://example.com
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Coordinate the team.
   curator:
+    kind: manager
     start:
       schedule: "45x..2h"
     model:
       same_as: orchestrator
+    instructions: |
+      Review the team's health and report to the orchestrator.

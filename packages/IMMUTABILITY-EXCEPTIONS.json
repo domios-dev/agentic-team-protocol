@@ -10,6 +10,119 @@
       "reason": "Add the single-file form default.team.yaml, byte for byte as the Domios exporter wrote it (team export dev.domios/default --format yaml), before the version is first publicly served; no existing byte of the version changes.",
       "approver": "goal owner, before first public serving",
       "added": ["default.team.yaml"]
+    },
+    {
+      "directory": "packages/com.example/research-desk/2.1.0",
+      "reason": "Rewrite the version in place in the roles-map shape of spec 2026-11-11, byte for byte as the Domios exporter wrote it (team export --format team|folder for the package, --format yaml for its inline single-file variant).",
+      "approver": "owner, one-time first-release exception (roles map)",
+      "added": [
+        "research-desk/assets/icon.svg",
+        "research-desk/blueprints/stale-task-nudge.yaml",
+        "research-desk/essences/how-we-research.md",
+        "research-desk/managers/cartographer.md",
+        "research-desk/managers/curator.md",
+        "research-desk/managers/orchestrator.md",
+        "research-desk/managers/planner.md",
+        "research-desk/skills/source-check/SKILL.md",
+        "research-desk/skills/source-check/scripts/fetch.py",
+        "research-desk/templates/report.md",
+        "research-desk/workers/qa.md",
+        "research-desk/workers/researcher.md",
+        "research-desk/workers/writer.md"
+      ],
+      "modified": [
+        "research-desk.team",
+        "research-desk.team.yaml",
+        "research-desk/team.yaml"
+      ],
+      "deleted": []
+    },
+    {
+      "directory": "packages/dev.domios/default/1.0.0",
+      "reason": "Rewrite the version in place in the roles-map shape of spec 2026-11-11, byte for byte as the Domios exporter wrote it (team export --format yaml|team|folder).",
+      "approver": "owner, one-time first-release exception (roles map)",
+      "added": [],
+      "modified": [
+        "default.team",
+        "default.team.yaml",
+        "default/managers/orchestrator.md",
+        "default/team.yaml",
+        "default/workers/worker.md"
+      ],
+      "deleted": []
+    },
+    {
+      "directory": "schema/2026-11-11",
+      "reason": "Rewrite the 2026-11-11 JSON Schema in place for the roles map, exactly as atp-validate schema --spec-version 2026-11-11 wrote it in validator.yml run 43468853771 at Domios fafc45b8b68808530d6c2fe4956af0fa9d23dd54 (PROVENANCE.md); the first release had no users.",
+      "approver": "owner, one-time first-release exception (roles map)",
+      "added": [],
+      "modified": ["team.schema.json"],
+      "deleted": []
+    },
+    {
+      "directory": "corpus/2026-11-11",
+      "reason": "Rewrite the 2026-11-11 conformance corpus in place for the roles map, as git archive of fixtures/corpus at Domios fafc45b8b68808530d6c2fe4956af0fa9d23dd54 (PROVENANCE.md); the first release had no users.",
+      "approver": "owner, one-time first-release exception (roles map)",
+      "added": [
+        "invalid/bad-role-name.team.yaml",
+        "invalid/builtin-name-no-instructions.team.yaml",
+        "invalid/instructions-both.team.yaml",
+        "invalid/invalid-kind.team.yaml",
+        "invalid/missing-kind.team.yaml",
+        "invalid/old-shape.team.yaml",
+        "invalid/orchestrator-worker.team.yaml",
+        "invalid/role-persona.team.yaml",
+        "invalid/worker-with-team.team.yaml",
+        "valid/custom-manager.team.yaml",
+        "valid/reference/roles/checker.md"
+      ],
+      "modified": [
+        "cases.json",
+        "invalid/anchor-alias.team.yaml",
+        "invalid/bare-skill.team.yaml",
+        "invalid/default-path-only.team.yaml",
+        "invalid/distributed-bets.team.yaml",
+        "invalid/duplicate-key.team.yaml",
+        "invalid/icon-missing.team.yaml",
+        "invalid/icon-not-image.team.yaml",
+        "invalid/icon-png-inline.team.yaml",
+        "invalid/icon-svg-external.team.yaml",
+        "invalid/icon-svg-script.team.yaml",
+        "invalid/invalid-derived-from.team.yaml",
+        "invalid/invalid-model.team.yaml",
+        "invalid/invalid-schedule.team.yaml",
+        "invalid/missing-file.team.yaml",
+        "invalid/missing-orchestrator.team.yaml",
+        "invalid/new-worker-no-instructions.team.yaml",
+        "invalid/orchestrator-on-demand.team.yaml",
+        "invalid/plan-template.team.yaml",
+        "invalid/removed-inherit.team.yaml",
+        "invalid/removed-top-instructions.team.yaml",
+        "invalid/reserved-worker.team.yaml",
+        "invalid/role-includes.team.yaml",
+        "invalid/same-as-cycle.team.yaml",
+        "invalid/same-as-unknown.team.yaml",
+        "invalid/tab-indentation.team.yaml",
+        "invalid/unknown-field.team.yaml",
+        "invalid/unreferenced-entry/team.yaml",
+        "valid/reference-inline.team.yaml",
+        "valid/reference/assets/logo.png",
+        "valid/reference/blueprints/digest.yaml",
+        "valid/reference/data/competitors.csv",
+        "valid/reference/skills/market-sizing/SKILL.md",
+        "valid/reference/team.yaml",
+        "valid/role-extension.team.yaml",
+        "valid/unresolved-skill.team.yaml"
+      ],
+      "deleted": ["invalid/removed-kind.team.yaml", "valid/reference/workers/checker.md"]
+    },
+    {
+      "directory": "validator/2026.11.11",
+      "reason": "Rewrite the reference validator 2026.11.11 WebAssembly module in place for the roles map, exactly as artifact atp-validate-wasm of validator.yml run 43468853771 at Domios fafc45b8b68808530d6c2fe4956af0fa9d23dd54 holds it (PROVENANCE.md); its Cargo.lock is unchanged; the first release had no users.",
+      "approver": "owner, one-time first-release exception (roles map)",
+      "added": [],
+      "modified": ["atp_validate.d.ts", "atp_validate.js", "atp_validate_bg.wasm", "atp_validate_bg.wasm.d.ts"],
+      "deleted": []
     }
   ]
 }

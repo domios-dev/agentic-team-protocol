@@ -11,8 +11,11 @@ The package format ([index.md](index.md)) says what a package contains and when 
 - how teams start, recover and are updated
 - which models are chosen
 - how packages are found
+- which orchestration commands roles use, for example to dispatch tasks, edit plans, review work and report results
 
 Hosts can differ on all of these points and still read the same packages.
+
+To the format, role instructions are opaque text for the host ([index.md section 10.8](index.md#108-scope-package-format-only)). A package built for one host may use that host's commands: the instructions of `dev.domios/default` use Domios plan, dispatch and report commands, so that package is written for Domios. Another host can read and validate it, but it may not be able to run those roles as intended. A possible future direction, typed host capabilities that packages declare, is described in [index.md section 14.1](index.md#141-future-direction-informative).
 
 ## 2. Practices for any host
 
@@ -23,6 +26,8 @@ A package's `permissions`, `secrets`, `requires` and `inputs` are requests, not 
 ### 2.2 Secrets by name only
 
 A package names the secrets it needs (`secrets[].name`, with `purpose` and `required`). It never carries their values. The host binds each named secret to a value from its own local secret store, on the machine where the role runs. Exports leave out every secret value, from instructions, files, memory and skills alike. Secret values never travel with a package and never cross machines with it.
+
+Domios also refuses to import a package that carries a secret value in its text, instructions included, even when the package is valid. This is host safety policy, not a format diagnostic: the package format treats instructions as opaque ([index.md section 10.8](index.md#108-scope-package-format-only)), and another host may apply a different import policy.
 
 ### 2.3 Version updates never change running teams
 
@@ -38,20 +43,20 @@ A package version is immutable once published. Domios pins each team's role regi
 
 ### 2.5 Literal instructions plus host runtime text
 
-A role's instructions reach the agent exactly as written: nothing is substituted. The host then appends its own runtime text per group (managers, workers) and per manager slot. In Domios this text is the primer, routing contract, AgentPad, plan-task flags, Worker context, rendering and reporting rules. Package instructions cannot replace or override host text: the host text is appended after them, never replaced by them. The host runtime text is never written into an exported package.
+A role's instructions reach the agent exactly as written: nothing is substituted. The host then appends its own runtime text per kind (managers, workers) and, for a built-in manager name that the package lists, per that name. In Domios this text is the primer, routing contract, AgentPad, plan-task flags, Worker context, rendering and reporting rules. Package instructions cannot replace or override host text: the host text is appended after them, never replaced by them. The host runtime text is never written into an exported package.
 
 ### 2.6 Default-package semantics
 
-When a team is created without a package, Domios uses its builtin default package. That package is pre-release and is not published with this version of the specification. Its host default roles behave as follows:
+When a team is created without a package, Domios uses its builtin default package, `dev.domios/default`. It is an ordinary package: Domios starts exactly the roles it lists, as for any other package. Its roles behave as follows:
 
-- The `with_team` managers, `orchestrator` and `planner`, start with the team.
-- `cartographer` (`on_demand`) and the workers `worker`, `qa`, `reviewer` and `release_manager` (`on_demand`) are registered, not pre-spawned. The orchestrator starts them when it needs them.
-- `curator` runs on its `45m..2h` schedule with `model: {same_as: orchestrator}`.
+- The managers `orchestrator` and `planner` (`with_team`) start with the team.
+- The manager `cartographer` (`on_demand`) and the workers `worker`, `qa`, `reviewer` and `release_manager` (`on_demand`) are registered, not pre-spawned. The orchestrator starts them when it needs them.
+- The manager `curator` runs on its `45m..2h` schedule with `model: {same_as: orchestrator}`.
+- Every role carries its own instructions in the package.
 - The package defines no other models. The owner picks a model for each `with_team` manager at start, and workers use the host's dispatch defaults.
-- A package that omits an optional manager slot gets Domios's default manager for that slot.
-- **The Domios host profile** lists the built-in worker names `worker`, `qa`, `reviewer` and `release_manager`. When Domios runs the reference validator, this profile is the default ([index.md section 10.7](index.md#107-roles-with-host-defaults)).
-- A package worker with one of these names, and a package manager slot, takes the Domios default role's value for each field it omits, instructions included. Built-in workers that the package does not name stay available.
 - Teams with no role registrations, including Teams restored from before packages existed, resolve to the default package.
+
+A team started from any other package has only that package's roles. Domios adds no manager or worker to it and fills in no field from its own role definitions ([index.md section 10.7](index.md#107-a-team-has-exactly-its-listed-roles)).
 
 ## 3. Domios-specific behaviour
 
@@ -60,8 +65,9 @@ The rest of this page describes Domios as the reference host. Other hosts are no
 ### 3.1 Team lifecycle
 
 - A template is one package in any of its three forms. Starting a team from a template uses Domios's existing Team-creation primitive. Without a template, it uses the builtin default package. There is no separate template rail and no pre-spawned fleet.
-- On start, Domios creates the `with_team` managers and records the remaining roles in a durable, per-Team role-registration store. That store survives restart and restore.
-- The orchestrator starts registered roles when it needs them, through ordinary `agent spawn --role` and `plan task dispatch --role`, including on mesh peers.
+- On start, Domios creates the `with_team` roles and records the remaining roles in a durable, per-Team role-registration store. That store survives restart and restore.
+- The orchestrator starts registered `on_demand` roles when it needs them, through ordinary `agent spawn --role` and `plan task dispatch --role`, including on mesh peers.
+- Domios runs scheduled rounds only for `curator`. It refuses a schedule on any other role (`schedule_unsupported_role`). This is Domios host policy, not a format error: the format allows a schedule on any manager.
 - Payload items are applied at start:
   - `files` land in the Team's knowledge directory and are listed, with their descriptions, in role prompts.
   - `memory` items are seeded into `domios mem`, scoped to the Team.
@@ -73,8 +79,10 @@ The rest of this page describes Domios as the reference host. Other hosts are no
 
 ### 3.2 Authority
 
-- Manager slots have duties that Domios knows. A slot's authority comes from the host, never from the package.
-- Role precedence is task > team > builtin. A task's personality, role guidance and model override the role's own.
+- Domios's built-in manager names are `orchestrator`, `planner`, `cartographer` and `curator`. When a package lists one of them, that manager carries the duties and authority that Domios attaches to the name. The authority comes from the host, never from the package.
+- A built-in manager name that the package does not list is absent from the team. Domios does not stand in for it.
+- A manager with any other name is a custom manager. It gets no Domios authority, and it works through the orchestrator. It starts as its `start` says, like any manager: a `with_team` custom manager starts with the team, and an `on_demand` custom manager waits for the orchestrator to start it.
+- Role precedence is task > team. A task's personality, role guidance and model override the role's own.
 - Machine placement is Domios registration data that the owner chooses. Packages do not set it.
 
 ### 3.3 Consent

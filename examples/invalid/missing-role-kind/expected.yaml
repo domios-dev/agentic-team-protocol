@@ -1,0 +1,21 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
+case: missing-role-kind
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: Every role sets kind, manager or worker.
+    spec: spec/2026-11-11
+    spec_section: "10.1.2"
+    quote: "Every role MUST set `kind` (missing role kind)."
+    location:
+      file: input.team.yaml
+      path: roles.researcher.kind
+      line: 13
+      column: 16
+      detail: researcher (line 12) sets no kind; the reference validator reports the start of its first value, on line 13
+    severity: error
+    code: missing_role_kind
+    corpus_case: invalid/missing-kind.team.yaml
+warnings: []

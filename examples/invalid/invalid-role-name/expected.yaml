@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
+case: invalid-role-name
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A role name matches [a-z][a-z0-9_]*.
+    spec: spec/2026-11-11
+    spec_section: "10.1.1"
+    quote: "A role name MUST match `[a-z][a-z0-9_]*` (invalid role name)."
+    location:
+      file: input.team.yaml
+      path: roles.fact-checker
+      line: 12
+      detail: a hyphen is not allowed in a role name; fact_checker is
+    severity: error
+    code: invalid_role_name
+    corpus_case: invalid/bad-role-name.team.yaml
+warnings: []

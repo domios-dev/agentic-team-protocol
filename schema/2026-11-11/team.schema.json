@@ -381,6 +381,14 @@
       ],
       "type": "string"
     },
+    "RoleKind": {
+      "description": "A role's lifecycle: a manager lives with the team, a worker serves one task or assignment.",
+      "enum": [
+        "manager",
+        "worker"
+      ],
+      "type": "string"
+    },
     "RoleStart": {
       "anyOf": [
         {
@@ -421,50 +429,8 @@
       ],
       "type": "string"
     },
-    "TeamManagers": {
-      "description": "Fixed manager slots with host-known duties.",
-      "properties": {
-        "cartographer": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/TeamRole"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "curator": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/TeamRole"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "orchestrator": {
-          "$ref": "#/definitions/TeamRole"
-        },
-        "planner": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/TeamRole"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "required": [
-        "orchestrator"
-      ],
-      "type": "object"
-    },
     "TeamRole": {
-      "description": "The same field set serves manager slots and workers.",
+      "description": "One team role; `kind` decides its lifecycle and the host decides its authority by name.",
       "properties": {
         "description": {
           "type": [
@@ -489,6 +455,9 @@
             "string",
             "null"
           ]
+        },
+        "kind": {
+          "$ref": "#/definitions/RoleKind"
         },
         "model": {
           "anyOf": [
@@ -535,10 +504,13 @@
           "type": "array"
         }
       },
+      "required": [
+        "kind"
+      ],
       "type": "object"
     }
   },
-  "description": "One ATP package document: the typed form of `team.yaml`, in protocol field order.",
+  "description": "One Agentic Team Protocol package document: the typed form of `team.yaml`, in protocol field order.",
   "properties": {
     "authors": {
       "items": {
@@ -599,9 +571,6 @@
         }
       ]
     },
-    "managers": {
-      "$ref": "#/definitions/TeamManagers"
-    },
     "memory": {
       "items": {
         "$ref": "#/definitions/PackageMemory"
@@ -641,6 +610,13 @@
         }
       ]
     },
+    "roles": {
+      "additionalProperties": {
+        "$ref": "#/definitions/TeamRole"
+      },
+      "description": "Every team role by name, in package order; exactly one is `orchestrator`.",
+      "type": "object"
+    },
     "secrets": {
       "items": {
         "$ref": "#/definitions/PackageSecret"
@@ -667,18 +643,12 @@
         "type": "string"
       },
       "type": "array"
-    },
-    "workers": {
-      "additionalProperties": {
-        "$ref": "#/definitions/TeamRole"
-      },
-      "type": "object"
     }
   },
   "required": [
     "description",
-    "managers",
     "name",
+    "roles",
     "version"
   ],
   "title": "TeamDocument",

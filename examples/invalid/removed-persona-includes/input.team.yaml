@@ -4,12 +4,13 @@ description: Package whose worker still declares the removed persona and include
 authors:
   - name: Example Author
     url: https://example.com
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Coordinate the team.
-workers:
   builder:
+    kind: worker
     description: Implements one task.
     persona: Builder
     includes: [worker-disciplines]

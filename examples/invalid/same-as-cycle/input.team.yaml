@@ -4,18 +4,20 @@ description: Package whose two workers follow each other's model.
 authors:
   - name: Example Author
     url: https://example.com
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Coordinate the team.
-workers:
   researcher:
+    kind: worker
     description: Researches one angle.
     model:
       same_as: checker
     instructions: |
       Research exactly one angle.
   checker:
+    kind: worker
     description: Verifies every claim.
     model:
       same_as: researcher

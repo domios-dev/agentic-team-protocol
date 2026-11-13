@@ -1,4 +1,4 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # Codes and locations come from a run of the reference validator (validator_run);
 # the conformance corpus has no case for this rule. The validator reports the
 # unsafe entry, the unsafe reference in team.yaml, and the reference's missing target.
@@ -17,7 +17,7 @@ errors:
       detail: referenced from team.yaml files[0].path (entry team.yaml, line 8)
     severity: error
     code: absolute_path
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
   - rule: Package paths are relative; an absolute reference path is refused.
     spec: spec/2026-11-11
     spec_section: "4.4.3"
@@ -30,7 +30,7 @@ errors:
       column: 5
     severity: error
     code: absolute_path
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
   - rule: Missing referenced file. The refused absolute path resolves to no package entry.
     spec: spec/2026-11-11
     spec_section: "4.4.2"
@@ -43,5 +43,5 @@ errors:
       column: 5
     severity: error
     code: missing_file
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
 warnings: []

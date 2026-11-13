@@ -1,0 +1,19 @@
+name: com.example/unknown-key-managers-workers
+version: 1.0.0
+description: Package that also declares roles under top-level managers and workers keys.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  orchestrator:
+    kind: manager
+    instructions: |
+      Coordinate the team.
+managers:
+  planner:
+    instructions: |
+      Split the question into one task per angle.
+workers:
+  researcher:
+    instructions: |
+      Research exactly one angle.

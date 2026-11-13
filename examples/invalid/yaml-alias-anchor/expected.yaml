@@ -1,8 +1,7 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
-# corpus_case names the case that defines the same rule. Locations, and the
-# invalid_model error at the alias, come from a run of the reference validator
-# (validator_run): an alias is read as an empty value.
+# corpus_case names the case that defines the same rule. The invalid_model error
+# the alias leaves behind comes from a run of the reference validator (validator_run).
 case: yaml-alias-anchor
 form: single-file
 input: input.team.yaml
@@ -13,8 +12,8 @@ errors:
     quote: "A package document MUST NOT contain anchors or aliases (YAML anchor or alias)."
     location:
       file: input.team.yaml
-      path: workers.researcher.model
-      line: 14
+      path: roles.researcher.model
+      line: 15
       column: 26
       detail: anchor &shared_model on the flow sequence that starts at column 26
     severity: error
@@ -26,8 +25,8 @@ errors:
     quote: "A package document MUST NOT contain anchors or aliases (YAML anchor or alias)."
     location:
       file: input.team.yaml
-      path: workers.writer.model
-      line: 19
+      path: roles.writer.model
+      line: 21
       column: 12
       detail: alias *shared_model
     severity: error
@@ -39,11 +38,11 @@ errors:
     quote: "a model list entry that is not `<harness>:<model>`, reported at that entry; also an empty model list, or a `model` scalar other than `inherit`."
     location:
       file: input.team.yaml
-      path: workers.writer.model
-      line: 19
+      path: roles.writer.model
+      line: 21
       column: 12
       detail: the alias *shared_model is read as an empty scalar
     severity: error
     code: invalid_model
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
 warnings: []
