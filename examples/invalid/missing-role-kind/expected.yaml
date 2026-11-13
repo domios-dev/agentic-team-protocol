@@ -1,6 +1,6 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
-# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 case: missing-role-kind
 form: single-file
 input: input.team.yaml
@@ -12,9 +12,10 @@ errors:
     location:
       file: input.team.yaml
       path: roles.researcher.kind
-      line: 12
-      detail: researcher sets no kind
+      line: 13
+      column: 16
+      detail: researcher (line 12) sets no kind; the reference validator reports the start of its first value, on line 13
     severity: error
     code: missing_role_kind
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/missing-kind.team.yaml
 warnings: []

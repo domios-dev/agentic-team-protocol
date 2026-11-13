@@ -1,9 +1,7 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # The code and location come from a run of the reference validator (validator_run);
 # the conformance corpus has no case for this rule. The validator reports the
 # missing name at the skills entry in team.yaml, not inside SKILL.md.
-# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
-# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: path-skill-without-name
 form: folder
 input: input/
@@ -20,5 +18,5 @@ errors:
       detail: input/skills/source-check/SKILL.md has a frontmatter (lines 1-3) with description but no name
     severity: error
     code: missing_field
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
 warnings: []

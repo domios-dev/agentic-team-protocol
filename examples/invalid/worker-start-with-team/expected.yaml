@@ -1,6 +1,6 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
-# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 case: worker-start-with-team
 form: single-file
 input: input.team.yaml
@@ -16,5 +16,5 @@ errors:
       detail: with_team
     severity: error
     code: invalid_start
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/worker-with-team.team.yaml
 warnings: []

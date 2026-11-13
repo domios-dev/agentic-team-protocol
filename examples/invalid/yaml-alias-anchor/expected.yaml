@@ -1,9 +1,7 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule. The invalid_model error
 # the alias leaves behind comes from a run of the reference validator (validator_run).
-# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
-# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: yaml-alias-anchor
 form: single-file
 input: input.team.yaml
@@ -46,5 +44,5 @@ errors:
       detail: the alias *shared_model is read as an empty scalar
     severity: error
     code: invalid_model
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
 warnings: []

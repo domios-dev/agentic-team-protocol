@@ -1,16 +1,66 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule.
 # The input is the canonical com.example/research-desk 2.1.0 team.yaml, byte for
-# byte, used as a single file. It is valid only as a folder or .team ZIP.
-# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The input is
-# the roles-map source handed to the exporter; the final pass replaces it with the
-# exported packages/com.example/research-desk/2.1.0/research-desk/team.yaml bytes,
-# reruns it against the regenerated corpus and validator and fixes sources and locations.
+# byte (packages/com.example/research-desk/2.1.0/research-desk/team.yaml), used as a
+# single file. It is valid only as a folder or .team ZIP: every reference it makes is
+# path-only, and a single file carries no inline content for any of them.
 case: path-only-in-single-file
 form: single-file
 input: input.team.yaml
 errors:
+  - rule: Missing referenced file. In the single-file form a path-only icon has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: icon
+      line: 6
+      column: 1
+      detail: assets/icon.svg
+    severity: error
+    code: missing_file
+    corpus_case: invalid/icon-missing.team.yaml
+  - rule: Missing referenced file. In the single-file form a path-only files entry has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: files[0].path
+      line: 54
+      column: 5
+      detail: assets/icon.svg
+    severity: error
+    code: missing_file
+    corpus_case: invalid/missing-file.team.yaml
+  - rule: Missing referenced file. In the single-file form a path-only files entry has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: files[1].path
+      line: 56
+      column: 5
+      detail: essences/how-we-research.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/missing-file.team.yaml
+  - rule: Missing referenced file. In the single-file form a path-only files entry has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: files[2].path
+      line: 58
+      column: 5
+      detail: templates/report.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/missing-file.team.yaml
   - rule: Missing referenced file. In the single-file form a path-only files entry has no target.
     spec: spec/2026-11-11
     spec_section: "4.1.3"
@@ -18,8 +68,9 @@ errors:
     location:
       file: input.team.yaml
       path: files[3].path
-      line: 69
-      detail: data/competitors.csv has no content; roles.cartographer.files (line 138) and roles.researcher.files (line 168) name it too
+      line: 60
+      column: 5
+      detail: data/competitors.csv; roles.cartographer.files (line 106) and roles.researcher.files (line 124) name it too
     severity: error
     code: missing_file
     corpus_case: invalid/missing-file.team.yaml
@@ -30,8 +81,9 @@ errors:
     location:
       file: input.team.yaml
       path: files[4].path
-      line: 71
-      detail: assets/logo.png has no content (a binary asset)
+      line: 62
+      column: 5
+      detail: assets/logo.png (a binary asset)
     severity: error
     code: missing_file
     corpus_case: invalid/missing-file.team.yaml
@@ -41,12 +93,26 @@ errors:
     quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
     location:
       file: input.team.yaml
-      path: skills[1].path
-      line: 97
-      detail: skills/market-sizing
+      path: skills[0].path
+      line: 75
+      column: 5
+      detail: skills/source-check/SKILL.md
     severity: error
     code: missing_file
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/distributed-bets.team.yaml
+  - rule: Missing referenced file. In the single-file form a skill path has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: skills[1].path
+      line: 76
+      column: 5
+      detail: skills/market-sizing/SKILL.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/distributed-bets.team.yaml
   - rule: Missing referenced file. In the single-file form an automation path has no target.
     spec: spec/2026-11-11
     spec_section: "4.1.3"
@@ -54,11 +120,90 @@ errors:
     location:
       file: input.team.yaml
       path: automation[0].path
-      line: 100
+      line: 79
+      column: 5
       detail: blueprints/digest.yaml
     severity: error
     code: missing_file
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/distributed-bets.team.yaml
+  - rule: Missing referenced file. In the single-file form an automation path has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: automation[1].path
+      line: 81
+      column: 5
+      detail: blueprints/stale-task-nudge.yaml
+    severity: error
+    code: missing_file
+    corpus_case: invalid/distributed-bets.team.yaml
+  - rule: Missing referenced file. In the single-file form instructions_file has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: roles.orchestrator.instructions_file
+      line: 94
+      column: 5
+      detail: managers/orchestrator.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/default-path-only.team.yaml
+  - rule: Missing referenced file. In the single-file form instructions_file has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: roles.planner.instructions_file
+      line: 100
+      column: 5
+      detail: managers/planner.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/default-path-only.team.yaml
+  - rule: Missing referenced file. In the single-file form instructions_file has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: roles.cartographer.instructions_file
+      line: 107
+      column: 5
+      detail: managers/cartographer.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/default-path-only.team.yaml
+  - rule: Missing referenced file. In the single-file form instructions_file has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: roles.curator.instructions_file
+      line: 115
+      column: 5
+      detail: managers/curator.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/default-path-only.team.yaml
+  - rule: Missing referenced file. In the single-file form instructions_file has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: roles.researcher.instructions_file
+      line: 125
+      column: 5
+      detail: workers/researcher.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/default-path-only.team.yaml
   - rule: Missing referenced file. In the single-file form instructions_file has no target.
     spec: spec/2026-11-11
     spec_section: "4.1.3"
@@ -66,11 +211,38 @@ errors:
     location:
       file: input.team.yaml
       path: roles.checker.instructions_file
-      line: 178
-      detail: roles/checker.md
+      line: 133
+      column: 5
+      detail: workers/checker.md
     severity: error
     code: missing_file
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/default-path-only.team.yaml
+  - rule: Missing referenced file. In the single-file form instructions_file has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: roles.qa.instructions_file
+      line: 139
+      column: 5
+      detail: workers/qa.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/default-path-only.team.yaml
+  - rule: Missing referenced file. In the single-file form instructions_file has no target.
+    spec: spec/2026-11-11
+    spec_section: "4.1.3"
+    quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
+    location:
+      file: input.team.yaml
+      path: roles.writer.instructions_file
+      line: 145
+      column: 5
+      detail: workers/writer.md
+    severity: error
+    code: missing_file
+    corpus_case: invalid/default-path-only.team.yaml
 warnings:
   - rule: A role skill name that no package skill provides is an unresolved skill reference, reported as a warning.
     spec: spec/2026-11-11
@@ -78,10 +250,36 @@ warnings:
     quote: "A name that matches no package skill is a warning, not an error (unresolved skill reference)."
     location:
       file: input.team.yaml
+      path: roles.orchestrator.skills[0]
+      line: 91
+      column: 14
+      detail: source-check is the path skill skills/source-check, whose SKILL.md has no target in the single file, so no package skill provides the name
+    severity: warning
+    code: unresolved_skill
+    corpus_case: valid/unresolved-skill.team.yaml
+  - rule: A role skill name that no package skill provides is an unresolved skill reference, reported as a warning.
+    spec: spec/2026-11-11
+    spec_section: "10.3"
+    quote: "A name that matches no package skill is a warning, not an error (unresolved skill reference)."
+    location:
+      file: input.team.yaml
       path: roles.researcher.skills[0]
-      line: 166
+      line: 122
       column: 14
       detail: market-sizing is the path skill skills/market-sizing, whose SKILL.md has no target in the single file, so no package skill provides the name
+    severity: warning
+    code: unresolved_skill
+    corpus_case: valid/unresolved-skill.team.yaml
+  - rule: A role skill name that no package skill provides is an unresolved skill reference, reported as a warning.
+    spec: spec/2026-11-11
+    spec_section: "10.3"
+    quote: "A name that matches no package skill is a warning, not an error (unresolved skill reference)."
+    location:
+      file: input.team.yaml
+      path: roles.checker.skills[0]
+      line: 132
+      column: 14
+      detail: source-check is the path skill skills/source-check, whose SKILL.md has no target in the single file, so no package skill provides the name
     severity: warning
     code: unresolved_skill
     corpus_case: valid/unresolved-skill.team.yaml

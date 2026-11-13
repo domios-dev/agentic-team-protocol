@@ -1,7 +1,6 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk); the regenerated
-# corpus case invalid/reserved-worker.team.yaml is expected to define this rule. The
-# final pass reruns it and fixes sources and locations.
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 case: reserved-worker-name
 form: single-file
 input: input.team.yaml
@@ -12,10 +11,11 @@ errors:
     quote: "A built-in manager name with `kind: worker` is an error (reserved worker name)."
     location:
       file: input.team.yaml
-      path: roles.planner
-      line: 12
-      detail: planner is a built-in manager name and sets kind worker (line 13)
+      path: roles.planner.kind
+      line: 13
+      column: 5
+      detail: planner (line 12) is a built-in manager name and sets kind worker
     severity: error
     code: reserved_worker_name
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/reserved-worker.team.yaml
 warnings: []

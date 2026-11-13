@@ -1,10 +1,9 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 # A role with a built-in manager name (planner) and a worker of the package's own
 # (analyst) both set neither instructions nor instructions_file: every role carries
 # its own instructions, and a built-in name supplies none.
-# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk); the regenerated
-# corpus case invalid/new-worker-no-instructions.team.yaml is expected to define this
-# rule. The final pass reruns it and fixes sources and locations.
 case: missing-instructions
 form: single-file
 input: input.team.yaml
@@ -20,7 +19,7 @@ errors:
       detail: planner is a built-in manager name; it supplies no instructions
     severity: error
     code: missing_instructions
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/builtin-name-no-instructions.team.yaml
   - rule: Every role sets instructions or instructions_file, whatever its kind and name.
     spec: spec/2026-11-11
     spec_section: "10.3.2"
@@ -32,5 +31,5 @@ errors:
       detail: analyst is a worker of the package's own
     severity: error
     code: missing_instructions
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/new-worker-no-instructions.team.yaml
 warnings: []

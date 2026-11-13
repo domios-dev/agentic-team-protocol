@@ -1,7 +1,6 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
-# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk); the regenerated
-# corpus case invalid/missing-orchestrator.team.yaml is expected to define this rule.
-# The final pass reruns it and fixes sources and locations.
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
 case: missing-orchestrator
 form: single-file
 input: input.team.yaml
@@ -16,5 +15,5 @@ errors:
       detail: the roles map lists planner and researcher only
     severity: error
     code: missing_field
-    provisional_source: "pending: Domios validator (task_a567lk)"
+    corpus_case: invalid/missing-orchestrator.team.yaml
 warnings: []
