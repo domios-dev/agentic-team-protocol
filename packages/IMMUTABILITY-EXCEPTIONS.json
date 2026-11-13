@@ -12,6 +12,46 @@
       "added": ["default.team.yaml"]
     },
     {
+      "directory": "packages/com.example/research-desk/2.1.0",
+      "reason": "Rewrite the version in place in the roles-map shape of spec 2026-11-11, byte for byte as the Domios exporter wrote it (team export --format team|folder for the package, --format yaml for its inline single-file variant).",
+      "approver": "owner, one-time first-release exception (roles map)",
+      "added": [
+        "research-desk/assets/icon.svg",
+        "research-desk/blueprints/stale-task-nudge.yaml",
+        "research-desk/essences/how-we-research.md",
+        "research-desk/managers/cartographer.md",
+        "research-desk/managers/curator.md",
+        "research-desk/managers/orchestrator.md",
+        "research-desk/managers/planner.md",
+        "research-desk/skills/source-check/SKILL.md",
+        "research-desk/skills/source-check/scripts/fetch.py",
+        "research-desk/templates/report.md",
+        "research-desk/workers/qa.md",
+        "research-desk/workers/researcher.md",
+        "research-desk/workers/writer.md"
+      ],
+      "modified": [
+        "research-desk.team",
+        "research-desk.team.yaml",
+        "research-desk/team.yaml"
+      ],
+      "deleted": []
+    },
+    {
+      "directory": "packages/dev.domios/default/1.0.0",
+      "reason": "Rewrite the version in place in the roles-map shape of spec 2026-11-11, byte for byte as the Domios exporter wrote it (team export --format yaml|team|folder).",
+      "approver": "owner, one-time first-release exception (roles map)",
+      "added": [],
+      "modified": [
+        "default.team",
+        "default.team.yaml",
+        "default/managers/orchestrator.md",
+        "default/team.yaml",
+        "default/workers/worker.md"
+      ],
+      "deleted": []
+    },
+    {
       "directory": "schema/2026-11-11",
       "reason": "Rewrite the 2026-11-11 JSON Schema in place for the roles map, exactly as atp-validate schema --spec-version 2026-11-11 wrote it in validator.yml run 43455116961 at Domios 16d5277f4ff083d487a7c55ba351f9bb72b8f084 (PROVENANCE.md); the first release had no users.",
       "approver": "owner, one-time first-release exception (roles map)",

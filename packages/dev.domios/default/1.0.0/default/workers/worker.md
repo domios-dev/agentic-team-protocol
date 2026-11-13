@@ -33,4 +33,4 @@ domios agent report --status blocked --from-pad report.md
 
 A `blocked` report only proposes a block; the owner or Planner decides. The Orchestrator closes tasks; never report `done`. Reread the assignment with `domios task show "$CODETERM_TASK_ID"`; without exported plan/task IDs, pass `--plan`/`--task` for `--status`. Read-only verifiers own no task: run only `## Authorized gates` and report to the parent without `--status`.
 
-<!-- revision: 6 -->
+<!-- revision: 8 -->

@@ -5,6 +5,15 @@ All notable changes to the Agentic Team Protocol repository are documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 specification is versioned by date (`spec/<YYYY-MM-DD>/`) rather than by semantic version.
 
+## [Unreleased]: Phase 3
+
+### Changed
+
+- `packages/`: com.example/research-desk 2.1.0 and dev.domios/default 1.0.0 are rewritten
+  in place in the `roles` shape, every form byte for byte as the Domios exporter wrote it,
+  under a one-time owner exception in `packages/IMMUTABILITY-EXCEPTIONS.json`; their
+  versions are unchanged, and `scripts/pack-team.mjs` no longer packs any package version.
+
 ## [Unreleased]: Phase 2
 
 Phase 2 adds the generated JSON Schema, conformance corpus and reference validator
