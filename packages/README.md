@@ -1,7 +1,8 @@
 # Agentic Team Protocol packages
 
-Agentic Team Protocol (ATP) packages. The specification defines three forms, and
-each version is published in every form its package ships:
+Published Agentic Team Protocol packages. The specification defines three package
+forms ([section 4](../spec/2026-11-11/index.md#4-package-forms)), and each version is
+published in every form its package ships:
 
 ```
 packages/<scope>/<name>/<version>/
@@ -31,12 +32,8 @@ when a version does not validate.
 The root `.gitattributes` disables line-ending conversion for `packages/**` and
 `examples/**`, so the bytes and their checksums survive any checkout.
 
-Phase 1 published com.example/research-desk 2.1.0. Phase 2 adds the builtin
-dev.domios/default 1.0.0 from the Domios tree, in all three forms.
-
-Both versions above keep the `.team` ZIP packed here by `scripts/pack-team.mjs`.
-Every later published version publishes the `.team` bytes of the Domios exporter
-as-is (see [CONTRIBUTING.md](../CONTRIBUTING.md)).
+The rules for publishing and changing a package version are in
+[CONTRIBUTING.md](../CONTRIBUTING.md#packages).
 
 ## dev.domios/default 1.0.0
 

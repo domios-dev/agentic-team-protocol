@@ -7,14 +7,15 @@ specification and published packages stable for everyone who depends on them.
 
 - Every change lands through a pull request to `main`. Nobody pushes to `main` directly.
 - The repository owner reviews and merges every pull request.
-- The Pages workflow builds the site for every pull request; the build must be green.
-  Check it locally first with `npm ci && npm run build`.
+- The Pages workflow builds the site and checks its internal links for every pull request;
+  it must be green. Check it locally first, as described in
+  [Building the site](README.md#building-the-site).
 
 ## Specification versions
 
-- The specification is versioned by date under `spec/<YYYY-MM-DD>/`.
-- A dated version is a draft until it is first published on the site. Once published it is
-  immutable: corrections and changes go into a new dated version.
+- The specification is versioned by date under `spec/<YYYY-MM-DD>/`, under the rules of
+  [section 3 of the specification](spec/2026-11-11/index.md#3-versioning): a change to a
+  published dated version goes into a new dated version.
 
 ## Packages
 
@@ -41,8 +42,8 @@ specification and published packages stable for everyone who depends on them.
 ## Generated artifacts
 
 The JSON Schema, conformance corpus and reference validator are generated from the Domios
-reference implementation. They are never edited by hand. A mismatch is fixed at the source
-and the artifacts are regenerated.
+reference implementation and never edited by hand; [PROVENANCE.md](PROVENANCE.md) records
+how each was produced. A mismatch is fixed at the source and the artifacts are regenerated.
 
 ## Naming
 
