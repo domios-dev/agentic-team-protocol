@@ -1,0 +1,21 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# A folder, so that instructions_file has a target and the only defect is the conflict.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
+case: conflicting-instructions
+form: folder
+input: input/
+errors:
+  - rule: A role sets instructions or instructions_file, never both.
+    spec: spec/2026-11-11
+    spec_section: "10.3.3"
+    quote: "Setting both `instructions` and `instructions_file` is an error (conflicting fields)."
+    location:
+      file: input/team.yaml
+      path: roles.researcher.instructions_file
+      line: 16
+      detail: instructions is set on line 14; input/roles/researcher.md exists
+    severity: error
+    code: conflicting_fields
+    provisional_source: "pending: Domios validator (task_a567lk)"
+warnings: []

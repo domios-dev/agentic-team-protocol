@@ -8,11 +8,61 @@ location (file, path or archive entry, line), the severity and the code. Codes c
 from the Domios conformance corpus, `corpus/2026-11-11/cases.json` (`corpus_case`
 names the corpus case that defines the same rule), or from a run of the reference
 validator over these examples (`validator_run` names the run; see `PROVENANCE.md`).
-An entry with `host_profile` applies only under that validator host profile
-(specification section 10.7).
+
+Every input declares its team in one `roles` map, where each role sets `kind`
+(`manager` or `worker`) and its own instructions. A reader takes no host input, so
+each case has one expected result (specification section 10.7).
 
 - `invalid/`: inputs that must be refused.
 - `warnings/`: valid inputs that must produce the listed warnings and no errors.
+
+## Cases
+
+Roles (specification section 10):
+
+| Case | Rule | Code |
+|---|---|---|
+| `invalid-role-name` | 10.1.1, a role name matches `[a-z][a-z0-9_]*` | `invalid_role_name` |
+| `missing-role-kind` | 10.1.2, every role sets `kind` | `missing_role_kind` |
+| `invalid-role-kind` | 10.1.2, `kind` is `manager` or `worker` | `invalid_value` |
+| `missing-orchestrator` | 10.2.1, `roles.orchestrator` is required | `missing_field` |
+| `orchestrator-on-demand` | 10.2.2, the orchestrator starts `with_team` | `invalid_start` |
+| `reserved-worker-name` | 10.2.3, a built-in manager name is not a worker | `reserved_worker_name` |
+| `orchestrator-kind-worker` | 10.2.3, the orchestrator is not a worker | `reserved_worker_name` |
+| `missing-instructions` | 10.3.2, every role sets instructions, built-in names included | `missing_instructions` |
+| `conflicting-instructions` | 10.3.3, never both `instructions` and `instructions_file` | `conflicting_fields` |
+| `worker-start-with-team` | 10.4.4, a worker starts only on demand | `invalid_start` |
+| `schedule-bad-duration` | 10.4.1, a schedule duration is `<positive integer>(m\|h)` | `invalid_schedule` |
+| `schedule-min-greater-than-max` | 10.4.2, a schedule minimum is not above its maximum | `invalid_schedule` |
+| `same-as-unknown-role` | 10.5.2, `same_as` names a role of the package | `unknown_same_as` |
+| `same-as-cycle` | 10.5.2, `same_as` references form no cycle | `same_as_cycle` |
+
+Structure, YAML, payload and removed fields:
+
+| Case | Rule | Code |
+|---|---|---|
+| `malformed-yaml` | 5.9, well-formed YAML | `yaml_syntax` |
+| `yaml-alias-anchor` | 5.2, no anchors or aliases | `yaml_anchor`, `yaml_alias`, `invalid_model` |
+| `duplicate-key` | 5.3, no duplicate key | `duplicate_key` |
+| `unknown-key-managers-workers` | 6.3, top-level `managers` and `workers` are unknown keys | `unknown_field` |
+| `invalid-derived-from` | 7, `derived_from` is a mapping | `expected_mapping` |
+| `missing-referenced-file` | 7.1.2, the icon target exists | `missing_file` |
+| `png-icon-single-file` | 7.1.5, a PNG icon needs the ZIP or folder form | `missing_file` |
+| `path-only-in-single-file` | 4.1.3, a single file has no path-only reference | `missing_file`, warning `unresolved_skill` |
+| `skill-bare-string` | 9.3.1, a skills entry is an object | `expected_mapping` |
+| `path-skill-without-name` | 9.3.3, a path skill's `SKILL.md` has a name | `missing_field` |
+| `removed-persona-includes` | 11, removed role fields | `removed_field` |
+| `removed-top-level-instructions` | 11, no top-level `instructions` or `brief` | `removed_field` |
+| `unreferenced-folder-entry` | 4.2.3, every folder file is referenced | `unreferenced_entry` |
+| `unreferenced-zip-entry` | 4.2.3, every archive entry is referenced | `unreferenced_entry` |
+| `zip-entry-dotdot` | 4.2.4, no `..` entry path | `path_escape`, `missing_file` |
+| `zip-entry-absolute` | 4.2.4, no absolute entry path | `absolute_path`, `missing_file` |
+
+Warnings:
+
+| Case | Rule | Code |
+|---|---|---|
+| `unresolved-skill` | 10.3, a role skill no package skill provides | `unresolved_skill` |
 
 ## What is normative
 
@@ -22,10 +72,10 @@ The location of a diagnostic (file, YAML path, archive entry, line, column) and 
 explanatory fields (`rule`, `quote`, `detail`) are informative.
 
 This repository holds the reference validator to more: `node scripts/conformance.mjs`
-requires it to report exactly the listed diagnostics, locations included, under host
-profiles `none` and `domios`, as a regression oracle for the generated artifacts. It
-also checks that every `quote` appears in the cited section of the specification. CI
-runs it on every pull request (`.github/workflows/conformance.yml`).
+requires it to report exactly the listed diagnostics, locations included, as a
+regression oracle for the generated artifacts. It also checks that every `quote`
+appears in the cited section of the specification. CI runs it on every pull request
+(`.github/workflows/conformance.yml`).
 
 ## Archive cases
 

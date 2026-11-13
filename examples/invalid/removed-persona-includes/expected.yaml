@@ -1,7 +1,8 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
-# corpus_case names the case that defines the same rule (the removed-field rule;
-# the corpus exercises it with kind, includes, instructions, brief and roles).
+# corpus_case names the case that defines the same rule (the removed-field rule).
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: removed-persona-includes
 form: single-file
 input: input.team.yaml
@@ -12,19 +13,19 @@ errors:
     quote: "The following fields are removed from the format. A package that contains one is invalid (removed field):"
     location:
       file: input.team.yaml
-      path: workers.builder.persona
-      line: 14
+      path: roles.builder.persona
+      line: 15
     severity: error
     code: removed_field
-    corpus_case: invalid/removed-kind.team.yaml
+    corpus_case: invalid/role-includes.team.yaml
   - rule: The removed role field `includes` is refused.
     spec: spec/2026-11-11
     spec_section: "11"
     quote: "The following fields are removed from the format. A package that contains one is invalid (removed field):"
     location:
       file: input.team.yaml
-      path: workers.builder.includes
-      line: 15
+      path: roles.builder.includes
+      line: 16
     severity: error
     code: removed_field
     corpus_case: invalid/role-includes.team.yaml

@@ -1,0 +1,21 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk); the regenerated
+# corpus case invalid/orchestrator-on-demand.team.yaml is expected to define this rule.
+# The final pass reruns it and fixes sources and locations.
+case: orchestrator-on-demand
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: The orchestrator always starts with the team.
+    spec: spec/2026-11-11
+    spec_section: "10.2.2"
+    quote: "A `start` other than `with_team` on `roles.orchestrator` is an error (invalid start)."
+    location:
+      file: input.team.yaml
+      path: roles.orchestrator.start
+      line: 10
+      detail: on_demand
+    severity: error
+    code: invalid_start
+    provisional_source: "pending: Domios validator (task_a567lk)"
+warnings: []

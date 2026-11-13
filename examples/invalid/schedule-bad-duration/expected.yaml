@@ -1,7 +1,8 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
-# corpus_case names the case that defines the same rule. The corpus case exercises
-# min > max; the reference implementation reports both conditions as one rule.
+# corpus_case names the case that defines the same rule.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: schedule-bad-duration
 form: single-file
 input: input.team.yaml
@@ -12,8 +13,8 @@ errors:
     quote: "Each duration MUST match `<positive integer>(m|h)`, where `m` means minutes and `h` means hours, for example `45m` or `2h`. Any other duration is an error (invalid schedule)."
     location:
       file: input.team.yaml
-      path: managers.curator.start.schedule
-      line: 13
+      path: roles.curator.start.schedule
+      line: 15
       detail: min 45x has unit x; only m and h are allowed
     severity: error
     code: invalid_schedule

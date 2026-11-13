@@ -1,6 +1,8 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # The code and location come from a run of the reference validator (validator_run);
 # the conformance corpus has no case for this rule.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: malformed-yaml
 form: single-file
 input: input.team.yaml
@@ -17,5 +19,5 @@ errors:
       detail: the flow sequence opened on line 9 is never closed; the reference validator reports it at line 10
     severity: error
     code: yaml_syntax
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    provisional_source: "pending: Domios validator (task_a567lk)"
 warnings: []

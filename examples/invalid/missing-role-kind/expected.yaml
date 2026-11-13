@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
+case: missing-role-kind
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: Every role sets kind, manager or worker.
+    spec: spec/2026-11-11
+    spec_section: "10.1.2"
+    quote: "Every role MUST set `kind` (missing role kind)."
+    location:
+      file: input.team.yaml
+      path: roles.researcher.kind
+      line: 12
+      detail: researcher sets no kind
+    severity: error
+    code: missing_role_kind
+    provisional_source: "pending: Domios validator (task_a567lk)"
+warnings: []

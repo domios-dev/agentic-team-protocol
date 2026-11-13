@@ -1,0 +1,21 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
+case: invalid-role-kind
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A role's kind is manager or worker.
+    spec: spec/2026-11-11
+    spec_section: "10.1.2"
+    quote: "Its value MUST be `manager` or `worker`; any other value is an error (invalid value)."
+    location:
+      file: input.team.yaml
+      path: roles.researcher.kind
+      line: 13
+      column: 11
+      detail: lead
+    severity: error
+    code: invalid_value
+    provisional_source: "pending: Domios validator (task_a567lk)"
+warnings: []

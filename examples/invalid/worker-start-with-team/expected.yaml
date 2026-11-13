@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
+case: worker-start-with-team
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A worker starts only on demand.
+    spec: spec/2026-11-11
+    spec_section: "10.4.4"
+    quote: "A role of kind `worker` whose `start` is `with_team` or a schedule is an error (invalid start)."
+    location:
+      file: input.team.yaml
+      path: roles.researcher.start
+      line: 14
+      detail: with_team
+    severity: error
+    code: invalid_start
+    provisional_source: "pending: Domios validator (task_a567lk)"
+warnings: []

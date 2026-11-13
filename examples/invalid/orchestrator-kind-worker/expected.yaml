@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
+case: orchestrator-kind-worker
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: The orchestrator is a built-in manager name, so it is of kind manager.
+    spec: spec/2026-11-11
+    spec_section: "10.2.3"
+    quote: "A built-in manager name with `kind: worker` is an error (reserved worker name). This includes `orchestrator` with `kind: worker`."
+    location:
+      file: input.team.yaml
+      path: roles.orchestrator
+      line: 8
+      detail: orchestrator sets kind worker (line 9)
+    severity: error
+    code: reserved_worker_name
+    provisional_source: "pending: Domios validator (task_a567lk)"
+warnings: []

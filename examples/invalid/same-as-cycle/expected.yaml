@@ -2,6 +2,8 @@
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule. As in the corpus, the
 # cycle is reported once for each role on it.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: same-as-cycle
 form: single-file
 input: input.team.yaml
@@ -12,9 +14,9 @@ errors:
     quote: "A chain of `same_as` references that returns to a role already in the chain, including a role that names itself, is an error (same_as cycle)."
     location:
       file: input.team.yaml
-      path: workers.researcher.model.same_as
-      line: 15
-      detail: researcher (line 15) -> checker (line 21) -> researcher
+      path: roles.researcher.model.same_as
+      line: 16
+      detail: researcher (line 16) -> checker (line 23) -> researcher
     severity: error
     code: same_as_cycle
     corpus_case: invalid/same-as-cycle.team.yaml
@@ -24,9 +26,9 @@ errors:
     quote: "A chain of `same_as` references that returns to a role already in the chain, including a role that names itself, is an error (same_as cycle)."
     location:
       file: input.team.yaml
-      path: workers.checker.model.same_as
-      line: 21
-      detail: checker (line 21) -> researcher (line 15) -> checker
+      path: roles.checker.model.same_as
+      line: 23
+      detail: checker (line 23) -> researcher (line 16) -> checker
     severity: error
     code: same_as_cycle
     corpus_case: invalid/same-as-cycle.team.yaml

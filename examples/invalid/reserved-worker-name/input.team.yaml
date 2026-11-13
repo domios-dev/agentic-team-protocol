@@ -1,15 +1,16 @@
-name: com.example/worker-named-as-slot
+name: com.example/reserved-worker-name
 version: 1.0.0
-description: Package with a worker that takes the name of a manager slot.
+description: Package whose planner, a built-in manager name, is declared as a worker.
 authors:
   - name: Example Author
     url: https://example.com
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Coordinate the team.
-workers:
   planner:
+    kind: worker
     description: Splits the question into tasks.
     instructions: |
       Split the question into one task per angle.

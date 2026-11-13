@@ -2,6 +2,8 @@
 # The code and location come from a run of the reference validator (validator_run):
 # the conformance corpus has invalid derived_from values, but no case where
 # derived_from is not a mapping.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: invalid-derived-from
 form: single-file
 input: input.team.yaml
@@ -17,5 +19,5 @@ errors:
       column: 15
     severity: error
     code: expected_mapping
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    provisional_source: "pending: Domios validator (task_a567lk)"
 warnings: []

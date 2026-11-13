@@ -2,6 +2,8 @@
 # Valid package: it produces a warning, not an error.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: unresolved-skill
 form: single-file
 input: input.team.yaml
@@ -13,8 +15,8 @@ warnings:
     quote: "A name that matches no package skill is a warning, not an error (unresolved skill reference)."
     location:
       file: input.team.yaml
-      path: workers.researcher.skills[0]
-      line: 14
+      path: roles.researcher.skills[0]
+      line: 15
       detail: the package has no top-level skills entry named market-sizing
     severity: warning
     code: unresolved_skill

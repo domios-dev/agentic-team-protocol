@@ -1,6 +1,8 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: duplicate-key
 form: single-file
 input: input.team.yaml
@@ -11,10 +13,10 @@ errors:
     quote: "A mapping MUST NOT contain a duplicate key (duplicate key)."
     location:
       file: input.team.yaml
-      path: workers.researcher.description
-      line: 16
+      path: roles.researcher.description
+      line: 17
       column: 5
-      detail: second `description` key; the first is on line 13
+      detail: second `description` key; the first is on line 14
     severity: error
     code: duplicate_key
     corpus_case: invalid/duplicate-key.team.yaml

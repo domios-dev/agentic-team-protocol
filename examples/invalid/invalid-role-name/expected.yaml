@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The final
+# pass reruns it against the regenerated corpus and validator and fixes sources and locations.
+case: invalid-role-name
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A role name matches [a-z][a-z0-9_]*.
+    spec: spec/2026-11-11
+    spec_section: "10.1.1"
+    quote: "A role name MUST match `[a-z][a-z0-9_]*` (invalid role name)."
+    location:
+      file: input.team.yaml
+      path: roles.fact-checker
+      line: 12
+      detail: a hyphen is not allowed in a role name; fact_checker is
+    severity: error
+    code: invalid_role_name
+    provisional_source: "pending: Domios validator (task_a567lk)"
+warnings: []

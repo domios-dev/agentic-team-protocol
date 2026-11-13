@@ -1,9 +1,12 @@
 # Expected result for an Agentic Team Protocol (ATP) conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
-# corpus_case names the case that defines the same rule. The unresolved-skill
-# warning comes from a run of the reference validator (validator_run).
+# corpus_case names the case that defines the same rule.
 # The input is the canonical com.example/research-desk 2.1.0 team.yaml, byte for
 # byte, used as a single file. It is valid only as a folder or .team ZIP.
+# PROVISIONAL roles-map draft, pending: Domios validator (task_a567lk). The input is
+# the roles-map source handed to the exporter; the final pass replaces it with the
+# exported packages/com.example/research-desk/2.1.0/research-desk/team.yaml bytes,
+# reruns it against the regenerated corpus and validator and fixes sources and locations.
 case: path-only-in-single-file
 form: single-file
 input: input.team.yaml
@@ -16,7 +19,7 @@ errors:
       file: input.team.yaml
       path: files[3].path
       line: 69
-      detail: data/competitors.csv has no content; workers.researcher.files (line 149) names it too
+      detail: data/competitors.csv has no content; roles.cartographer.files (line 138) and roles.researcher.files (line 168) name it too
     severity: error
     code: missing_file
     corpus_case: invalid/missing-file.team.yaml
@@ -43,7 +46,7 @@ errors:
       detail: skills/market-sizing
     severity: error
     code: missing_file
-    corpus_case: invalid/distributed-bets.team.yaml
+    provisional_source: "pending: Domios validator (task_a567lk)"
   - rule: Missing referenced file. In the single-file form an automation path has no target.
     spec: spec/2026-11-11
     spec_section: "4.1.3"
@@ -55,19 +58,19 @@ errors:
       detail: blueprints/digest.yaml
     severity: error
     code: missing_file
-    corpus_case: invalid/distributed-bets.team.yaml
+    provisional_source: "pending: Domios validator (task_a567lk)"
   - rule: Missing referenced file. In the single-file form instructions_file has no target.
     spec: spec/2026-11-11
     spec_section: "4.1.3"
     quote: "In the single-file form, a reference with no inline content is an error (missing referenced file)."
     location:
       file: input.team.yaml
-      path: workers.checker.instructions_file
-      line: 158
-      detail: workers/checker.md
+      path: roles.checker.instructions_file
+      line: 178
+      detail: roles/checker.md
     severity: error
     code: missing_file
-    corpus_case: invalid/default-path-only.team.yaml
+    provisional_source: "pending: Domios validator (task_a567lk)"
 warnings:
   - rule: A role skill name that no package skill provides is an unresolved skill reference, reported as a warning.
     spec: spec/2026-11-11
@@ -75,11 +78,10 @@ warnings:
     quote: "A name that matches no package skill is a warning, not an error (unresolved skill reference)."
     location:
       file: input.team.yaml
-      path: workers.researcher.skills[0]
-      line: 147
+      path: roles.researcher.skills[0]
+      line: 166
       column: 14
       detail: market-sizing is the path skill skills/market-sizing, whose SKILL.md has no target in the single file, so no package skill provides the name
     severity: warning
     code: unresolved_skill
     corpus_case: valid/unresolved-skill.team.yaml
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
