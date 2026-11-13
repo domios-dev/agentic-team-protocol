@@ -226,11 +226,26 @@ Command-line binaries, not committed (for a GitHub Release; see
 | `atp-validate-x86_64-apple-darwin` | Intel macOS | `5ba326bce800d1ec66a87df5069e634e73fd5099902cc9316631f87941335eaf` |
 | `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `d886e7f07e665be4f0cb53f29abd43eaf260fa45b56edfa69b1fe38e5984caac` |
 
+The native binaries are not byte-reproducible across runs. Later runs of the same workflow
+at the same Domios commit (for example
+[43457952465](https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465))
+rebuilt only `atp-validate-x86_64-apple-darwin` with identical bytes. The WebAssembly
+module, its `Cargo.lock` and the JSON Schema came out identical. The release binaries are
+therefore exactly those of the build run above, never a rebuild.
+
 ## Example run
 
-The same build run checks every input under `examples/` and every form of every package
-under `packages/` once with the Linux binary (`atp-validate <input> --json`); the validator
-takes no host profile. Its report is the `examples-report.jsonl` file of the
-`schema-and-example-run` artifact (SHA-256
-`59e673b15125f4b7c0b52bcea7e7a2bc7f8d62b64e42154ab56be6e1698a21b3`). Codes and locations
-that `examples/**/expected.yaml` takes from this run name it as `validator_run`.
+`validator.yml` checks every input under `examples/` and every form of every package under
+`packages/` once with the Linux binary (`atp-validate <input> --json`); the validator takes
+no host profile. The run over the current examples and packages is
+<https://github.com/domios-dev/agentic-team-protocol/actions/runs/43459756828> (attempt 1;
+workflow commit `ca3f0aa506bbeac16f191a47fbf53d649057c144`, the run's merge commit is
+`f4eba1c88ee318f495ccf52893429587d1052b93`; Domios
+`16d5277f4ff083d487a7c55ba351f9bb72b8f084`). Its report is the `examples-report.jsonl` file
+of the `schema-and-example-run` artifact (SHA-256
+`9bea7ed51f2540f7d50519d54b442a916031cded2dbd92c81f214f2b6d501278`): 37 runs, with 30 invalid
+examples (exit 1), the warning example and all 6 package forms valid (exit 0). That run built
+its own Linux binary. The release Linux binary of the build run above
+(`a0d982b5f9ba43816b4b4d675336bc3c41040faeca817554c841463c1c25ad1c`) gives the same exit
+code and an identical JSON report for each of the 37 inputs. Codes and locations that
+`examples/**/expected.yaml` takes from this run name it as `validator_run`.

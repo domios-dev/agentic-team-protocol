@@ -7,12 +7,45 @@ specification is versioned by date (`spec/<YYYY-MM-DD>/`) rather than by semanti
 
 ## [Unreleased]: Phase 3
 
-### Changed
+Phase 3 releases the roles map in place under specification version 2026-11-11: a team
+declares its roles as one map of managers and workers. The first release had no users,
+so the owner allowed a one-time first-release exception. Every published 2026-11-11
+artifact is rewritten in place instead of versioned. Names, versions, the schema `$id`
+and the release tag stay the same, and there is no migration.
 
-- `packages/`: com.example/research-desk 2.1.0 and dev.domios/default 1.0.0 are rewritten
-  in place in the `roles` shape, every form byte for byte as the Domios exporter wrote it,
-  under a one-time owner exception in `packages/IMMUTABILITY-EXCEPTIONS.json`; their
-  versions are unchanged, and `scripts/pack-team.mjs` no longer packs any package version.
+### Pending
+
+- Roles map, released in place under the one-time first-release owner exception.
+  `PROVENANCE.md` records the exception and the superseded checksums.
+  `packages/IMMUTABILITY-EXCEPTIONS.json` lists every added, modified and deleted file.
+  - Specification `spec/2026-11-11/`: roles are one map of managers and workers
+    (section 10), and section 15 gives the final validator codes.
+  - JSON Schema `schema/2026-11-11/team.schema.json`, conformance corpus
+    `corpus/2026-11-11/` and reference validator 2026.11.11: regenerated from Domios
+    `16d5277f4ff083d487a7c55ba351f9bb72b8f084`. The schema and the WebAssembly module
+    come from `validator.yml` run 43455116961, and the corpus is a `git archive` of that
+    commit.
+  - Release `validator-2026.11.11`: after the merge to `main`, the binaries and
+    `SHA256SUMS` of run 43455116961 replace the first release's under the same tag. The
+    tag moves to the merge commit on `main`.
+  - `packages/`: com.example/research-desk 2.1.0 and dev.domios/default 1.0.0 are rewritten
+    in the `roles` shape, every form byte for byte as the Domios exporter wrote it. Their
+    versions are unchanged, and `scripts/pack-team.mjs` no longer packs any package
+    version.
+  - `examples/`: rewritten for the roles map, with 30 invalid cases and one warning case.
+    Their codes and locations come from the reference validator.
+  - `atp-validate` and the WebAssembly functions take no host profile. `validator.yml`,
+    `scripts/conformance.mjs` and the catalog build check each input once. In corpus
+    mode, `scripts/conformance.mjs` requires a listed code only for errors, as the
+    reference implementation's corpus test does.
+  - `scripts/check-immutability.mjs` also keeps `validator/<YYYY.MM.DD>/` immutable. It
+    accepts an exact-file exception entry (`directory`, `reason`, `approver`, and the
+    exact `added`, `modified` and `deleted` file lists) under `packages/`, `schema/`,
+    `corpus/` and `validator/`. The entry admits exactly those changes, and only while it
+    is new against the base. Existing entries behave as before.
+  - `scripts/check-links.mjs`: checks every internal link and anchor of the built site.
+    With `--markdown`, it checks the repository's Markdown files that the site does not
+    render, as GitHub shows them.
 
 ## [Unreleased]: Phase 2
 
@@ -123,18 +156,3 @@ artifacts (JSON Schema, conformance corpus, reference validator) are pending.
   `note` for a version without a single file. `scripts/build-catalog.mjs` emits
   `forms.single_file: null` for it, and `--verify` accepts null only when no single file
   is served. The catalog page shows "no single-file form" for such a version.
-- Roles map, released in place (one-time first-release owner exception; no version bump,
-  no migration). The JSON Schema `schema/2026-11-11/team.schema.json`, the conformance
-  corpus `corpus/2026-11-11/` and the reference validator 2026.11.11 are regenerated
-  from Domios `16d5277f4ff083d487a7c55ba351f9bb72b8f084` and rewritten in place. The
-  schema and the WebAssembly module come from `validator.yml` run 43455116961, and the
-  corpus is a `git archive` of that commit. The names, the schema `$id` and the release
-  tag `validator-2026.11.11` are unchanged. The release binaries and `SHA256SUMS` are
-  replaced under the same tag after the merge to `main`. `PROVENANCE.md` records every new
-  SHA-256 and lists the superseded ones. `atp-validate` and the WebAssembly functions take
-  no host profile, and `validator.yml` checks each input once.
-- `scripts/check-immutability.mjs` also keeps `validator/<YYYY.MM.DD>/` immutable. It
-  accepts an exact-file exception entry (`directory`, `reason`, `approver`, and the exact
-  `added`, `modified` and `deleted` file lists) under `packages/`, `schema/`, `corpus/`
-  and `validator/`. The entry admits exactly those changes, and only while it is new
-  against the base. Existing entries behave as before.
