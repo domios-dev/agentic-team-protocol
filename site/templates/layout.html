@@ -3,27 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
 <title>{{title}}</title>
 <link rel="stylesheet" href="{{root}}assets/style.css">
 </head>
 <body>
+<a class="skip-link" href="#content">Skip to content</a>
 <header class="site-header">
-  <a class="site-name" href="{{root}}">Agentic Team Protocol</a>
-  <nav>
-    <a href="{{root}}spec/">Specification</a>
-    <a href="{{root}}packages/">Packages</a>
-    <a href="{{root}}examples/">Examples</a>
-    <a href="{{root}}catalog/">Catalog</a>
-    <a href="{{root}}LICENSE.txt">License</a>
-    <a href="https://github.com/domios-dev/agentic-team-protocol">Repository</a>
-  </nav>
+  <div class="header-inner">
+    <a class="brand" href="{{root}}">Agentic Team Protocol</a>
+    <nav class="header-nav" aria-label="Site">
+{{header_nav}}
+    </nav>
+  </div>
 </header>
-<main>
+<div class="{{layout_class}}">
+  <details class="nav-mobile">
+    <summary>Contents</summary>
+    <nav class="sidebar-nav" aria-label="Documentation">
+{{nav}}
+    </nav>
+  </details>
+  <aside class="sidebar">
+    <nav class="sidebar-nav" aria-label="Documentation">
+{{nav}}
+    </nav>
+  </aside>
+  <main id="content" class="doc">
 {{notice}}
 {{content}}
-</main>
+  </main>
+{{toc}}
+</div>
 <footer class="site-footer">
-  <p>The Agentic Team Protocol specification is licensed under Apache-2.0. Each package carries its own license.</p>
+  <div class="footer-inner">
+    <p>The Agentic Team Protocol specification is licensed under Apache-2.0. Each package carries its own license.</p>
+    <p class="footer-links"><a href="{{root}}LICENSE.txt">License</a> <a href="https://github.com/domios-dev/agentic-team-protocol">Repository</a> <a href="https://domios.dev">by Domios</a></p>
+  </div>
 </footer>
 </body>
 </html>

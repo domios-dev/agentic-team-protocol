@@ -14,6 +14,11 @@
 //                           plus the catalog/ page rendered from it.
 //   LICENSE                 copied byte-for-byte to LICENSE.txt.
 //
+// Every page gets the same documentation layout: a left navigation (with the section
+// list of the current spec version), an on-page section list for pages with at least
+// three h2 sections, and an anchor link on every h2 to h4. Navigation never changes an
+// output path or a copied byte.
+//
 // Absent or empty spec/, packages/ and examples/ are valid inputs. The output is
 // deterministic (sorted entries, no timestamps) and static only: the build refuses
 // to emit a rendered page containing a script, form or input element.
@@ -102,8 +107,12 @@ function isRelativeMarkdownLink(href) {
   return !/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/') && !href.startsWith('#') && /\.md(#.*)?$/i.test(href);
 }
 
+// Renders Markdown to HTML. Every heading gets a stable id; h2 to h4 also get a
+// visible anchor link to themselves. Returns the first h1 as the title and the
+// h2/h3 headings for the navigation and the on-page section list.
 function renderMarkdown(source) {
   const used = new Map();
+  const headings = [];
   let title = null;
   const marked = new Marked({
     gfm: true,
@@ -120,28 +129,169 @@ function renderMarkdown(source) {
         const count = used.get(base) ?? 0;
         used.set(base, count + 1);
         const id = count === 0 ? base : `${base}-${count}`;
-        return `<h${depth} id="${id}">${inner}</h${depth}>\n`;
+        const text = inner.replace(/<[^>]*>/g, '');
+        if (depth === 2 || depth === 3) headings.push({ depth, id, text });
+        const anchor = depth >= 2 && depth <= 4
+          ? `<a class="heading-anchor" href="#${id}" aria-label="Link to this section: ${text.replace(/"/g, '&quot;')}">#</a>`
+          : '';
+        return `<h${depth} id="${id}">${inner}${anchor}</h${depth}>\n`;
       },
     },
   });
   const html = marked.parse(source);
-  return { html, title };
+  return { html, title, headings };
+}
+
+// --- Navigation -----------------------------------------------------------
+
+const REPOSITORY_URL = 'https://github.com/domios-dev/agentic-team-protocol';
+
+// "Agentic Team Protocol: host behaviour (non-normative), version 2026-11-11"
+// -> "Host behaviour (non-normative)" for the navigation.
+function shortSpecTitle(title) {
+  const short = title.replace(/^Agentic Team Protocol:\s*/, '').replace(/,\s*version\s+\d{4}-\d{2}-\d{2}\s*$/, '');
+  return short.charAt(0).toUpperCase() + short.slice(1);
+}
+
+// The left navigation, planned once before any page is written. Items name their
+// target as an output path relative to _site/ ("dir/" for a directory index) or an
+// absolute URL. The current spec version lists its section headings.
+function planNavigation() {
+  const specDir = path.join(ROOT, 'spec');
+  const dates = sortedEntries(specDir).filter((e) => e.isDirectory() && DATE_DIR.test(e.name)).map((e) => e.name);
+  const current = dates.at(-1) ?? null;
+  const specItems = [{ label: 'All versions', target: 'spec/' }];
+  if (current) {
+    const dateDir = path.join(specDir, current);
+    const pages = sortedEntries(dateDir).filter((e) => e.isFile() && e.name.endsWith('.md')).map((e) => e.name);
+    // index.md first, then the companion pages in name order.
+    pages.sort((a, b) => (a === 'index.md' ? -1 : b === 'index.md' ? 1 : byName(a, b)));
+    for (const rel of pages) {
+      const { title, headings } = renderMarkdown(fs.readFileSync(path.join(dateDir, ...rel.split('/')), 'utf8'));
+      const outRel = rel.replace(/\.md$/, '.html');
+      const target = outRel === 'index.html' ? `spec/${current}/` : `spec/${current}/${outRel}`;
+      const item = { label: shortSpecTitle(title ?? fallbackTitle(rel)), target };
+      if (outRel === 'index.html') {
+        item.children = headings.filter((h) => h.depth === 2).map((h) => ({ label: h.text, target: `${target}#${h.id}` }));
+      }
+      specItems.push(item);
+    }
+  }
+  const exists = (name) => fs.existsSync(path.join(ROOT, name));
+  const groups = [
+    { label: 'Start', items: [{ label: 'Introduction', target: '' }] },
+    { label: current ? `Specification ${current}` : 'Specification', items: specItems },
+    {
+      label: 'Packages',
+      items: [
+        { label: 'Catalog', target: 'catalog/' },
+        { label: 'Packages', target: 'packages/' },
+        { label: 'Examples', target: 'examples/' },
+      ],
+    },
+    {
+      label: 'Generated artifacts',
+      items: [
+        exists('schema') && { label: 'JSON Schema', target: 'schema/' },
+        exists('corpus') && { label: 'Conformance corpus', target: 'corpus/' },
+        exists('validator') && { label: 'Reference validator', target: 'validator/' },
+      ].filter(Boolean),
+    },
+    {
+      label: 'Project',
+      items: [
+        { label: 'License', target: 'LICENSE.txt' },
+        { label: 'Repository', target: REPOSITORY_URL },
+      ],
+    },
+  ].filter((g) => g.items.length);
+  return { groups, current };
+}
+
+const navigation = planNavigation();
+
+const isExternal = (target) => /^[a-z][a-z0-9+.-]*:/i.test(target);
+
+// The output path a target names: "spec/" -> "spec/index.html", "" -> "index.html".
+function pageOf(target) {
+  const p = target.split('#')[0];
+  return p === '' || p.endsWith('/') ? `${p}index.html` : p;
+}
+
+const isPageTarget = (target) => !isExternal(target) && !target.includes('#');
+
+// The one target of a link set marked current on page outRel, with its aria-current
+// value: "page" for the page itself, otherwise "true" for the deepest directory the
+// page sits in (packages/ for packages/com.example/), or null.
+function activeTarget(targets, outRel) {
+  const pages = targets.filter(isPageTarget);
+  const exact = pages.find((t) => pageOf(t) === outRel);
+  if (exact !== undefined) return { target: exact, state: 'page' };
+  const parent = pages
+    .filter((t) => t.endsWith('/') && outRel.startsWith(t))
+    .sort((a, b) => b.length - a.length)[0];
+  return parent ? { target: parent, state: 'true' } : null;
+}
+
+function navLink({ label, target }, root, active) {
+  const href = isExternal(target) ? target : `${root}${hrefFor(target)}`.replace(/%23/g, '#');
+  const state = active && active.target === target ? active.state : null;
+  return `<a href="${href}"${state ? ` aria-current="${state}"` : ''}>${escapeHtml(label)}</a>`;
+}
+
+function renderHeaderNav(outRel, root) {
+  const active = activeTarget(HEADER_LINKS.map((l) => l.target), outRel);
+  return HEADER_LINKS.map((l) => navLink(l, root, active)).join('\n');
+}
+
+function renderNav(outRel, root) {
+  const all = navigation.groups.flatMap((g) => g.items.flatMap((it) => [it, ...(it.children ?? [])]));
+  const active = activeTarget(all.map((it) => it.target), outRel);
+  const item = (it) => {
+    const children = it.children?.length
+      ? `\n<ul class="nav-sections">\n${it.children.map((c) => `<li>${navLink(c, root, active)}</li>`).join('\n')}\n</ul>`
+      : '';
+    return `<li>${navLink(it, root, active)}${children}</li>`;
+  };
+  return navigation.groups
+    .map((g) => `<p class="nav-group">${escapeHtml(g.label)}</p>\n<ul>\n${g.items.map(item).join('\n')}\n</ul>`)
+    .join('\n');
+}
+
+const HEADER_LINKS = [
+  { label: 'Specification', target: 'spec/' },
+  { label: 'Catalog', target: 'catalog/' },
+  { label: 'Repository', target: REPOSITORY_URL },
+];
+
+// The on-page section list, for pages with at least three h2 sections.
+function renderToc(headings) {
+  if (!headings || headings.filter((h) => h.depth === 2).length < 3) return '';
+  const items = headings
+    .map((h) => `<li class="toc-${h.depth}"><a href="#${h.id}">${h.text}</a></li>`)
+    .join('\n');
+  return `<nav class="toc" aria-label="On this page">\n<p class="nav-group">On this page</p>\n<ul>\n${items}\n</ul>\n</nav>`;
 }
 
 // --- Pages ----------------------------------------------------------------
 
 // outRel: output path relative to _site/, POSIX separators.
-function writePage(outRel, { title, body, notice = '' }) {
+function writePage(outRel, { title, body, notice = '', headings = null }) {
   const depth = outRel.split('/').length - 1;
   const root = depth === 0 ? './' : '../'.repeat(depth);
   const pageTitle = title === 'Agentic Team Protocol' ? title : `${title} | Agentic Team Protocol`;
+  const toc = renderToc(headings);
   const values = {
     title: escapeHtml(pageTitle),
     root,
+    nav: renderNav(outRel, root),
+    header_nav: renderHeaderNav(outRel, root),
+    toc,
+    layout_class: toc ? 'layout has-toc' : 'layout',
     notice: notice ? `<p class="notice">${notice.replaceAll('{{root}}', root)}</p>` : '',
     content: body,
   };
-  const html = layout.replace(/\{\{(title|root|notice|content)\}\}/g, (_, key) => values[key]);
+  const html = layout.replace(/\{\{(title|root|nav|header_nav|toc|layout_class|notice|content)\}\}/g, (_, key) => values[key]);
   const target = path.join(OUT, ...outRel.split('/'));
   ensureDir(target);
   fs.writeFileSync(target, html);
@@ -159,8 +309,8 @@ function buildSitePages() {
     if (rel.startsWith('templates/')) continue;
     const abs = path.join(SITE_DIR, ...rel.split('/'));
     if (rel.endsWith('.md')) {
-      const { html, title } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
-      writePage(rel.replace(/\.md$/, '.html'), { title: title ?? fallbackTitle(rel), body: html });
+      const { html, title, headings } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
+      writePage(rel.replace(/\.md$/, '.html'), { title: title ?? fallbackTitle(rel), body: html, headings });
     } else {
       copyExact(abs, path.join(OUT, ...rel.split('/')));
     }
@@ -187,11 +337,11 @@ function buildSpec() {
     for (const rel of walkFiles(dateDir)) {
       const abs = path.join(dateDir, ...rel.split('/'));
       if (rel.endsWith('.md')) {
-        const { html, title } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
+        const { html, title, headings } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
         const outRel = rel.replace(/\.md$/, '.html');
         const pageTitle = title ?? fallbackTitle(rel);
         pages.push({ outRel, title: pageTitle });
-        writePage(`spec/${date}/${outRel}`, { title: pageTitle, body: html, notice });
+        writePage(`spec/${date}/${outRel}`, { title: pageTitle, body: html, notice, headings });
       } else {
         copyExact(abs, path.join(OUT, 'spec', date, ...rel.split('/')));
       }

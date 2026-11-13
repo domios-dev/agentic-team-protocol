@@ -5,6 +5,16 @@ All notable changes to the Agentic Team Protocol repository are documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 specification is versioned by date (`spec/<YYYY-MM-DD>/`) rather than by semantic version.
 
+## [Unreleased]: Phase 4
+
+### Changed
+
+- Site: a documentation layout in the domios.dev visual language, with a left navigation
+  of the specification sections, an on-page section list, heading anchors, dark and light
+  themes from `prefers-color-scheme`, and a "Contents" menu on narrow screens. It stays
+  static, with no script and no font files, and every URL and served artifact byte is
+  unchanged.
+
 ## [Unreleased]: Phase 3
 
 Phase 3 releases the roles map in place under specification version 2026-11-11: a team
