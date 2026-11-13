@@ -27,6 +27,8 @@ A package's `permissions`, `secrets`, `requires` and `inputs` are requests, not 
 
 A package names the secrets it needs (`secrets[].name`, with `purpose` and `required`). It never carries their values. The host binds each named secret to a value from its own local secret store, on the machine where the role runs. Exports leave out every secret value, from instructions, files, memory and skills alike. Secret values never travel with a package and never cross machines with it.
 
+Domios also refuses to import a package that carries a secret value in its text, instructions included, even when the package is valid. This is host safety policy, not a format diagnostic: the package format treats instructions as opaque ([index.md section 10.8](index.md#108-scope-package-format-only)), and another host may apply a different import policy.
+
 ### 2.3 Version updates never change running teams
 
 A package version is immutable once published. Domios pins each team's role registrations to the package identity (`name` and `version`). A new package version, or an updated template, does not change a team that is already running. Re-running a start on an existing team skips the managers and registrations that already exist and reports them. A registration pinned to a different package version is reported and never overwritten.
