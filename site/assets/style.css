@@ -19,6 +19,9 @@
   --ct-font-sans: "Inter", "Segoe UI", "Avenir Next", "Avenir", "Segoe UI Variable", "Helvetica Neue", sans-serif;
   --ct-font-mono: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", Menlo, monospace;
   --header-h: 80px;
+  /* Quiet rules (table cells, listing rows, dividers). The full --ct-border is kept
+     for the header rule and the "Contents" outline. */
+  --divider: color-mix(in srgb, var(--ct-border) 55%, transparent);
   color-scheme: dark;
 }
 
@@ -54,7 +57,7 @@ body {
 }
 
 a { color: var(--ct-accent); text-underline-offset: 3px; }
-a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); outline-offset: 3px; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); outline-offset: 3px; border-radius: 6px; }
 ::selection { background: var(--ct-accent); color: var(--ct-bg); }
 
 .skip-link {
@@ -71,7 +74,7 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
   text-decoration: none;
 }
 .skip-link:focus { top: 12px; }
-.skip-link:focus-visible { outline-color: var(--ct-heading); }
+.skip-link:focus-visible { outline-color: var(--ct-heading); border-radius: 10px; }
 
 /* Header */
 
@@ -134,14 +137,16 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
   padding: 24px 6px 48px;
   margin-inline: -6px;
   scrollbar-width: thin;
-  scrollbar-color: var(--ct-border) transparent;
+  scrollbar-color: color-mix(in srgb, var(--ct-border) 60%, transparent) transparent;
 }
 
 .toc { display: none; }
 
+/* From 1200px the page's sections move from the left navigation to the right. */
 @media (min-width: 1200px) {
   .layout { grid-template-columns: 240px minmax(0, 820px) 220px; }
   .toc { display: block; }
+  .sidebar-nav .nav-sections { display: none; }
 }
 
 .sidebar-nav,
@@ -190,6 +195,9 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
 }
 
 .doc [id] { scroll-margin-top: calc(var(--header-h) + 16px); }
+
+/* Measure: about 78 characters for text; tables and code keep the full column. */
+.doc > :is(p, ul, ol, blockquote, h1, h2, h3, h4) { max-width: 42rem; }
 
 .doc h1 {
   margin: 0 0 20px;
@@ -251,7 +259,7 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
 .doc blockquote p:last-child { margin-bottom: 0; }
 .doc blockquote strong { color: var(--ct-fg); }
 
-.doc hr { margin: 32px 0; border: 0; border-top: 1px solid var(--ct-border); }
+.doc hr { margin: 32px 0; border: 0; border-top: 1px solid var(--divider); }
 
 .doc code,
 .doc pre { font-family: var(--ct-font-mono); font-size: .9em; }
@@ -280,22 +288,27 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
   border-collapse: collapse;
   font-size: 14px;
   overflow-wrap: normal;
+  /* Scroll cue: a shadow at the right edge while more columns are hidden; the
+     bg-coloured cover travels with the content and hides it at the end. */
+  background:
+    linear-gradient(to right, transparent, var(--ct-bg) 12px) right center / 24px 100% no-repeat local,
+    linear-gradient(to left, color-mix(in srgb, var(--ct-fg) 12%, transparent), transparent) right center / 12px 100% no-repeat scroll;
 }
 .doc th,
 .doc td {
   padding: 8px 12px;
-  border: 1px solid var(--ct-border);
+  border: 1px solid var(--divider);
   text-align: left;
   vertical-align: top;
 }
 .doc th { background: var(--ct-surface); color: var(--ct-heading); font-weight: 600; }
-.doc td:first-child code { white-space: nowrap; }
+.doc td code { white-space: nowrap; }
 
 /* Version line under the header of a spec page */
 .notice {
   margin: 0 0 28px !important;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--ct-border);
+  border-bottom: 1px solid var(--divider);
   color: var(--ct-muted-fg);
   font-size: 14px;
 }
@@ -303,7 +316,7 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
 /* Directory listings */
 .listing {
   padding: 0 !important;
-  border-top: 1px solid var(--ct-border);
+  border-top: 1px solid var(--divider);
   list-style: none;
   font-family: var(--ct-font-mono);
   font-size: 14px;
@@ -315,7 +328,7 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
   gap: 4px 16px;
   margin: 0 !important;
   padding: 8px 4px;
-  border-bottom: 1px solid var(--ct-border);
+  border-bottom: 1px solid var(--divider);
 }
 .listing a { text-decoration: none; }
 .listing a:hover { text-decoration: underline; }
@@ -324,7 +337,7 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
 /* Footer */
 
 .site-footer {
-  border-top: 1px solid var(--ct-border);
+  border-top: 1px solid var(--divider);
   color: var(--ct-muted-fg);
   font-size: 13px;
 }
@@ -374,12 +387,12 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
     transform: translateY(-2px) rotate(45deg);
   }
   .nav-mobile[open] summary::after { transform: translateY(2px) rotate(-135deg); }
-  .nav-mobile[open] summary { border-bottom: 1px solid var(--ct-border); }
+  .nav-mobile[open] summary { border-bottom: 1px solid var(--divider); }
   .nav-mobile .sidebar-nav { padding: 16px 14px 20px; }
 
   .doc { padding: 24px 0 56px; }
   /* Tables keep readable columns and scroll inside themselves. */
   .doc th,
   .doc td { min-width: 8.5rem; }
-  .doc td:last-child { min-width: 15rem; }
+  .doc td:last-child { min-width: 12rem; }
 }

@@ -14,9 +14,10 @@
 //                           plus the catalog/ page rendered from it.
 //   LICENSE                 copied byte-for-byte to LICENSE.txt.
 //
-// Every page gets the same documentation layout: a left navigation (with the section
-// list of the current spec version), an on-page section list for pages with at least
-// three h2 sections, and an anchor link on every h2 to h4. Navigation never changes an
+// Every page gets the same documentation layout: a left navigation of pages, a section
+// list for pages with at least three h2 sections (on the right from 1200px, nested
+// under the page's own navigation item below that), and an anchor link on every h2
+// to h4. Navigation never changes an
 // output path or a copied byte.
 //
 // Absent or empty spec/, packages/ and examples/ are valid inputs. The output is
@@ -155,7 +156,7 @@ function shortSpecTitle(title) {
 
 // The left navigation, planned once before any page is written. Items name their
 // target as an output path relative to _site/ ("dir/" for a directory index) or an
-// absolute URL. The current spec version lists its section headings.
+// absolute URL. It lists pages only; a page's own sections are added per page.
 function planNavigation() {
   const specDir = path.join(ROOT, 'spec');
   const dates = sortedEntries(specDir).filter((e) => e.isDirectory() && DATE_DIR.test(e.name)).map((e) => e.name);
@@ -167,14 +168,10 @@ function planNavigation() {
     // index.md first, then the companion pages in name order.
     pages.sort((a, b) => (a === 'index.md' ? -1 : b === 'index.md' ? 1 : byName(a, b)));
     for (const rel of pages) {
-      const { title, headings } = renderMarkdown(fs.readFileSync(path.join(dateDir, ...rel.split('/')), 'utf8'));
+      const { title } = renderMarkdown(fs.readFileSync(path.join(dateDir, ...rel.split('/')), 'utf8'));
       const outRel = rel.replace(/\.md$/, '.html');
       const target = outRel === 'index.html' ? `spec/${current}/` : `spec/${current}/${outRel}`;
-      const item = { label: shortSpecTitle(title ?? fallbackTitle(rel)), target };
-      if (outRel === 'index.html') {
-        item.children = headings.filter((h) => h.depth === 2).map((h) => ({ label: h.text, target: `${target}#${h.id}` }));
-      }
-      specItems.push(item);
+      specItems.push({ label: shortSpecTitle(title ?? fallbackTitle(rel)), target });
     }
   }
   const exists = (name) => fs.existsSync(path.join(ROOT, name));
@@ -244,14 +241,24 @@ function renderHeaderNav(outRel, root) {
   return HEADER_LINKS.map((l) => navLink(l, root, active)).join('\n');
 }
 
-function renderNav(outRel, root) {
-  const all = navigation.groups.flatMap((g) => g.items.flatMap((it) => [it, ...(it.children ?? [])]));
+// The page's h2 sections, when it has enough of them for a section list.
+function pageSections(headings) {
+  const h2 = (headings ?? []).filter((h) => h.depth === 2);
+  return h2.length >= 3 ? h2 : [];
+}
+
+// The left navigation lists pages only. Under the current page's own item it nests
+// that page's h2 sections, which CSS shows only below 1200px (wider screens have the
+// "On this page" list instead). No other page's sections are ever listed.
+function renderNav(outRel, root, headings) {
+  const all = navigation.groups.flatMap((g) => g.items);
   const active = activeTarget(all.map((it) => it.target), outRel);
+  const sections = pageSections(headings);
   const item = (it) => {
-    const children = it.children?.length
-      ? `\n<ul class="nav-sections">\n${it.children.map((c) => `<li>${navLink(c, root, active)}</li>`).join('\n')}\n</ul>`
+    const own = active?.state === 'page' && active.target === it.target && sections.length
+      ? `\n<ul class="nav-sections">\n${sections.map((h) => `<li><a href="#${h.id}">${h.text}</a></li>`).join('\n')}\n</ul>`
       : '';
-    return `<li>${navLink(it, root, active)}${children}</li>`;
+    return `<li>${navLink(it, root, active)}${own}</li>`;
   };
   return navigation.groups
     .map((g) => `<p class="nav-group">${escapeHtml(g.label)}</p>\n<ul>\n${g.items.map(item).join('\n')}\n</ul>`)
@@ -266,7 +273,7 @@ const HEADER_LINKS = [
 
 // The on-page section list, for pages with at least three h2 sections.
 function renderToc(headings) {
-  if (!headings || headings.filter((h) => h.depth === 2).length < 3) return '';
+  if (!pageSections(headings).length) return '';
   const items = headings
     .map((h) => `<li class="toc-${h.depth}"><a href="#${h.id}">${h.text}</a></li>`)
     .join('\n');
@@ -284,7 +291,7 @@ function writePage(outRel, { title, body, notice = '', headings = null }) {
   const values = {
     title: escapeHtml(pageTitle),
     root,
-    nav: renderNav(outRel, root),
+    nav: renderNav(outRel, root, headings),
     header_nav: renderHeaderNav(outRel, root),
     toc,
     layout_class: toc ? 'layout has-toc' : 'layout',
