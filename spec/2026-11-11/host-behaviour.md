@@ -61,7 +61,8 @@ The rest of this page describes Domios as the reference host. Other hosts are no
 
 - A template is one package in any of its three forms. Starting a team from a template uses Domios's existing Team-creation primitive. Without a template, it uses the builtin default package. There is no separate template rail and no pre-spawned fleet.
 - On start, Domios creates the `with_team` roles and records the remaining roles in a durable, per-Team role-registration store. That store survives restart and restore.
-- The orchestrator starts registered roles when it needs them, through ordinary `agent spawn --role` and `plan task dispatch --role`, including on mesh peers.
+- The orchestrator starts registered `on_demand` roles when it needs them, through ordinary `agent spawn --role` and `plan task dispatch --role`, including on mesh peers.
+- Domios runs scheduled rounds only for `curator`. It refuses a schedule on any other role (`schedule_unsupported_role`). This is Domios host policy, not a format error: the format allows a schedule on any manager.
 - Payload items are applied at start:
   - `files` land in the Team's knowledge directory and are listed, with their descriptions, in role prompts.
   - `memory` items are seeded into `domios mem`, scoped to the Team.
@@ -75,7 +76,7 @@ The rest of this page describes Domios as the reference host. Other hosts are no
 
 - Domios's built-in manager names are `orchestrator`, `planner`, `cartographer` and `curator`. When a package lists one of them, that manager carries the duties and authority that Domios attaches to the name. The authority comes from the host, never from the package.
 - A built-in manager name that the package does not list is absent from the team. Domios does not stand in for it.
-- A manager with any other name is a custom manager. It gets no Domios authority. The orchestrator starts it, and it works through the orchestrator.
+- A manager with any other name is a custom manager. It gets no Domios authority, and it works through the orchestrator. It starts as its `start` says, like any manager: a `with_team` custom manager starts with the team, and an `on_demand` custom manager waits for the orchestrator to start it.
 - Role precedence is task > team. A task's personality, role guidance and model override the role's own.
 - Machine placement is Domios registration data that the owner chooses. Packages do not set it.
 

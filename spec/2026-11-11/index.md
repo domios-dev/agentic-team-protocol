@@ -374,7 +374,7 @@ roles:
 ### 10.2 Orchestrator and built-in manager names
 
 1. `roles.orchestrator` MUST be present (**missing required key**). The orchestrator anchors the team. Because role names are unique ([section 10.1](#101-role-names-and-kinds)), a team has exactly one orchestrator.
-2. The orchestrator always starts with the team. A `start` other than `with_team` on `roles.orchestrator` is an error (**orchestrator not started with the team**).
+2. The orchestrator always starts with the team. A `start` other than `with_team` on `roles.orchestrator` is an error (**invalid start**).
 3. `orchestrator`, `planner`, `cartographer` and `curator` are the built-in manager names. A role with one of these names MUST be of kind `manager`. A built-in manager name with `kind: worker` is an error (**reserved worker name**). This includes `orchestrator` with `kind: worker`.
 4. Apart from `orchestrator`, every built-in manager name is optional. A package that does not list one has no role of that name.
 5. A built-in manager name supplies no field values. A role with a built-in manager name sets its fields like any other role, instructions included. Its only difference from other managers is its default `start` ([section 10.4](#104-start)).
@@ -389,7 +389,7 @@ Managers and workers use the same role fields, and only these fields. A key in a
 | `kind` | `manager` or `worker` | required | none | See [section 10.1](#101-role-names-and-kinds). |
 | `name` | string | optional | none | A display name, for example `Lead` or `Atlas`. |
 | `description` | string | optional | none | What the role does. |
-| `start` | `with_team`, `on_demand`, or `{schedule: "<min>..<max>"}` | optional | by role, see [section 10.4](#104-start) | See [section 10.4](#104-start). |
+| `start` | `with_team`, `on_demand`, or `{schedule: "<min>..<max>"}` | optional | by role, see [section 10.4](#104-start) | See [section 10.4](#104-start). A worker's only valid value is `on_demand`. |
 | `model` | list of model ids, `{same_as: <role>}`, or omitted | optional | omitted | See [section 10.5](#105-model). |
 | `reasoning` | string | optional | none | Requested reasoning effort, for example `medium` or `high`. The value set is pending: generated from the Domios reference implementation. |
 | `skills` | list of strings | optional | none | Bare names of package skills ([section 9.3](#93-skills)). A name that matches no package skill is a warning, not an error (**unresolved skill reference**). |
@@ -400,7 +400,7 @@ Managers and workers use the same role fields, and only these fields. A key in a
 
 1. A role MAY narrow `skills` and `files` to itself by listing them.
 2. Every role MUST set `instructions` or `instructions_file`. A role that sets neither is an error (**missing instructions**), whatever its kind and name.
-3. Setting both `instructions` and `instructions_file` is an error (**instructions and instructions_file both set**).
+3. Setting both `instructions` and `instructions_file` is an error (**conflicting fields**).
 
 ### 10.4 Start
 
@@ -409,6 +409,8 @@ Managers and workers use the same role fields, and only these fields. A key in a
 | `with_team` | The role starts when the team starts. |
 | `on_demand` | The role is available. The orchestrator starts it when it is needed. |
 | `{schedule: "<min>..<max>"}` | The role runs on a schedule. The interval lies between `<min>` and `<max>`, for example `45m..2h`. |
+
+Each value means the same for every manager, whether its name is built in or the package's own. A manager with `start: with_team` starts when the team starts, whatever its name.
 
 A role that omits `start` takes this default:
 
@@ -419,7 +421,7 @@ A role that omits `start` takes this default:
 | `cartographer` | `on_demand` |
 | `curator` | `{schedule: 45m..2h}` |
 | any other manager | `on_demand` |
-| every worker | `on_demand` |
+| every worker | `on_demand` (the only valid value, rule 4) |
 
 Canonical scheduled form:
 
@@ -435,6 +437,7 @@ curator:
 1. Each duration MUST match `<positive integer>(m|h)`, where `m` means minutes and `h` means hours, for example `45m` or `2h`. Any other duration is an error (**invalid schedule**).
 2. `<min>` MUST NOT be greater than `<max>`. A greater `<min>` is an error (**invalid schedule**).
 3. A host may clamp a valid range to its own bounds. Clamping is host policy, not a format error (see [host-behaviour.md](host-behaviour.md)).
+4. A worker starts only on demand. A role of kind `worker` whose `start` is `with_team` or a schedule is an error (**invalid start**). A worker that omits `start` is `on_demand`.
 
 ### 10.5 Model
 
@@ -532,17 +535,17 @@ Each condition below is named by its rule. Its stable code is the one the confor
 | tab indentation | error | [5](#5-yaml-rules).4 | `tab_indentation` |
 | missing required key | error | [6](#6-top-level-structure).2, [10.2](#102-orchestrator-and-built-in-manager-names).1 | `missing_field` |
 | unknown key | error | [6](#6-top-level-structure).3, [10.3](#103-role-fields), [12](#12-extensions).1 | `unknown_field` |
-| invalid value | error | [6](#6-top-level-structure).4, [10.1](#101-role-names-and-kinds).2 | pending |
+| invalid value | error | [6](#6-top-level-structure).4, [10.1](#101-role-names-and-kinds).2 | `invalid_value` |
 | invalid package name | error | [7](#7-identity-block) (`name`) | pending |
 | invalid derived_from | error | [7](#7-identity-block) (`derived_from.name`, `derived_from.version`) | `invalid_derived_from` |
 | invalid model id | error | [10.5](#105-model).1 | `invalid_model` |
-| invalid role name | error | [10.1](#101-role-names-and-kinds).1 | pending |
-| missing role kind | error | [10.1](#101-role-names-and-kinds).2 | pending |
-| reserved worker name (a built-in manager name with `kind: worker`) | error | [10.2](#102-orchestrator-and-built-in-manager-names).3 | pending |
-| missing instructions (any role) | error | [10.3](#103-role-fields).2 | pending |
+| invalid role name | error | [10.1](#101-role-names-and-kinds).1 | `invalid_role_name` |
+| missing role kind | error | [10.1](#101-role-names-and-kinds).2 | `missing_role_kind` |
+| reserved worker name (a built-in manager name with `kind: worker`) | error | [10.2](#102-orchestrator-and-built-in-manager-names).3 | `reserved_worker_name` |
+| missing instructions (any role) | error | [10.3](#103-role-fields).2 | `missing_instructions` |
 | skill without name | error | [9.3](#93-skills).3 | `missing_field` |
 | invalid schedule | error | [10.4](#104-start).1, [10.4](#104-start).2 | `invalid_schedule` |
-| orchestrator not started with the team | error | [10.2](#102-orchestrator-and-built-in-manager-names).2, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `invalid_start` |
+| invalid start (orchestrator not `with_team`, or a worker not `on_demand`) | error | [10.2](#102-orchestrator-and-built-in-manager-names).2, [10.4](#104-start).4, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `invalid_start` |
 | plan, spec or task template | error | [14](#14-out-of-scope-for-this-version), [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `plan_template_unsupported` |
 | input default not in choices | error | [8](#8-start-asks-block) (`inputs` full form) | pending |
 | removed field | error | [11](#11-removed-fields) | `removed_field` |
@@ -550,7 +553,7 @@ Each condition below is named by its rule. Its stable code is the one the confor
 | bare-string skill | error | [9.3](#93-skills).1 | `expected_mapping` |
 | unknown same_as role | error | [10.5](#105-model).2 | `unknown_same_as` |
 | same_as cycle | error | [10.5](#105-model).2 | `same_as_cycle` |
-| instructions and instructions_file both set | error | [10.3](#103-role-fields).3 | pending |
+| conflicting fields (`instructions` and `instructions_file` both set) | error | [10.3](#103-role-fields).3 | `conflicting_fields` |
 | invalid icon | error | [7.1](#71-icon).3 | `icon_not_image` |
 | SVG icon with script | error | [7.1](#71-icon).3, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `svg_script` |
 | SVG icon with external reference | error | [7.1](#71-icon).3, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `svg_external_reference` |
@@ -581,7 +584,7 @@ The reference implementation is normative for the conditions below. Each names t
 - **invalid derived_from** (`invalid_derived_from`): `derived_from.name` that does not follow the package name grammar of [section 7](#7-identity-block), or `derived_from.version` that is not a semantic version. Each is reported at its own key. Corpus: `invalid/invalid-derived-from.team.yaml`.
 - **invalid model id** (`invalid_model`): a model list entry that is not `<harness>:<model>`, reported at that entry; also an empty model list, or a `model` scalar other than `inherit`. Corpus: `invalid/invalid-model.team.yaml` (`model: [opus]`).
 - **removed `model: inherit`** (`removed_inherit`): the removed form `model: inherit`; use `model: {same_as: <role>}`. Corpus: `invalid/removed-inherit.team.yaml`.
-- **orchestrator not started with the team** (`invalid_start`): the orchestrator always starts with the team, so a `start` other than `with_team` on `roles.orchestrator` is an error, reported at `roles.orchestrator.start`. Corpus: `invalid/orchestrator-on-demand.team.yaml`.
+- **invalid start** (`invalid_start`): the orchestrator always starts with the team, so a `start` other than `with_team` on `roles.orchestrator` is an error, reported at `roles.orchestrator.start`. Corpus: `invalid/orchestrator-on-demand.team.yaml`. A worker starts only on demand, so `with_team` or a schedule on a role of kind `worker` is the same error ([section 10.4](#104-start).4); its corpus case is pending.
 - **plan, spec or task template** (`plan_template_unsupported`): a top-level `plan`, `plans`, `spec`, `specs`, `tasks` or `goal` key is an error ([section 14](#14-out-of-scope-for-this-version)). Corpus: `invalid/plan-template.team.yaml`.
 - **SVG icon with script** (`svg_script`): an SVG icon that contains a `script` or `foreignObject` element, or an attribute whose name starts with `on`. Reported at `icon`. Corpus: `invalid/icon-svg-script.team.yaml`.
 - **SVG icon with external reference** (`svg_external_reference`): an SVG icon with an `href`, `*:href` or `src` attribute, or a CSS `url(...)`, whose target is not an in-document `#` reference; or one that uses `@import` or `javascript:`, or declares a DTD. Reported at `icon`. Corpus: `invalid/icon-svg-external.team.yaml`.
