@@ -226,9 +226,11 @@ Command-line binaries, not committed (for a GitHub Release; see
 | `atp-validate-x86_64-apple-darwin` | Intel macOS | `03e4f3e3f5ce92a023d18ef9fb960e2b64353cd494a4df543d00469777eec9dc` |
 | `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `f1da9f500caacda004545332a0224428906cc5dcd64a94c6449b1215aaf2eacc` |
 
-The native binaries are not byte-reproducible across runs. Repeated runs of this workflow
-at one Domios commit rebuilt only `atp-validate-x86_64-apple-darwin` with identical bytes,
-while the WebAssembly module, its `Cargo.lock` and the JSON Schema came out identical. The
+The native binaries are not byte-reproducible across runs. A later run of this workflow
+at the same Domios commit
+([43469760569](https://github.com/domios-dev/agentic-team-protocol/actions/runs/43469760569))
+rebuilt only `atp-validate-x86_64-apple-darwin` with identical bytes. The WebAssembly
+module, its `Cargo.lock`, the JSON Schema and the example report came out identical. The
 release binaries are therefore exactly those of the build run above, never a rebuild.
 
 The build run's Domios commit, `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`, spells out
