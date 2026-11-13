@@ -25,8 +25,8 @@ ships the `.team` the Domios exporter writes, unchanged; the script never writes
 `node scripts/check-forms.mjs` checks that each ZIP holds exactly the folder's files
 byte for byte and matches its writer's container profile, that a re-pack of the
 listed versions is byte-identical, and that text files use LF only. The [reference validator](../validator/) checks every
-form: `node scripts/conformance.mjs` runs it on each form under host profiles `none`
-and `domios`, and the catalog build fails when a version does not validate.
+form: `node scripts/conformance.mjs` runs it on each form, and the catalog build fails
+when a version does not validate.
 
 The root `.gitattributes` disables line-ending conversion for `packages/**` and
 `examples/**`, so the bytes and their checksums survive any checkout.
@@ -49,8 +49,9 @@ The builtin default team of Domios, the reference implementation. Every file in
 the header comment of `team.yaml`. Nothing is added, removed or reformatted.
 `default.team` is packed from that folder by `scripts/pack-team.mjs`.
 
-- `team.yaml`: Orchestrator, Planner, Cartographer and Curator managers; worker, qa,
-  reviewer and release_manager workers
+- `team.yaml`: one `roles` map with the managers orchestrator, planner, cartographer
+  and curator and the workers worker, qa, reviewer and release_manager, each with its
+  own instructions
 - `icon.svg`: the package icon
 - `managers/*.md`, `workers/*.md`: each role's `instructions_file`
 
@@ -122,7 +123,7 @@ these places:
 | `files`: `assets/logo.png` (path only, binary) | replaced by `assets/logo.svg` with inline SVG `content`; same description |
 | `skills`: `- path: skills/market-sizing` | inline `{name: market-sizing, description, content}` (content is the folder's `SKILL.md`) |
 | `automation`: `- path: blueprints/digest.yaml` + description | inline `{name: digest, description, content}` (same description; content is the folder's `digest.yaml`) |
-| `workers.checker.instructions_file: workers/checker.md` | `instructions: \|` with the text of `workers/checker.md` |
+| `roles.checker.instructions_file: workers/checker.md` | `instructions: \|` with the text of `workers/checker.md` |
 
 Every other line is unchanged. The canonical bytes used as a single file are
 the invalid fixture `examples/invalid/path-only-in-single-file`.
