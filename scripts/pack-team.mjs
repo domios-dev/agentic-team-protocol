@@ -115,10 +115,10 @@ export function readFolder(dir) {
   return out.sort(byteOrder);
 }
 
-// The package versions whose `.team` this script packed and keeps packing: an
-// explicit, closed list. Never add a version here; later versions publish the
-// Domios exporter's archive unchanged.
-export const PACK_TEAM_VERSIONS = Object.freeze(['com.example/research-desk@2.1.0', 'dev.domios/default@1.0.0']);
+// The package versions whose `.team` this script packs: empty, because every
+// package version publishes the Domios exporter's archive unchanged. Never add
+// a version here.
+export const PACK_TEAM_VERSIONS = Object.freeze([]);
 
 // [{ id, folder, zip, single, packTeam }] for packages/<scope>/<name>/<version>/<name>/
 export function packageForms() {
