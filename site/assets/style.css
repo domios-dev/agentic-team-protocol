@@ -302,7 +302,10 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--ct-accent); ou
   vertical-align: top;
 }
 .doc th { background: var(--ct-surface); color: var(--ct-heading); font-weight: 600; }
-.doc td code { white-space: nowrap; }
+/* Field names stay whole; other cells' code wraps only at its own spaces (not
+   mid-token, as the inherited overflow-wrap: anywhere would allow). */
+.doc td:first-child code { white-space: nowrap; }
+.doc td code { overflow-wrap: normal; }
 
 /* Version line under the header of a spec page */
 .notice {
