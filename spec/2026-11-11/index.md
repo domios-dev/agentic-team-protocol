@@ -7,7 +7,7 @@
 
 ## 1. Scope
 
-The Agentic Team Protocol defines a portable package that describes an agent team: its identity, what it asks a host for at start, the content it carries, and its roles, each of which is a manager or a worker. This document defines the package format and the rules a conforming reader and writer follow. A host's runtime policy is not part of this format. The companion page [host-behaviour.md](host-behaviour.md) describes how a host treats a package and uses Domios as the reference host. That page is non-normative.
+The Agentic Team Protocol defines a portable package that describes an agent team: its identity, what it asks a host for at start, the content it carries, and its roles, each of which is a manager or a worker. This document defines the package format and the rules a conforming reader and writer follow. A host's runtime policy is not part of this format, and neither are the orchestration commands a host offers its roles ([section 10.8](#108-scope-package-format-only)). The companion page [host-behaviour.md](host-behaviour.md) describes how a host treats a package and uses Domios as the reference host. That page is non-normative.
 
 Version 2026-11-11 covers roles of two kinds, managers and workers, with per-role instructions, plus optional files, memory, skills and automation. It defines no plan, spec or task templates and no plan export (see [section 14](#14-out-of-scope-for-this-version)).
 
@@ -477,6 +477,15 @@ curator:
 2. A field that a role omits takes the default this document gives in [section 10.3](#103-role-fields) and [section 10.4](#104-start), or has no value. The host's choice of a model for a role without one ([section 10.5](#105-model)) is host policy, not a field value.
 3. The result of reading a package depends only on the package. A reader takes no host input, such as a list of a host's own role names, that changes whether a package is valid.
 
+### 10.8 Scope: package format only
+
+This format standardizes the package: its roles with their `kind`, `start`, `model` and instructions, and the files, skills and tools the team carries. It does not standardize orchestration. The commands a host offers its roles, for example to dispatch tasks, edit plans, review work or report results, are host-defined.
+
+1. Role instructions are opaque to this format. Whether a package is valid never depends on what its instructions say: a reader, a validator included, MUST NOT refuse a package or report a diagnostic because of the content of its instructions.
+2. Instructions are written for a host, so a package built for one host may use that host's commands. For example, the instructions of `dev.domios/default` use Domios plan, dispatch and report commands. Such a package is valid; a different host may not be able to run it as intended.
+
+[Section 14.1](#141-future-direction-informative) describes a possible future direction for host-portable packages.
+
 ## 11. Removed fields
 
 The following fields are removed from the format. A package that contains one is invalid (**removed field**):
@@ -521,6 +530,11 @@ A host appends its own runtime text to a role's instructions when it composes th
 - Plan, spec and task templates are not part of version 2026-11-11.
 - Plan export is not part of version 2026-11-11.
 - Machine placement is not an author field ([section 11](#11-removed-fields)).
+- Orchestration commands, such as task dispatch, plan editing, review and reporting, are host-defined ([section 10.8](#108-scope-package-format-only)).
+
+### 14.1 Future direction (informative)
+
+This section is informative and sets no requirement. Host capabilities such as task dispatch, plan editing, review and reporting may later become typed capabilities: a package would declare the capabilities its roles use, and a host would implement them. Packages written against declared capabilities instead of one host's commands would then be portable between hosts. This version defines no such capabilities.
 
 ## 15. Error and warning conditions
 

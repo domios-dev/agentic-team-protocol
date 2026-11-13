@@ -47,6 +47,11 @@ jobs:
       - name: Build site
         run: npm run build
 
+      # Every relative link and #fragment in _site/ must resolve to a built file and an
+      # id in the target page. External links are listed, not fetched.
+      - name: Check internal links
+        run: node scripts/check-links.mjs
+
       # Every catalog checksum must equal the SHA-256 of the bytes _site/ serves,
       # and catalog.json must be byte-identical to a fresh generation.
       - name: Verify catalog checksums against served bytes

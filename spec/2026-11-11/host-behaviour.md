@@ -11,8 +11,11 @@ The package format ([index.md](index.md)) says what a package contains and when 
 - how teams start, recover and are updated
 - which models are chosen
 - how packages are found
+- which orchestration commands roles use, for example to dispatch tasks, edit plans, review work and report results
 
 Hosts can differ on all of these points and still read the same packages.
+
+To the format, role instructions are opaque text for the host ([index.md section 10.8](index.md#108-scope-package-format-only)). A package built for one host may use that host's commands: the instructions of `dev.domios/default` use Domios plan, dispatch and report commands, so that package is written for Domios. Another host can read and validate it, but it may not be able to run those roles as intended. A possible future direction, typed host capabilities that packages declare, is described in [index.md section 14.1](index.md#141-future-direction-informative).
 
 ## 2. Practices for any host
 
@@ -51,7 +54,7 @@ When a team is created without a package, Domios uses its builtin default packag
 - The package defines no other models. The owner picks a model for each `with_team` manager at start, and workers use the host's dispatch defaults.
 - Teams with no role registrations, including Teams restored from before packages existed, resolve to the default package.
 
-A team started from any other package has only that package's roles. Domios adds no default manager or worker to it, fills in no field from its own role definitions, and keeps no host profile ([index.md section 10.7](index.md#107-a-team-has-exactly-its-listed-roles)).
+A team started from any other package has only that package's roles. Domios adds no manager or worker to it and fills in no field from its own role definitions ([index.md section 10.7](index.md#107-a-team-has-exactly-its-listed-roles)).
 
 ## 3. Domios-specific behaviour
 
