@@ -39,7 +39,7 @@ The specification is versioned by date, and each dated version keeps its own URL
 - [License](LICENSE.txt): the specification is licensed under Apache-2.0. Each package
   carries its own license in its `license` field.
 
-Site address: https://atp.domios.dev/ (not yet published)
+Site address: https://atp.domios.dev/
 
 ## Generated artifacts
 
