@@ -1,0 +1,15 @@
+name: com.example/missing-role-kind
+version: 1.0.0
+description: Package with a role that does not say whether it is a manager or a worker.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  orchestrator:
+    kind: manager
+    instructions: |
+      Coordinate the team.
+  researcher:
+    description: Researches one angle.
+    instructions: |
+      Research exactly one angle.

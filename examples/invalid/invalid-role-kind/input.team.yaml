@@ -1,0 +1,16 @@
+name: com.example/invalid-role-kind
+version: 1.0.0
+description: Package with a role whose kind is neither manager nor worker.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  orchestrator:
+    kind: manager
+    instructions: |
+      Coordinate the team.
+  researcher:
+    kind: lead
+    description: Researches one angle.
+    instructions: |
+      Research exactly one angle.

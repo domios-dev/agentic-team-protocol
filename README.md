@@ -41,11 +41,13 @@ Requires Node.js 22.
 npm ci
 npm run build
 node scripts/check-links.mjs
+node scripts/check-links.mjs --markdown
 ```
 
 The build writes a static site to `_site/`. Missing or empty `spec/`, `packages/` and
 `examples/` directories are allowed. `scripts/check-links.mjs` fails when an internal
-link or anchor in `_site/` does not resolve.
+link or anchor in `_site/` does not resolve; with `--markdown` it checks the links of
+the repository Markdown the site does not render, as GitHub shows it.
 
 ## License
 

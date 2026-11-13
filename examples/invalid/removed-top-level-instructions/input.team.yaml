@@ -1,22 +1,26 @@
-name: com.example/release-desk
+name: com.example/removed-top-level-instructions
 version: 1.0.0
 title: Release desk
-description: Qualifies a release candidate; written in the superseded roles shape.
+description: Qualifies a release candidate; still carries the removed top-level instructions and brief.
 authors:
   - name: Example Author
     url: https://example.com
 license: Apache-2.0
 
 instructions: |
-  The conductor coordinates and integrates; workers implement.
+  The orchestrator coordinates and integrates; workers implement.
   Never publish without the owner's explicit approval.
 
+brief: Qualify the candidate named in the start inputs.
+
 roles:
-  conductor:
+  orchestrator:
+    kind: manager
     description: Coordinates the release; dispatches, reviews, integrates.
     instructions: |
       Integrate accepted lanes by real merge.
   qa:
+    kind: worker
     description: Verifies the candidate live.
     instructions: |
       Verify live first, then run unit tests.

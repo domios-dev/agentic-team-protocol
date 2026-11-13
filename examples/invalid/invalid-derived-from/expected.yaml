@@ -1,7 +1,6 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # The code and location come from a run of the reference validator (validator_run):
-# the conformance corpus has invalid derived_from values, but no case where
-# derived_from is not a mapping.
+# the conformance corpus has no case where derived_from is not a mapping.
 case: invalid-derived-from
 form: single-file
 input: input.team.yaml
@@ -17,5 +16,5 @@ errors:
       column: 15
     severity: error
     code: expected_mapping
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
 warnings: []

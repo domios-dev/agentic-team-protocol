@@ -1,4 +1,4 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule.
 case: schedule-min-greater-than-max
@@ -11,8 +11,8 @@ errors:
     quote: "`<min>` MUST NOT be greater than `<max>`. A greater `<min>` is an error (invalid schedule)."
     location:
       file: input.team.yaml
-      path: managers.curator.start.schedule
-      line: 13
+      path: roles.curator.start.schedule
+      line: 15
       detail: min 2h is greater than max 45m
     severity: error
     code: invalid_schedule

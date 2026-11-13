@@ -25,8 +25,8 @@ outside consumer can reproduce without Domios.
 - `scripts/conformance.mjs`: runs the released `atp-validate` 2026.11.11 (its SHA-256
   checked against `validator/README.md` and `PROVENANCE.md`) and the committed
   WebAssembly module over every package version in every form it ships, every
-  `examples/` case and every corpus case, under host profiles `none` and `domios`
-  (the corpus under `domios`, as the reference implementation runs it). Packages must be
+  `examples/` case and every corpus case, one run per input with no host input
+  (specification section 10.7). Packages must be
   valid with no diagnostic; examples must produce exactly their listed diagnostics,
   locations included; corpus cases must match `valid`, report every listed diagnostic
   and no unlisted code; the WebAssembly report must equal the command-line report. It
@@ -43,7 +43,7 @@ outside consumer can reproduce without Domios.
 ### Changed
 
 - The catalog build validates every entry's `.team` ZIP and single file with the
-  reference validator under host profiles `none` and `domios` and fails on any error;
+  reference validator, one run per form, and fails on any error;
   each entry records the validator version in `validation`. The catalog page no longer
   says validation is pending.
 - `validator/README.md` links the release `validator-2026.11.11` and gives copyable

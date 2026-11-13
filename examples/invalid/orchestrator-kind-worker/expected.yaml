@@ -1,0 +1,21 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
+case: orchestrator-kind-worker
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: The orchestrator is a built-in manager name, so it is of kind manager.
+    spec: spec/2026-11-11
+    spec_section: "10.2.3"
+    quote: "A built-in manager name with `kind: worker` is an error (reserved worker name). This includes `orchestrator` with `kind: worker`."
+    location:
+      file: input.team.yaml
+      path: roles.orchestrator.kind
+      line: 9
+      column: 5
+      detail: orchestrator sets kind worker
+    severity: error
+    code: reserved_worker_name
+    corpus_case: invalid/orchestrator-worker.team.yaml
+warnings: []

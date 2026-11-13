@@ -1,0 +1,21 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
+case: invalid-role-kind
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: A role's kind is manager or worker.
+    spec: spec/2026-11-11
+    spec_section: "10.1.2"
+    quote: "Its value MUST be `manager` or `worker`; any other value is an error (invalid value)."
+    location:
+      file: input.team.yaml
+      path: roles.researcher.kind
+      line: 13
+      column: 11
+      detail: lead
+    severity: error
+    code: invalid_value
+    corpus_case: invalid/invalid-kind.team.yaml
+warnings: []

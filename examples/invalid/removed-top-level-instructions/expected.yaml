@@ -1,0 +1,31 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes and locations come from the Domios conformance corpus,
+# corpus/2026-11-11/cases.json; corpus_case names the case that defines the same
+# rule. Team-wide guidance belongs in the orchestrator's instructions.
+case: removed-top-level-instructions
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: There is no top-level `instructions` field.
+    spec: spec/2026-11-11
+    spec_section: "11"
+    quote: "top-level `instructions` (a role's own `instructions` stays valid)"
+    location:
+      file: input.team.yaml
+      path: instructions
+      line: 10
+    severity: error
+    code: removed_field
+    corpus_case: invalid/removed-top-instructions.team.yaml
+  - rule: There is no top-level `brief` field.
+    spec: spec/2026-11-11
+    spec_section: "11"
+    quote: "top-level `brief`"
+    location:
+      file: input.team.yaml
+      path: brief
+      line: 14
+    severity: error
+    code: removed_field
+    corpus_case: invalid/removed-top-instructions.team.yaml
+warnings: []

@@ -1,0 +1,20 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
+case: orchestrator-on-demand
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: The orchestrator always starts with the team.
+    spec: spec/2026-11-11
+    spec_section: "10.2.2"
+    quote: "A `start` other than `with_team` on `roles.orchestrator` is an error (invalid start)."
+    location:
+      file: input.team.yaml
+      path: roles.orchestrator.start
+      line: 10
+      detail: on_demand
+    severity: error
+    code: invalid_start
+    corpus_case: invalid/orchestrator-on-demand.team.yaml
+warnings: []
