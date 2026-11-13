@@ -21,20 +21,21 @@ specification and published packages stable for everyone who depends on them.
 
 - Published package versions under `packages/<scope>/<name>/<version>/` are immutable.
   To change a package, publish a new version.
-- The only exception is a one-time entry in `packages/IMMUTABILITY-EXCEPTIONS.json` naming the
-  exact version directory, the reason and the approver, added in the same pull request as the
-  change. `scripts/check-immutability.mjs` then accepts modified (not added or deleted) files
-  in that version, and only while the entry is new relative to the base commit, so once merged
-  it allows nothing further; a malformed exceptions file fails the check.
-- An entry may instead carry an `"added"` array of exact file paths relative to the version
-  directory: then only those files may be added, each must really be added, and every other
-  change to that version, a modification included, still fails.
-- Every package version published from now on publishes the `.team` bytes the Domios exporter
-  writes (`team export --format team`) as-is, so the archive has one writer; it is never
-  re-packed here. com.example/research-desk 2.1.0 and dev.domios/default 1.0.0 keep the
-  archives `scripts/pack-team.mjs` packed for them; that script lists exactly these two in
-  `PACK_TEAM_VERSIONS` and writes only them, and `scripts/check-forms.mjs` checks every
-  other version's `.team` against the exporter's container profile.
+- The only exception is a one-time entry in
+  [`packages/IMMUTABILITY-EXCEPTIONS.json`](packages/IMMUTABILITY-EXCEPTIONS.json), added in
+  the same pull request as the change and enforced by `scripts/check-immutability.mjs`. An
+  entry applies only while it is new relative to the base commit, so once merged it allows
+  nothing further; a malformed exceptions file fails the check. Every entry names a reason
+  and an approver, in one of two forms:
+  - Keyed `"version"` (the version directory): allows only modified files in that version,
+    or, with an `"added"` array of exact file paths, only adding exactly those files.
+  - Keyed `"directory"`, with `"added"`, `"modified"` and `"deleted"` arrays of exact paths
+    relative to it: each listed file must have exactly that change against the base, any
+    unlisted change in the directory fails, and a directory takes one new entry.
+- Every package version publishes the bytes the Domios exporter writes
+  (`team export --format yaml|team|folder`) as-is, in every form it ships; they are never
+  authored, re-packed or reformatted here, and `scripts/check-forms.mjs` checks every `.team`
+  against the exporter's container profile.
 - Package files are served exactly as committed. Do not reformat or re-encode them.
 - Each package states its own license. Published packages and examples contain no personal
   names, handles or personal URLs; use `com.example` and neutral authors.
