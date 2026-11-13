@@ -6,17 +6,61 @@ reference implementation produced them: never written, reformatted or edited by 
 file records, for each artifact, the Domios source commit, the crate, the command that
 produced the bytes, the builder, and the SHA-256 of every committed file.
 
-A published dated directory (`schema/<YYYY-MM-DD>/`, `corpus/<YYYY-MM-DD>/`) never changes;
-`scripts/check-immutability.mjs` enforces it. A correction is a new dated directory.
+A published dated directory (`schema/<YYYY-MM-DD>/`, `corpus/<YYYY-MM-DD>/`) and a published
+validator version (`validator/<YYYY.MM.DD>/`) never change; `scripts/check-immutability.mjs`
+enforces it. A correction is a new directory. The one exception, made once by the owner for
+the first release, is recorded under [Owner exception](#owner-exception).
+
+## Owner exception
+
+The first release of specification version 2026-11-11 had no users. The owner therefore
+allowed a one-time first-release exception for the roles map (one map of managers and
+workers): the 2026-11-11 JSON Schema, the conformance corpus 2026-11-11 and the reference
+validator 2026.11.11 were rewritten in place. There is no new version and no
+migration. The names stay the same: `schema/2026-11-11/`, the schema `$id`
+<https://atp.domios.dev/schema/2026-11-11/team.schema.json>, `corpus/2026-11-11/`,
+`validator/2026.11.11/` and the release tag `validator-2026.11.11`.
+`packages/IMMUTABILITY-EXCEPTIONS.json` lists every added, modified and deleted file of
+this rewrite, and `scripts/check-immutability.mjs` admits exactly those files.
+
+Every section below describes the rewritten artifacts. The first release came from Domios
+commit `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49`, build run
+<https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169>. Its
+superseded SHA-256 values are:
+
+- JSON Schema `schema/2026-11-11/team.schema.json`:
+  4ebc85adbcd99c9bfbe1cfb828e095d31cb128a6e9a24c2e41ba2e2d71580300
+- WebAssembly module `atp_validate.js`:
+  9947d825f0abecb45815c89daa4cb8b5aad46530b95bc4e8d19e1ff2a0522747
+- WebAssembly module `atp_validate_bg.wasm`:
+  fccc197c36eeeae7631a5f053ca37ed96a9cf9a3e15515668e19bca9231b36f7
+- WebAssembly module `atp_validate.d.ts`:
+  0fe6081a9f2cef13b68011a267d29062bbec25fcbe13e0e5a31aef6d52831708
+- WebAssembly module `atp_validate_bg.wasm.d.ts`:
+  2130f3faaab00462c0e7bcce5ae0866421028403cb73d15bb01f805ee40848c9
+- Release binary `atp-validate-x86_64-unknown-linux-musl`:
+  66a196322b0dd0bf3529a0506caac004fb61c9d99311ba824a3b008e19e420c4
+- Release binary `atp-validate-aarch64-apple-darwin`:
+  ac5a8ffb51986022e09ea49e7c648bc641a75bee79553a1e2ec33baee25d2f61
+- Release binary `atp-validate-x86_64-apple-darwin`:
+  9cbaf22a66458ae116008614dd39a292d20c961322747c9ca1e1d03bd367d50e
+- Release binary `atp-validate-x86_64-pc-windows-msvc.exe`:
+  71e09ed921b5d7a17b24a6f6b30d55f3271f017a54de201c438fc388a0a501d7
+- Release `SHA256SUMS`:
+  53cdcb7b55ea9275b0e959df1f67b25e652cf5ce3caca90eb4f30ecbc710976f
+
+The generated `validator/2026.11.11/Cargo.lock` is unchanged by the rewrite. The superseded
+corpus is the `corpus/2026-11-11/` tree of this repository's commit
+`0111ff8795cbadd92bb6ea74c6e8eb504ab20753`.
 
 ## Licenses
 
 `schema/`, `corpus/` and `validator/` are licensed under the Apache License 2.0, the
 license of this repository ([LICENSE](LICENSE)). Each Domios component they are generated
-from is licensed Apache-2.0 at Domios commit `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49`
+from is licensed Apache-2.0 at Domios commit `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`
 (`domios-dev/domios`). That commit is also the source commit of every artifact below.
 
-| Component (Domios path) | Used for | License | Taken from, at `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` |
+| Component (Domios path) | Used for | License | Taken from, at `fafc45b8b68808530d6c2fe4956af0fa9d23dd54` |
 | --- | --- | --- | --- |
 | Crate `codeterm-team-package` (`src-tauri/crates/codeterm-team-package`) | the corpus (its `fixtures/corpus/`), the JSON Schema generator, the `atp-validate` binaries, the validation code in the WebAssembly module | Apache-2.0 | `Cargo.toml` (`license = "Apache-2.0"`) and the crate's `LICENSE` |
 | Crate `codeterm-team-package-wasm` (`src-tauri/crates/codeterm-team-package-wasm`) | the WebAssembly wrapper in `validator/2026.11.11/` | Apache-2.0 | `Cargo.toml` (`license = "Apache-2.0"`) and the crate's `LICENSE` |
@@ -28,71 +72,89 @@ from is licensed Apache-2.0 at Domios commit `abe52ab407be6db0b1e9e3bc26fedd8db4
 | --- | --- |
 | Directory | `corpus/2026-11-11/` |
 | Spec version | 2026-11-11 |
-| Domios commit | `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` (Domios integration branch `feature/atp-1.20.0`, repository `domios-dev/domios`) |
+| Domios commit | `fafc45b8b68808530d6c2fe4956af0fa9d23dd54` (Domios integration branch `feature/atp-1.20.0`, repository `domios-dev/domios`) |
 | Crate | `codeterm-team-package` 0.0.0 (`src-tauri/crates/codeterm-team-package`) |
 | Source path | `src-tauri/crates/codeterm-team-package/fixtures/corpus/` |
-| Generator command | `git -c core.autocrlf=false -c core.eol=lf archive --format=tar abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49 -- src-tauri/crates/codeterm-team-package/fixtures/corpus \| tar -x --strip-components=5 -C corpus/2026-11-11` |
+| Generator command | `git -c core.autocrlf=false -c core.eol=lf archive --format=tar fafc45b8b68808530d6c2fe4956af0fa9d23dd54 -- src-tauri/crates/codeterm-team-package/fixtures/corpus \| tar -x --strip-components=5 -C corpus/2026-11-11` |
 | Builder | none (git export) |
 | License | Apache-2.0 (see [Licenses](#licenses)) |
-| Files | 41 |
+| Files | 50 |
 
 The corpus is exported without line-ending conversion: with `core.autocrlf=true`, a plain
 `git archive` writes CRLF into text files that have no `eol` attribute
 (`invalid/unreferenced-entry/notes.txt`, `valid/reference/data/competitors.csv`), and the
-bytes no longer match the source blobs.
+bytes no longer match the source blobs. The committed tree's 50 git blob ids equal the
+source tree's.
 
-The corpus case `valid/reference/` is a separate fixture, not a copy of the published
-package `packages/com.example/research-desk/2.1.0/`. Its `team.yaml` is byte-identical to that
-version's folder-form `team.yaml`. Its other files (`assets/logo.png`, `blueprints/digest.yaml`,
-`data/competitors.csv`, `skills/market-sizing/SKILL.md`, `workers/checker.md`) and
-`valid/reference-inline.team.yaml` differ from the published package's files.
+The corpus case `valid/reference/` is a separate, smaller fixture, not a copy of the
+published package `packages/com.example/research-desk/2.1.0/`. Five of its files are
+byte-identical to files of that version's folder form:
+
+- `assets/logo.png`
+- `blueprints/digest.yaml`
+- `data/competitors.csv`
+- `skills/market-sizing/SKILL.md`
+- `roles/checker.md`, which the package holds as `workers/checker.md`, because the
+  exporter writes role instructions under `managers/` and `workers/`
+
+Its `team.yaml` and `valid/reference-inline.team.yaml` differ from the package's
+`team.yaml` and single file. The package declares more roles and files than the fixture.
 
 Each SHA-256 below is of the source blob (`git cat-file blob <blob>` in the Domios
 repository) and equals the SHA-256 of the committed file.
 
 | File | Git blob | SHA-256 |
 | --- | --- | --- |
-| `corpus/2026-11-11/cases.json` | `f2182999a2054525a3529de29d7307b5d08cb7e8` | `dec45f8d4750fc84ec5c9e42d6fa94eacbc250b0adf3f29b6e82043283720cc5` |
-| `corpus/2026-11-11/invalid/anchor-alias.team.yaml` | `484f00c437db6a41400a5a4debb1253a2078de6b` | `8691851bee216e910fe124dc72edbe2871b99d5feaa6119936102a2202f2dc48` |
-| `corpus/2026-11-11/invalid/bare-skill.team.yaml` | `858ca737e507a0e32c262def55024b9868f34d4f` | `915224da97d53630b3987eda2612afbcf7143f350092d4b55f06e4c0b1fb312a` |
+| `corpus/2026-11-11/cases.json` | `d15f557cc33cdae8a34f09e5465ab11245380d6d` | `0a4dd7983a7b015e73be4505306e1c88331b60748e905c9d2c885a36ac272d8e` |
+| `corpus/2026-11-11/invalid/anchor-alias.team.yaml` | `244324cc6c8363f14f4b31cecbd297d94bdd1b1c` | `4e33fcd6872702bef93f66bfb5faeca0838eef8e0cf65d14d9ec4d442dc6ec43` |
+| `corpus/2026-11-11/invalid/bad-role-name.team.yaml` | `8fd1af6d7fdfc9623c71830be2490177128b0920` | `305a5594f3cf89ddc33636aa867b0955277f5c9183b3fb8ae6aa87ea1b00ffb5` |
+| `corpus/2026-11-11/invalid/bare-skill.team.yaml` | `eb78bc5b449760cfc3619d9ff8b6a5e188d77463` | `4f1462df031fa8d21473908bde1555e505bd0d56bc85dffe8294732e5be3d2dc` |
 | `corpus/2026-11-11/invalid/build-owner.md` | `11a125105cbe2294ea3239c28c220bb046db5293` | `157380650c8177bf98ac24c5ce17e268d38b49ae19d2c19bd6bb12c7df2e0e1e` |
-| `corpus/2026-11-11/invalid/default-path-only.team.yaml` | `88055b1b01e00fe3d792fa736c73b6a927c7586a` | `1f7a603be4e756a4c4a8349581ae661461e80fc4d03c74cfd28dcb1d829bfb1a` |
-| `corpus/2026-11-11/invalid/distributed-bets.team.yaml` | `6d855fa7147ce5e4c1b917969f4a6f9d492884dc` | `c55e1bcfe2851dcb4606d8759d5aeb406d1b46f3ec482bb6494bb61fa21510c1` |
-| `corpus/2026-11-11/invalid/duplicate-key.team.yaml` | `96882c2c2041781fb3b117d6d4252dfe22f05172` | `9683fda3b85f1cf3c7763264b71ebd14b738181786b2b1e3dfe085001ffa83ea` |
-| `corpus/2026-11-11/invalid/icon-missing.team.yaml` | `0e5ed8035240347fb35d39ffc947db9808e5fea2` | `b71eaea63f3c3fcc9fa78c8902cc4494be3c6d6576a7ccb6de628995b859342c` |
-| `corpus/2026-11-11/invalid/icon-not-image.team.yaml` | `dc00d6cde630fe71c75f9d1ec11d1b967bbc599a` | `32cb55c804c1fadcaa000a149f2ca4f7c8246375a8f281c56b02604bc9cd55e1` |
-| `corpus/2026-11-11/invalid/icon-png-inline.team.yaml` | `12a4f3de6800afac1ae4420cc4c3572e18de7ab8` | `0bfb0b2a4953d3e39a1c66c8c66ff1705a57537b248a4b9586064ca2f8a4efae` |
-| `corpus/2026-11-11/invalid/icon-svg-external.team.yaml` | `33e894640aab399db93149ffbcd0d3a3136d52cd` | `b7eaeb3cfbe9909c0c23c5cd159df61649b112c83fa8362cc5f1b9b6d2397179` |
-| `corpus/2026-11-11/invalid/icon-svg-script.team.yaml` | `38e8dbe6a2421a9497056f1626f6be68a00f29aa` | `48824f21823d3a4ee20ec1520d174462e990d30951937dcd7b1fb33f47bfc0c0` |
-| `corpus/2026-11-11/invalid/invalid-derived-from.team.yaml` | `6a6230b68aa8151591c11133effda595b4dbfe37` | `29379c6bcaf5263ee08c559c4c7c34271f82cfbb0c4097d23cda9527708a0908` |
-| `corpus/2026-11-11/invalid/invalid-model.team.yaml` | `51922d76d7721e34f19708246db348c0d938ed82` | `f6e1530e5635b564664dfcab81c9e093610ff62b29967a1e3e16c4357ef534fe` |
-| `corpus/2026-11-11/invalid/invalid-schedule.team.yaml` | `d9aa578d93544edc244cb541a5b499badf26f91c` | `1c27ce2d3a0c326d8efff9cc29e284e75fe6929867b365fac8601b2fc1961e6d` |
-| `corpus/2026-11-11/invalid/missing-file.team.yaml` | `a52d684437bc295f0be9d90ed262bf9b10e56ceb` | `16d404661f13d1a0f9cfa07e1e57c667fc3accf2d7efcde455ae16669f9dfdbc` |
-| `corpus/2026-11-11/invalid/missing-orchestrator.team.yaml` | `23ba0c6e7a28a891e9bfdfed39ce1513bbe677ec` | `e7ab76492f0ea9ccb113f8daa012d6e357dfe645f8e9454820914a654de4dfe2` |
-| `corpus/2026-11-11/invalid/new-worker-no-instructions.team.yaml` | `f92f79381d704abe537a384495c9782cf8a992db` | `a788cf395549523ef2b5c710d2427280263e4e99ee361f7a2ce5c6e8403d48f4` |
-| `corpus/2026-11-11/invalid/orchestrator-on-demand.team.yaml` | `05cbfa7c9fcaf409e0974d86b06cb989e7fd3e33` | `21f1df451c83322a1ca80e4d22457fca5587ed9473d9210658254cc54ecf27a8` |
-| `corpus/2026-11-11/invalid/plan-template.team.yaml` | `f02cd349f96adc916d511d608935fc37be936041` | `09f01f36aa22952ef654e1ba9a5cb217bd2f10b78858a28992089cf0c504ab4a` |
+| `corpus/2026-11-11/invalid/builtin-name-no-instructions.team.yaml` | `58db49b1127881fc5d247102c820305d4c18f991` | `d100345a97edfebd2e5b01493a519d36d41c4c879dedf00e7a54fbc19f9d089d` |
+| `corpus/2026-11-11/invalid/default-path-only.team.yaml` | `016a859df5238fa37d29b875b750daf29bc5bd01` | `c4391b9b84945b3dea3a063f14359e490c03c1ddddd486f497087274816d9744` |
+| `corpus/2026-11-11/invalid/distributed-bets.team.yaml` | `5789c992bafdba929210a461959a22291f692227` | `3d46c76d5cbaf6dfda21c08e508a428a6c7da47126d57893856d2a1b43844d42` |
+| `corpus/2026-11-11/invalid/duplicate-key.team.yaml` | `ec26d0811099f5a3d1d19fe39923e15e4953206e` | `ad33bf43552652011befd1700df430c40606cd7a0face9d35ea4771fb1a55080` |
+| `corpus/2026-11-11/invalid/icon-missing.team.yaml` | `287c0597a5630071eab94462d2b4de14a2596974` | `729906a291d4d1abab71e355e5884da9dcdd2c4ad3066f146917399f88e1feda` |
+| `corpus/2026-11-11/invalid/icon-not-image.team.yaml` | `94339221c391657b2f48e3e6d8c42b638a49c413` | `4e44e3f3e3a3b8714566aa070e3e4bd0c2eafe90a1e8583b12dd7fb7d90088a4` |
+| `corpus/2026-11-11/invalid/icon-png-inline.team.yaml` | `991aae9f2f09ce2777be1192bc43111387f5eb5e` | `4e7e5de6580d71d3f501e3a438a167e72786bba42e4f4976e322354cd2cf5c5c` |
+| `corpus/2026-11-11/invalid/icon-svg-external.team.yaml` | `d35bccdc92c2c3dcd2734885c78bbdc86c05ae31` | `82b6a47ead186496c52c9838f1bfd8cd4ba682d0606e866f5df739b58e78dc91` |
+| `corpus/2026-11-11/invalid/icon-svg-script.team.yaml` | `4165108250f4ff559d3189ca6b81b7a0c57bac89` | `17a99015b2e12189ab3b83e05173f2876208c5cc034dce8bbcec156b91a13811` |
+| `corpus/2026-11-11/invalid/instructions-both.team.yaml` | `25e198be95590b85c37ca14b09f7f35515c5e8ed` | `ad7b3983daf1afa5704c495264ee2f4228cd7b75a5f5c280ca2c1b269cc46fde` |
+| `corpus/2026-11-11/invalid/invalid-derived-from.team.yaml` | `0dec4acb6a80b639e5213f5c8f8e686666f2d485` | `cd901f37360538909b642dd492bf5704c8698ca68b367cf7181270a68a092570` |
+| `corpus/2026-11-11/invalid/invalid-kind.team.yaml` | `46a221c98e562943d6fcf8876bf6e85493609ca6` | `2a925984ee2b8247a2843bd6f3c595a8dc599ca0930114910c9492c1c83d960c` |
+| `corpus/2026-11-11/invalid/invalid-model.team.yaml` | `b3d6511b38a8d4a8b6a80086bbfac4eb25918ff7` | `c6ce2b5a9391489d04ff239c422081897824937b998314b38d7b1930a3969668` |
+| `corpus/2026-11-11/invalid/invalid-schedule.team.yaml` | `3a5a0369b86ac83410a7497560b1e4754b2e8b67` | `4186cc45784e3eb6c52bcc3be0b326a7c2e54a68910a0ad8a5ccc4a2234da3b8` |
+| `corpus/2026-11-11/invalid/missing-file.team.yaml` | `cf30ad574988bc1ca5de48dd47b33493d3abbe0e` | `96370e7051153e8095f8705d275573d9e698ca1e6880a0fe52da1cf57cd3be00` |
+| `corpus/2026-11-11/invalid/missing-kind.team.yaml` | `fac791c2d967068d3bf2327dc223e6401f74c867` | `c98b6d2ba6de1c5a08bec06587398145940ad2a223b51950274c9082d228e476` |
+| `corpus/2026-11-11/invalid/missing-orchestrator.team.yaml` | `eb52cafdecea87ca1549eb8c8dbe1fa1e59d42d3` | `2aa6e640ccffeb0c569e4cebbe35d4a46811adb92875ab71dcec7b6186fd3a30` |
+| `corpus/2026-11-11/invalid/new-worker-no-instructions.team.yaml` | `c8c6df71e9451d8465c0f82ab5d3d3d1bd3b71c6` | `2cce3805887a8ba56c5ac27df15f4ab9d1ff9bd1e246b0cf359708c9b91fe20b` |
+| `corpus/2026-11-11/invalid/old-shape.team.yaml` | `c875f79498f77545ccff0db334eeb3fc4c489ebf` | `86f75497ddae5e4b7d7c4cfe122800678680e00a36ecb71c24fa9743ee0c48ee` |
+| `corpus/2026-11-11/invalid/orchestrator-on-demand.team.yaml` | `a3fc003d691fa2ad4d97b069ae90c89e0e7ff6c3` | `d79f6a54cbf0ca61ac5451315d3eb7896a8c125980e921c426e37444eb11fba1` |
+| `corpus/2026-11-11/invalid/orchestrator-worker.team.yaml` | `86644d43d0dc039685874cd05eb714cbc9c9c2c9` | `0d47a1556c5cb25ac90113ec6643358bd5eabe24f595caffa0ef041adab87cf2` |
+| `corpus/2026-11-11/invalid/plan-template.team.yaml` | `7923e0679606e9d0ee47afe3ef484770fdcd40eb` | `7dd2aa629fffde25c7196ec067ee32b83d8fe6b3b1fb6ca28018c8423f9bb99b` |
 | `corpus/2026-11-11/invalid/release-train.team.yaml` | `c8feed318580154eb68f3c3bafd4c547de18c8f8` | `73a733ebd7a482b649fbe733cc1fb2848951f28707dff0a518325c503a2ff640` |
-| `corpus/2026-11-11/invalid/removed-inherit.team.yaml` | `b62a0c012497c98d26daafd147496d0f96e88c73` | `137af715b793a72a43df968adc71de3a2d447da4bf3945ab2093ad1a58fc0dae` |
-| `corpus/2026-11-11/invalid/removed-kind.team.yaml` | `9ac29177a702e2bc8202f9e062badc2ac2fa5eb7` | `d3150b7eba9814c6582c0e97b56e429bc87d262f9b7219b7770acd4adceeddd4` |
-| `corpus/2026-11-11/invalid/removed-top-instructions.team.yaml` | `162496ed831e7d1be410b149899a38485f566b08` | `dc3aff2316eed32afad72ec5fbfc9ddf810987fa7ea1197661e1047ec1d55a3d` |
-| `corpus/2026-11-11/invalid/reserved-worker.team.yaml` | `28b8a10a0ea4df50e1e84387f1f5d4b3046d97ce` | `35c08eaa130206b030a1f4ff5eaf70c805d268645bd923ccb2eda7f5b82e171f` |
-| `corpus/2026-11-11/invalid/role-includes.team.yaml` | `e335587a8c48da5cbe9b7f284389bc98a22bb9bb` | `5b7f50230ab740984fcf176577c75613bc417f08d49f1561349400881e29dc1c` |
-| `corpus/2026-11-11/invalid/same-as-cycle.team.yaml` | `2abe619fc87ab2307ab9cce3a8e524357efcba38` | `15c49fe5a719dfa8c702f5cf9e2da328849bafe53e94f94e75c6ec0ca98f0a38` |
-| `corpus/2026-11-11/invalid/same-as-unknown.team.yaml` | `20b9ee1fb6f0c7d6af33b708694407cb73078cbf` | `58e1fd7674cb623a62935289358b5519a74f6fc8dab5ff11738c000905adfdee` |
-| `corpus/2026-11-11/invalid/tab-indentation.team.yaml` | `24fea7aac07f91db32bf85024b288a8a3289e791` | `093f7a4f97ca651855a55519475222800a006f0706f35c7baa87afd7c215ddaa` |
-| `corpus/2026-11-11/invalid/unknown-field.team.yaml` | `1398a83737cc3da8bf3bbdd67c89166d84b66efe` | `a9fd130168e9839bdb9080222e952f0b334896924bba59651e9c2ffc9acc3a09` |
+| `corpus/2026-11-11/invalid/removed-inherit.team.yaml` | `a281cc49cd4c31a736a341e0e36262ce287aa82b` | `5b3bebd4226ce1a197140b266d4f364de3826135bf5c5a6e9455939862041cf2` |
+| `corpus/2026-11-11/invalid/removed-top-instructions.team.yaml` | `88d6419c2c7300aebab967f31cd4d45dc374f4dd` | `64f3c0808696a81e624bb77d01a14c098c9d3046a13c4226a561d3f19b67f0ba` |
+| `corpus/2026-11-11/invalid/reserved-worker.team.yaml` | `3a1e82d348fbbfc772c585c9e36551559aba47a6` | `60ec8ac73c95d4c681a7ad7408a4b34224f007def503ba80fde6791947520108` |
+| `corpus/2026-11-11/invalid/role-includes.team.yaml` | `2033ca9afd737e99c078f048b3aff2611f0b5338` | `c33e041326f26b0bb3519787a76c146d4f21cb3f12c3f7d6fc79ae638a4cea48` |
+| `corpus/2026-11-11/invalid/role-persona.team.yaml` | `b3ff3a0f2d4b1f5466ec29a79b8e122a6098137f` | `00a70f0e8fa19c4810d0dd9f953f1cd228b9fc1437356b9a29c27513d889cd21` |
+| `corpus/2026-11-11/invalid/same-as-cycle.team.yaml` | `e2bfac62a8dbf009da2f36c6a400ce771a4f4ab2` | `6b24f91ed32b20c8049e6531d0984c4b00288d3902183514ec563098634720b3` |
+| `corpus/2026-11-11/invalid/same-as-unknown.team.yaml` | `841e73f2b07c381a0ed1d640d837974b657ce0b3` | `6bf1bfaa2ed9e76bc3cc525b2ffa9b236eebe99fa059762e341c7b0ca4d8ad8d` |
+| `corpus/2026-11-11/invalid/tab-indentation.team.yaml` | `f65da3818a756716962ef09f844736ca5b39a16b` | `11ca703f07da048ab3eeb970df7a91312591e4cc0eecc403191a671c4cefadd3` |
+| `corpus/2026-11-11/invalid/unknown-field.team.yaml` | `d33f42333dcc8a6233af779c1f838c82c142f2a1` | `faf6d17b71583a62e8b2406c7bc750f8dbe8892757dc68e17154d10680acf074` |
 | `corpus/2026-11-11/invalid/unreferenced-entry/notes.txt` | `946d7b47aae57046fe26beb6d856067e76c1e2d7` | `43bab6c26bc03299f3e5108f37cfa190ef6446cfe38f4229204a0d6b88e4b102` |
-| `corpus/2026-11-11/invalid/unreferenced-entry/team.yaml` | `8b91ef61b8f1b399aec316ec9cf9d664ac9a9b7e` | `53a70bceb79ecddb4c29caf82290bdffb96397e20ad78867868fb36fd633975d` |
-| `corpus/2026-11-11/valid/reference-inline.team.yaml` | `0d3c58215b28a4473708965a107bc5ac1ce22858` | `9c848278cdf7964f85b338aea8462e04a86edb9e3e7dc492ad7f1e988a4698d6` |
-| `corpus/2026-11-11/valid/reference/assets/logo.png` | `613754cfaf74a7a2d86984231479d5671731f18a` | `497790947d4666760ce38f3c00e852c71fdb66cae849bae8e9ede352719e1581` |
-| `corpus/2026-11-11/valid/reference/blueprints/digest.yaml` | `33db99a8f9042de8c767b79e06db0f029153add9` | `8ffc07ed088bd011e252b5878ecbd075277abc1d1d24c5a2a441c01753c1c2f2` |
-| `corpus/2026-11-11/valid/reference/data/competitors.csv` | `568bb0e26e5d8507e4ba0810a0bd08d542adf260` | `22fd8510dd5a2e5a6129583b88cb70d7a9eb68a5d433b5425cb6ee4523963d09` |
-| `corpus/2026-11-11/valid/reference/skills/market-sizing/SKILL.md` | `eb39887b8ebb91f13b7eaf80c34a668247ddb93b` | `4d89ff3c06f9a26b99cfd4952a35bc93d5a4983441dd4258007a3c0e16b20d3e` |
-| `corpus/2026-11-11/valid/reference/team.yaml` | `1cdfc55266e16eb93879398abdc0de6434c00e7a` | `ed147579d4390b8177780a0f4082e60d4c95263e0d6c9be7772db56c628aaed4` |
-| `corpus/2026-11-11/valid/reference/workers/checker.md` | `92f1eb0513e6c8278af6bf1762c6a3507ec64798` | `2a508fa5190dac37730490d6b96638bfeb3959ffeefade5b03dfc4ede0e2a02e` |
-| `corpus/2026-11-11/valid/role-extension.team.yaml` | `fcf73a5cb0480c0752e2ecccdd8b999ce235062e` | `27ae22dcc86ebba91ddb733bc114f9e18322af02a26a7182edeaa4f1130c8465` |
-| `corpus/2026-11-11/valid/unresolved-skill.team.yaml` | `14e8947b9c8173f4762ca3549e4d350c62c126c6` | `87adafcda790c974345b83befc96bbbe322b60d676d86d8055bcf62c38206fe0` |
+| `corpus/2026-11-11/invalid/unreferenced-entry/team.yaml` | `ad3f9c109c94f17deacd7f5ce2b552da97c6ee72` | `db0da5c83363b30164e4af2282d3a6914ebfb7d49dcab936ebd43789cbc2ef7c` |
+| `corpus/2026-11-11/invalid/worker-with-team.team.yaml` | `256a601831d1422dea3876db8265064479ebb4ef` | `099f2ed3227fd83e612d0b3ba71317716a80d8c51602d4c7f29a39d96dd7a9e9` |
+| `corpus/2026-11-11/valid/custom-manager.team.yaml` | `06d65ace6013f3c8ead7ad6229955ba375835623` | `e383ddcd1f5048e9bb5430f92652ec18c8059f40b6978c7896df568bd784797e` |
+| `corpus/2026-11-11/valid/reference-inline.team.yaml` | `208a2b1d2741ad9f3ec0a0881b61de57c061e5d6` | `cb1c5ae528b88d73149a2a43fd92aa2588ffe558f6da7a9b055fc2d5dc347c05` |
+| `corpus/2026-11-11/valid/reference/assets/logo.png` | `6c9a5179ba7f8c120a820dd829fdaba4981d6890` | `2fe4d14f63ac6a8bae1158f4f9f9725b0c90ffab3881e1f23873aaea735531c3` |
+| `corpus/2026-11-11/valid/reference/blueprints/digest.yaml` | `a3d9462ef5b7bd59042f69bca1daa5af67e7e4b9` | `e6e18476f1c7c3fbc3b3e4002485338d281a71528af77fffca4abfa6ca4f860c` |
+| `corpus/2026-11-11/valid/reference/data/competitors.csv` | `1b07157298530249366be6923cf29d593f476838` | `4da41f2c8fdfa226dde9ebf298ecb20a4b13cd8c879f26c9c5ae20d7c844984b` |
+| `corpus/2026-11-11/valid/reference/roles/checker.md` | `8f50bbfb4685671096c42b87e0e5d4f2cbcc4b91` | `e9e4f729817c2b91d331dd9e794bc5e16573a5ec470fa8be5a8dabff3b8e4f7b` |
+| `corpus/2026-11-11/valid/reference/skills/market-sizing/SKILL.md` | `0f93d8075291b76cec2680f8c1fc77f952f1cb29` | `9c6907b7e5106833a591e6c374901e75279df2799ae55bd45a21175213d405b7` |
+| `corpus/2026-11-11/valid/reference/team.yaml` | `d0570005f3a5c96c603c73c47f28b50ed94c0196` | `38cf0a9b87be9d6115a4a0c57b518ef53736e71db1840280f89f23354934136a` |
+| `corpus/2026-11-11/valid/role-extension.team.yaml` | `6dd2ecbeb4ec7b16aebf00236616ec90ede34913` | `ae8884db6b9f5535bbf2fe5c8c1e4fe0674a0ec0c70c015133a6d34469dc7807` |
+| `corpus/2026-11-11/valid/unresolved-skill.team.yaml` | `0a3421d1051aceb582585947f487919eea7c5991` | `15e38ce74937965228d2b33e2429bd4241e37b2044669e4427e443c15820c5fc` |
 
 Check the committed bytes against this table:
 
@@ -109,9 +171,9 @@ file the run produced, the exact commands, the toolchains and the run URL.
 
 | Field | Value |
 | --- | --- |
-| Run | <https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169> (attempt 1) |
-| Workflow commit | `45603470b0f8195ccc4943507abf097f7ed3e905` (pull request head; the run's merge commit is `f1d4bef264912191090038156a90afc8adba53f3`) |
-| Domios commit | `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` (`domios-dev/domios`, pinned in `DOMIOS_SHA`) |
+| Run | <https://github.com/domios-dev/agentic-team-protocol/actions/runs/43468853771> (attempt 1) |
+| Workflow commit | `d2db069610800fed454668c44ea58b97623c5ffc` (pull request head; the run's merge commit is `51c6748049a175ce7138afe57a75733be6d44e78`) |
+| Domios commit | `fafc45b8b68808530d6c2fe4956af0fa9d23dd54` (`domios-dev/domios`, pinned in `DOMIOS_SHA`) |
 | Crates | `codeterm-team-package` 0.0.0 (`atp-validate` binary), `codeterm-team-package-wasm` 0.0.0 |
 | Toolchain | rustc 1.99.1 (58cf8f9c3 2026-10-13), cargo 1.99.1 (5f94df478 2026-08-27), from Domios `rust-toolchain.toml` |
 | wasm-bindgen | crate and CLI 0.2.130 (resolved in the generated `Cargo.lock`) |
@@ -120,7 +182,7 @@ file the run produced, the exact commands, the toolchains and the run URL.
 
 | Target | Runner image | Command (run in the Domios checkout) |
 | --- | --- | --- |
-| `x86_64-unknown-linux-musl` | ubuntu24/20261101.360.1 | `cd src-tauri && cargo build --locked -p codeterm-team-package --bin atp-validate --release --target x86_64-unknown-linux-musl` |
+| `x86_64-unknown-linux-musl` | ubuntu24/20261111.370.1 | `cd src-tauri && cargo build --locked -p codeterm-team-package --bin atp-validate --release --target x86_64-unknown-linux-musl` |
 | `aarch64-apple-darwin` | macos15/20261104.0514.1 | `cd src-tauri && cargo build --locked -p codeterm-team-package --bin atp-validate --release --target aarch64-apple-darwin` |
 | `x86_64-apple-darwin` | macos15/20261104.0514.1 | `cd src-tauri && cargo build --locked -p codeterm-team-package --bin atp-validate --release --target x86_64-apple-darwin` |
 | `x86_64-pc-windows-msvc` | win25-vs2026/20261103.298.1 | `cd src-tauri && cargo build --locked -p codeterm-team-package --bin atp-validate --release --target x86_64-pc-windows-msvc` |
@@ -132,9 +194,9 @@ file the run produced, the exact commands, the toolchains and the run URL.
 | --- | --- |
 | File | `schema/2026-11-11/team.schema.json` |
 | URL | <https://atp.domios.dev/schema/2026-11-11/team.schema.json> (its `$id`) |
-| Dialect | JSON Schema draft-07 (`$schema`: `http://json-schema.org/draft-07/schema#`); the generator (schemars 0.8) has no 2020-12 mode |
+| Dialect | JSON Schema draft-07 (`$schema`: `http://json-schema.org/draft-07/schema#`); the generator (schemars 0.8.22) has no 2020-12 mode |
 | Command | `atp-validate-x86_64-unknown-linux-musl schema --spec-version 2026-11-11 > schema/2026-11-11/team.schema.json` (job "Schema and example run" of the build run) |
-| SHA-256 | `4ebc85adbcd99c9bfbe1cfb828e095d31cb128a6e9a24c2e41ba2e2d71580300` |
+| SHA-256 | `97b2ff9d69c70add556ba79399f8bae563098160f810ad16bdf4b0373ba0e1f5` |
 
 The file is committed exactly as the command wrote it, and its SHA-256 equals the
 `schema-and-example-run` artifact entry in the manifest.
@@ -148,10 +210,10 @@ WebAssembly module, committed under `validator/2026.11.11/` (artifact `atp-valid
 
 | File | SHA-256 |
 | --- | --- |
-| `validator/2026.11.11/atp_validate.js` | `9947d825f0abecb45815c89daa4cb8b5aad46530b95bc4e8d19e1ff2a0522747` |
-| `validator/2026.11.11/atp_validate_bg.wasm` | `fccc197c36eeeae7631a5f053ca37ed96a9cf9a3e15515668e19bca9231b36f7` |
-| `validator/2026.11.11/atp_validate.d.ts` | `0fe6081a9f2cef13b68011a267d29062bbec25fcbe13e0e5a31aef6d52831708` |
-| `validator/2026.11.11/atp_validate_bg.wasm.d.ts` | `2130f3faaab00462c0e7bcce5ae0866421028403cb73d15bb01f805ee40848c9` |
+| `validator/2026.11.11/atp_validate.js` | `33c06897c8547dcbbdd6746916e0b7febcdfcf3ae1d75132e13a660d4048b7e5` |
+| `validator/2026.11.11/atp_validate_bg.wasm` | `da89b776abab657287dd9c75c5ef72044d48b37b1b0086af789b7bb565e39363` |
+| `validator/2026.11.11/atp_validate.d.ts` | `9e62c3a9ec10719a1c4ef1c735c7109414ca631969c538c058e8e01e81e17e10` |
+| `validator/2026.11.11/atp_validate_bg.wasm.d.ts` | `57923798aa5c14f15bd16ae02e85c2429b36552fea56f26a2c82394a26bf8c6c` |
 | `validator/2026.11.11/Cargo.lock` (generated by the wasm build) | `6fb8f436c7d1f917d07b3d047a6256acf444b645ad38f16dcff3e1379bdb31dc` |
 
 Command-line binaries, not committed (for a GitHub Release; see
@@ -159,16 +221,33 @@ Command-line binaries, not committed (for a GitHub Release; see
 
 | File | Target | SHA-256 |
 | --- | --- | --- |
-| `atp-validate-x86_64-unknown-linux-musl` | x86_64 Linux (static, musl) | `66a196322b0dd0bf3529a0506caac004fb61c9d99311ba824a3b008e19e420c4` |
-| `atp-validate-aarch64-apple-darwin` | Apple silicon macOS | `ac5a8ffb51986022e09ea49e7c648bc641a75bee79553a1e2ec33baee25d2f61` |
-| `atp-validate-x86_64-apple-darwin` | Intel macOS | `9cbaf22a66458ae116008614dd39a292d20c961322747c9ca1e1d03bd367d50e` |
-| `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `71e09ed921b5d7a17b24a6f6b30d55f3271f017a54de201c438fc388a0a501d7` |
+| `atp-validate-x86_64-unknown-linux-musl` | x86_64 Linux (static, musl) | `6adfa021bda8bd56a46805025c424d75891f523a44af238f8b1572aff082dc7d` |
+| `atp-validate-aarch64-apple-darwin` | Apple silicon macOS | `c8b52eae2040016837182923eaf94486e4424c37bebaf6f8880dcac4e04955cc` |
+| `atp-validate-x86_64-apple-darwin` | Intel macOS | `03e4f3e3f5ce92a023d18ef9fb960e2b64353cd494a4df543d00469777eec9dc` |
+| `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `f1da9f500caacda004545332a0224428906cc5dcd64a94c6449b1215aaf2eacc` |
+
+The native binaries are not byte-reproducible across runs. A later run of this workflow
+at the same Domios commit
+([43469760569](https://github.com/domios-dev/agentic-team-protocol/actions/runs/43469760569))
+rebuilt only `atp-validate-x86_64-apple-darwin` with identical bytes. The WebAssembly
+module, its `Cargo.lock`, the JSON Schema and the example report came out identical. The
+release binaries are therefore exactly those of the build run above, never a rebuild.
+
+The build run's Domios commit, `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`, spells out
+"Agentic Team Protocol" in the schema description and in three validator messages. Before
+it, the roles-map artifacts were built at `16d5277f4ff083d487a7c55ba351f9bb72b8f084`. Between
+the two commits, the crates differ only in that text and in the host template contracts
+(`src/contracts.rs` and its fixtures), which neither the binary nor the WebAssembly entry
+points call. The corpus is identical. Of the committed files, only `team.schema.json` and
+`atp_validate_bg.wasm` changed.
 
 ## Example run
 
-The same build run checks every input under `examples/` and every form of every package
-under `packages/` with the Linux binary, under host profiles `none` and `domios`
-(`atp-validate <input> --host-profile <profile> --json`). Its report is the
-`examples-report.jsonl` file of the `schema-and-example-run` artifact (SHA-256
-`5f1bc8da2be0bf2f8527aee156ffe32d0a56a18ee7350f0e4149cef2ac52b5f2`). Codes and locations
-that `examples/**/expected.yaml` takes from this run name it as `validator_run`.
+`validator.yml` checks every input under `examples/` and every form of every package under
+`packages/` once with the Linux binary (`atp-validate <input> --json`); the validator takes
+no host profile. The build run above checked the current examples and packages with the Linux
+release binary. Its report is the `examples-report.jsonl` file of the
+`schema-and-example-run` artifact (SHA-256
+`52df0e08529a1e498b84d7625c70c76b8c370751a2133a8b8885a9766dd2b602`): 37 runs, with 30 invalid
+examples (exit 1), the warning example and all 6 package forms valid (exit 0). Codes and
+locations that `examples/**/expected.yaml` takes from this run name it as `validator_run`.

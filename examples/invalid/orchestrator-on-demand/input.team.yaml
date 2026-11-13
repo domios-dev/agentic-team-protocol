@@ -1,0 +1,12 @@
+name: com.example/orchestrator-on-demand
+version: 1.0.0
+description: Package whose orchestrator does not start with the team.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  orchestrator:
+    kind: manager
+    start: on_demand
+    instructions: |
+      Coordinate the team.

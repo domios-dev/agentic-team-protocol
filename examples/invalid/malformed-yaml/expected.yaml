@@ -1,4 +1,4 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # The code and location come from a run of the reference validator (validator_run);
 # the conformance corpus has no case for this rule.
 case: malformed-yaml
@@ -13,9 +13,9 @@ errors:
       file: input.team.yaml
       path: ""
       line: 10
-      column: 17
-      detail: the flow sequence opened on line 9 is never closed; the reference validator reports it at line 10
+      column: 9
+      detail: the flow sequence opened on line 9 is never closed; the reference validator reports the `:` on line 10
     severity: error
     code: yaml_syntax
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
 warnings: []

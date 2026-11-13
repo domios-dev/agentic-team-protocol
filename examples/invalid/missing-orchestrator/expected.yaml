@@ -1,0 +1,19 @@
+# Expected result for an Agentic Team Protocol conformance fixture.
+# Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
+# corpus_case names the case that defines the same rule.
+case: missing-orchestrator
+form: single-file
+input: input.team.yaml
+errors:
+  - rule: roles.orchestrator is required.
+    spec: spec/2026-11-11
+    spec_section: "10.2.1"
+    quote: "`roles.orchestrator` MUST be present (missing required key)."
+    location:
+      file: input.team.yaml
+      path: roles.orchestrator
+      detail: the roles map lists planner and researcher only
+    severity: error
+    code: missing_field
+    corpus_case: invalid/missing-orchestrator.team.yaml
+warnings: []

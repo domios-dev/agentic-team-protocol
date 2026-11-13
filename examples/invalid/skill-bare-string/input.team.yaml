@@ -6,7 +6,8 @@ authors:
     url: https://example.com
 skills:
   - source-check
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Coordinate the team.

@@ -1,0 +1,2 @@
+trigger: { idle_task: 2h }
+action: { notify: orchestrator }

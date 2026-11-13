@@ -1,4 +1,4 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # Codes come from the Domios conformance corpus, corpus/2026-11-11/cases.json;
 # corpus_case names the case that defines the same rule.
 case: unreferenced-folder-entry

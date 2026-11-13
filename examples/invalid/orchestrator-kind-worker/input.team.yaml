@@ -1,0 +1,11 @@
+name: com.example/orchestrator-kind-worker
+version: 1.0.0
+description: Package whose orchestrator is declared as a worker.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  orchestrator:
+    kind: worker
+    instructions: |
+      Coordinate the team.

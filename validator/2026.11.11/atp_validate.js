@@ -1,83 +1,47 @@
 /* @ts-self-types="./atp_validate.d.ts" */
 
 /**
- * Validates the `.team` ZIP form under host profile `none` or `domios`.
+ * Validates the `.team` ZIP form.
  * @param {Uint8Array | number[]} bytes
- * @param {string} profile
  * @returns {string}
  */
-export function check_archive(bytes, profile) {
-    let deferred4_0;
-    let deferred4_1;
+export function check_archive(bytes) {
+    let deferred2_0;
+    let deferred2_1;
     try {
-        let ptr0, len0, ptr1, len1;
-        try {
-            ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
-            len0 = WASM_VECTOR_LEN;
-            ptr1 = passStringToWasm0(profile, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            len1 = WASM_VECTOR_LEN;
-        } catch (e) {
-            if (ptr1) { wasm.__wbindgen_free(ptr1, len1 * 1, 1); }
-            if (ptr0) { wasm.__wbindgen_free(ptr0, len0 * 1, 1); }
-            throw e;
-        }
-        const ret = wasm.check_archive(ptr0, len0, ptr1, len1);
-        var ptr3 = ret[0];
-        var len3 = ret[1];
-        if (ret[3]) {
-            ptr3 = 0; len3 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred4_0 = ptr3;
-        deferred4_1 = len3;
-        return getStringFromWasm0(ptr3, len3);
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.check_archive(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
 /**
- * Validates the one-file `team.yaml` form under host profile `none` or `domios`.
+ * Validates the one-file `team.yaml` form.
  * @param {string} text
- * @param {string} profile
  * @returns {string}
  */
-export function check_yaml(text, profile) {
-    let deferred4_0;
-    let deferred4_1;
+export function check_yaml(text) {
+    let deferred2_0;
+    let deferred2_1;
     try {
-        let ptr0, len0, ptr1, len1;
-        try {
-            ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            len0 = WASM_VECTOR_LEN;
-            ptr1 = passStringToWasm0(profile, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            len1 = WASM_VECTOR_LEN;
-        } catch (e) {
-            if (ptr1) { wasm.__wbindgen_free(ptr1, len1 * 1, 1); }
-            if (ptr0) { wasm.__wbindgen_free(ptr0, len0 * 1, 1); }
-            throw e;
-        }
-        const ret = wasm.check_yaml(ptr0, len0, ptr1, len1);
-        var ptr3 = ret[0];
-        var len3 = ret[1];
-        if (ret[3]) {
-            ptr3 = 0; len3 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred4_0 = ptr3;
-        deferred4_1 = len3;
-        return getStringFromWasm0(ptr3, len3);
+        const ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.check_yaml(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
-        __wbg_Error_208446807d0d1e30: function(arg0, arg1) {
-            const ret = Error(getStringFromWasm0(arg0, arg1));
-            return ret;
-        },
         __wbindgen_init_externref_table: function() {
             const table = wasm.__wbindgen_externrefs;
             table.set(0, undefined);
@@ -148,12 +112,6 @@ function passStringToWasm0(arg, malloc, realloc) {
 
     WASM_VECTOR_LEN = offset;
     return ptr;
-}
-
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_externrefs.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
 }
 
 let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true });

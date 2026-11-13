@@ -11,22 +11,23 @@
 // against PROVENANCE.md) runs on every single-file and ZIP input as well, and its report
 // must equal the command-line tool's. Domios is never installed or called.
 //
-// Inputs, each under host profiles `none` and `domios` unless stated:
+// Inputs (a reader takes no host input such as a host profile; specification
+// section 10.7):
 //  - packages/<scope>/<name>/<version>/: every form the version ships (<name>.team.yaml
 //    when present, <name>.team, <name>/). Each must be valid with no diagnostic, and the
 //    report's name and version must be the directory's.
 //  - examples/{invalid,warnings}/<case>/: the input named by expected.yaml. The report
 //    must hold exactly the diagnostics listed there (errors with severity error,
-//    warnings with severity warning; an entry with host_profile applies only under that
-//    profile), matched on code, severity, file, path, and line and column where listed.
+//    warnings with severity warning), matched on code, severity, file, path, and line
+//    and column where listed.
 //    The package is valid exactly when no error is expected. This is the strict
 //    regression oracle for the generated artifacts; for other implementations only
 //    accept/refuse and the codes are normative (examples/README.md).
-//  - corpus/<spec version>/cases.json: every case under host profile `domios`, the
-//    profile the reference implementation runs its corpus with, read as that
+//  - corpus/<spec version>/cases.json: every case, read as the reference
 //    implementation's own corpus test reads it: `valid` must match, every listed
 //    diagnostic must be reported (matched on code, path, and line where listed), and
-//    every reported diagnostic must carry a listed code. A case's `expect` list is not
+//    every reported error must carry a listed code; unlisted warnings are not checked,
+//    as that test checks its unlisted-code rule over errors only. A case's `expect` list is not
 //    exhaustive: invalid/default-path-only.team.yaml lists 2 of its 8 missing_file errors.
 //
 // Exit codes: 0 every check matched; 1 any mismatch; 2 usage error or the validator
@@ -43,8 +44,6 @@ import { initSync, check_yaml, check_archive } from '../validator/2026.11.11/atp
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const VALIDATOR_VERSION = '2026.11.11';
 export const SPEC_VERSION = '2026-11-11';
-export const PROFILES = ['none', 'domios'];
-const CORPUS_PROFILE = 'domios';
 const WASM_DIR = `validator/${VALIDATOR_VERSION}`;
 
 const sha256 = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -81,16 +80,16 @@ export function referenceWasm(root = ROOT) {
     wasmReady = true;
   }
   return {
-    checkYaml: (text, profile) => JSON.parse(check_yaml(text, profile)),
-    checkArchive: (bytes, profile) => JSON.parse(check_archive(bytes, profile)),
+    checkYaml: (text) => JSON.parse(check_yaml(text)),
+    checkArchive: (bytes) => JSON.parse(check_archive(bytes)),
   };
 }
 
 // Runs the WebAssembly module on a single-file or ZIP input; null for a folder.
-export function wasmReport(abs, profile, wasm = referenceWasm()) {
+export function wasmReport(abs, wasm = referenceWasm()) {
   if (fs.statSync(abs).isDirectory()) return null;
   const bytes = fs.readFileSync(abs);
-  return abs.endsWith('.team') ? wasm.checkArchive(bytes, profile) : wasm.checkYaml(bytes.toString('utf8'), profile);
+  return abs.endsWith('.team') ? wasm.checkArchive(bytes) : wasm.checkYaml(bytes.toString('utf8'));
 }
 
 function which(cmd) {
@@ -119,8 +118,8 @@ function resolveCli(cmd) {
   return { abs, sha256: actual, file: readme[0] };
 }
 
-function runCli(cli, abs, profile) {
-  const r = spawnSync(cli, [abs, '--host-profile', profile, '--json'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+function runCli(cli, abs) {
+  const r = spawnSync(cli, [abs, '--json'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   if (r.error) throw new Error(`cannot run ${cli}: ${r.error.message}`);
   let report = null;
   try {
@@ -139,7 +138,8 @@ const show = (d) =>
 
 // Matches each expectation to a distinct diagnostic; returns problem strings. With
 // `exact`, every diagnostic must be matched; otherwise (the corpus) every unmatched
-// diagnostic must still carry one of the expected codes.
+// error must still carry one of the expected codes, and unmatched warnings are not
+// checked.
 function matchDiagnostics(expected, actual, exact) {
   const problems = [];
   const left = [...actual];
@@ -152,17 +152,17 @@ function matchDiagnostics(expected, actual, exact) {
   }
   const codes = new Set(expected.map((e) => e.fields.code));
   for (const d of left) {
-    if (exact || !codes.has(d.code)) problems.push(`unexpected ${show(d)}`);
+    if (exact || (d.severity === 'error' && !codes.has(d.code))) problems.push(`unexpected ${show(d)}`);
   }
   return problems;
 }
 
 // One validator run of one input: exit code and validity agree, the WebAssembly module
 // agrees, then the case-specific check. Returns the result record.
-function check({ cli, wasm, kind, name, form, input, profile, expectValid, expected, exact = true, identity }) {
+function check({ cli, wasm, kind, name, form, input, expectValid, expected, exact = true, identity }) {
   const abs = path.join(ROOT, input);
   const problems = [];
-  const { exit, report, stderr } = runCli(cli, abs, profile);
+  const { exit, report, stderr } = runCli(cli, abs);
   if (!report) {
     problems.push(`no JSON report (exit ${exit}${stderr ? `, stderr: ${stderr}` : ''})`);
   } else {
@@ -172,14 +172,13 @@ function check({ cli, wasm, kind, name, form, input, profile, expectValid, expec
     if (identity && (report.name !== identity.name || report.version !== identity.version)) {
       problems.push(`report names ${report.name}@${report.version}, expected ${identity.name}@${identity.version}`);
     }
-    const w = wasmReport(abs, profile, wasm);
+    const w = wasmReport(abs, wasm);
     if (w && canonical(w) !== canonical(report)) problems.push('WebAssembly report differs from the command-line report');
   }
   return {
     kind,
     case: name,
     form,
-    profile,
     input,
     exit,
     valid: report?.valid ?? null,
@@ -203,9 +202,7 @@ function packageRuns() {
           ['folder', `${dir}/${pkg}`],
         ].filter(([, p]) => fs.existsSync(path.join(ROOT, p)));
         for (const [form, input] of forms) {
-          for (const profile of PROFILES) {
-            runs.push({ kind: 'package', name: `${scope}/${pkg}@${version}`, form, input, profile, expectValid: true, expected: [], identity: { name: `${scope}/${pkg}`, version } });
-          }
+          runs.push({ kind: 'package', name: `${scope}/${pkg}@${version}`, form, input, expectValid: true, expected: [], identity: { name: `${scope}/${pkg}`, version } });
         }
       }
     }
@@ -301,24 +298,21 @@ function exampleRuns() {
       const spec = parseYaml(text);
       metadataProblems.push(...lintExpected(`${dir}/expected.yaml`, text, spec, sections));
       if (spec.case !== name) throw new Error(`${dir}/expected.yaml: case "${spec.case}" is not the directory name`);
-      for (const profile of PROFILES) {
-        const expected = [];
-        for (const [list, severity] of [[spec.errors ?? [], 'error'], [spec.warnings ?? [], 'warning']]) {
-          for (const e of list) {
-            if (e.host_profile != null && e.host_profile !== profile) continue;
-            if (e.severity !== severity) throw new Error(`${dir}/expected.yaml: ${e.code} listed under ${severity}s has severity ${e.severity}`);
-            const loc = e.location ?? {};
-            const fields = { code: e.code, severity, file: expectedFile(loc, spec.input), path: loc.path ?? '' };
-            if (loc.line != null) fields.line = loc.line;
-            if (loc.column != null) fields.column = loc.column;
-            expected.push({ fields, label: show(fields) });
-          }
+      const expected = [];
+      for (const [list, severity] of [[spec.errors ?? [], 'error'], [spec.warnings ?? [], 'warning']]) {
+        for (const e of list) {
+          if (e.severity !== severity) throw new Error(`${dir}/expected.yaml: ${e.code} listed under ${severity}s has severity ${e.severity}`);
+          const loc = e.location ?? {};
+          const fields = { code: e.code, severity, file: expectedFile(loc, spec.input), path: loc.path ?? '' };
+          if (loc.line != null) fields.line = loc.line;
+          if (loc.column != null) fields.column = loc.column;
+          expected.push({ fields, label: show(fields) });
         }
-        const expectValid = !expected.some((e) => e.fields.severity === 'error');
-        if (group === 'invalid' && profile === CORPUS_PROFILE && expectValid) throw new Error(`${dir}: an invalid case expects no error under ${profile}`);
-        if (group === 'warnings' && !expectValid) throw new Error(`${dir}: a warning case expects an error`);
-        runs.push({ kind: `example/${group}`, name, form: spec.form, input: `${dir}/${spec.input}`, profile, expectValid, expected });
       }
+      const expectValid = !expected.some((e) => e.fields.severity === 'error');
+      if (group === 'invalid' && expectValid) throw new Error(`${dir}: an invalid case expects no error`);
+      if (group === 'warnings' && !expectValid) throw new Error(`${dir}: a warning case expects an error`);
+      runs.push({ kind: `example/${group}`, name, form: spec.form, input: `${dir}/${spec.input}`, expectValid, expected });
     }
   }
   return runs;
@@ -335,7 +329,7 @@ function corpusRuns() {
       if (e.line != null) fields.line = e.line;
       return { fields, label: `${e.code}@${fields.path}${e.line != null ? `:${e.line}` : ''}` };
     });
-    return { kind: 'corpus', name: c.path, form, input: `${dir}/${c.path}`, profile: CORPUS_PROFILE, expectValid: c.valid, expected, exact: false };
+    return { kind: 'corpus', name: c.path, form, input: `${dir}/${c.path}`, expectValid: c.valid, expected, exact: false };
   });
 }
 
@@ -386,7 +380,7 @@ function main() {
   }
   const failed = results.filter((r) => r.problems.length);
   for (const r of failed) {
-    console.log(`\nFAIL ${r.kind} ${r.input} [${r.profile}]`);
+    console.log(`\nFAIL ${r.kind} ${r.input}`);
     for (const p of r.problems) console.log(`  ${p}`);
   }
   for (const p of metadataProblems) console.log(`\nFAIL metadata ${p}`);
@@ -397,8 +391,8 @@ function main() {
     const summary = {
       validator_version: VALIDATOR_VERSION,
       spec_version: SPEC_VERSION,
-      runs: results.map(({ kind, case: c, form, profile, input, exit, valid, diagnostics, problems }) => ({
-        kind, case: c, form, profile, input, exit, valid, diagnostics, pass: problems.length === 0,
+      runs: results.map(({ kind, case: c, form, input, exit, valid, diagnostics, problems }) => ({
+        kind, case: c, form, input, exit, valid, diagnostics, pass: problems.length === 0,
       })),
     };
     fs.writeFileSync(opts.summary, `${JSON.stringify(summary, null, 2)}\n`);

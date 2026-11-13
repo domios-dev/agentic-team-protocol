@@ -47,6 +47,17 @@ jobs:
       - name: Build site
         run: npm run build
 
+      # Every relative link and #fragment in _site/ must resolve to a built file and an
+      # id in the target page. External links are listed, not fetched.
+      - name: Check internal links
+        run: node scripts/check-links.mjs
+
+      # Every relative link and #fragment in the repository Markdown that build-site does
+      # not render (README.md, PROVENANCE.md, examples/README.md, ...) must resolve to a
+      # tracked file and a GitHub heading slug. External links are listed, not fetched.
+      - name: Check repository Markdown links
+        run: node scripts/check-links.mjs --markdown
+
       # Every catalog checksum must equal the SHA-256 of the bytes _site/ serves,
       # and catalog.json must be byte-identical to a fresh generation.
       - name: Verify catalog checksums against served bytes

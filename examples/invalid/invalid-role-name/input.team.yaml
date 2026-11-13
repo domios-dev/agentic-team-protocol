@@ -1,0 +1,16 @@
+name: com.example/invalid-role-name
+version: 1.0.0
+description: Package with a role name that contains a hyphen.
+authors:
+  - name: Example Author
+    url: https://example.com
+roles:
+  orchestrator:
+    kind: manager
+    instructions: |
+      Coordinate the team.
+  fact-checker:
+    kind: worker
+    description: Verifies every claim.
+    instructions: |
+      Verify every claim against its source.

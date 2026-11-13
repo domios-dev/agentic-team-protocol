@@ -5,6 +5,48 @@ All notable changes to the Agentic Team Protocol repository are documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 specification is versioned by date (`spec/<YYYY-MM-DD>/`) rather than by semantic version.
 
+## [Unreleased]: Phase 3
+
+Phase 3 releases the roles map in place under specification version 2026-11-11: a team
+declares its roles as one map of managers and workers. The first release had no users,
+so the owner allowed a one-time first-release exception. Every published 2026-11-11
+artifact is rewritten in place instead of versioned. Names, versions, the schema `$id`
+and the release tag stay the same, and there is no migration.
+
+### Pending
+
+- Roles map, released in place under the one-time first-release owner exception.
+  `PROVENANCE.md` records the exception and the superseded checksums.
+  `packages/IMMUTABILITY-EXCEPTIONS.json` lists every added, modified and deleted file.
+  - Specification `spec/2026-11-11/`: roles are one map of managers and workers
+    (section 10), and section 15 gives the final validator codes.
+  - JSON Schema `schema/2026-11-11/team.schema.json`, conformance corpus
+    `corpus/2026-11-11/` and reference validator 2026.11.11: regenerated from Domios
+    `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`. The schema and the WebAssembly module
+    come from `validator.yml` run 43468853771, and the corpus is a `git archive` of that
+    commit.
+  - Release `validator-2026.11.11`: after the merge to `main`, the binaries and
+    `SHA256SUMS` of run 43468853771 replace the first release's under the same tag. The
+    tag moves to the merge commit on `main`.
+  - `packages/`: com.example/research-desk 2.1.0 and dev.domios/default 1.0.0 are rewritten
+    in the `roles` shape, every form byte for byte as the Domios exporter wrote it. Their
+    versions are unchanged, and `scripts/pack-team.mjs` no longer packs any package
+    version.
+  - `examples/`: rewritten for the roles map, with 30 invalid cases and one warning case.
+    Their codes and locations come from the reference validator.
+  - `atp-validate` and the WebAssembly functions take no host profile. `validator.yml`,
+    `scripts/conformance.mjs` and the catalog build check each input once. In corpus
+    mode, `scripts/conformance.mjs` requires a listed code only for errors, as the
+    reference implementation's corpus test does.
+  - `scripts/check-immutability.mjs` also keeps `validator/<YYYY.MM.DD>/` immutable. It
+    accepts an exact-file exception entry (`directory`, `reason`, `approver`, and the
+    exact `added`, `modified` and `deleted` file lists) under `packages/`, `schema/`,
+    `corpus/` and `validator/`. The entry admits exactly those changes, and only while it
+    is new against the base. Existing entries behave as before.
+  - `scripts/check-links.mjs`: checks every internal link and anchor of the built site.
+    With `--markdown`, it checks the repository's Markdown files that the site does not
+    render, as GitHub shows them.
+
 ## [Unreleased]: Phase 2
 
 Phase 2 adds the generated JSON Schema, conformance corpus and reference validator
@@ -16,8 +58,8 @@ outside consumer can reproduce without Domios.
 - `scripts/conformance.mjs`: runs the released `atp-validate` 2026.11.11 (its SHA-256
   checked against `validator/README.md` and `PROVENANCE.md`) and the committed
   WebAssembly module over every package version in every form it ships, every
-  `examples/` case and every corpus case, under host profiles `none` and `domios`
-  (the corpus under `domios`, as the reference implementation runs it). Packages must be
+  `examples/` case and every corpus case, one run per input with no host input
+  (specification section 10.7). Packages must be
   valid with no diagnostic; examples must produce exactly their listed diagnostics,
   locations included; corpus cases must match `valid`, report every listed diagnostic
   and no unlisted code; the WebAssembly report must equal the command-line report. It
@@ -34,7 +76,7 @@ outside consumer can reproduce without Domios.
 ### Changed
 
 - The catalog build validates every entry's `.team` ZIP and single file with the
-  reference validator under host profiles `none` and `domios` and fails on any error;
+  reference validator, one run per form, and fails on any error;
   each entry records the validator version in `validation`. The catalog page no longer
   says validation is pending.
 - `validator/README.md` links the release `validator-2026.11.11` and gives copyable

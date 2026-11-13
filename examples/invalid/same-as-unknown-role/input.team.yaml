@@ -4,12 +4,16 @@ description: Package whose curator follows the model of a role the team does not
 authors:
   - name: Example Author
     url: https://example.com
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Coordinate the team.
   curator:
+    kind: manager
     start:
       schedule: 45m..2h
     model:
       same_as: coordinator
+    instructions: |
+      Review the team's health and report to the orchestrator.

@@ -1,7 +1,8 @@
 # Agentic Team Protocol packages
 
-Agentic Team Protocol (ATP) packages. The specification defines three forms, and
-each version is published in every form its package ships:
+Published Agentic Team Protocol packages. The specification defines three package
+forms ([section 4](../spec/2026-11-11/index.md#4-package-forms)), and each version is
+published in every form its package ships:
 
 ```
 packages/<scope>/<name>/<version>/
@@ -16,113 +17,88 @@ form when its package does not ship one, for example because its document uses
 `node scripts/check-forms.mjs` prints a `note` line for each such version, and its
 catalog entry has `forms.single_file: null`.
 
-`node scripts/pack-team.mjs` builds the `.team` from its folder only for the versions
-listed in its `PACK_TEAM_VERSIONS` (com.example/research-desk 2.1.0 and
-dev.domios/default 1.0.0). Those archives are deterministic: entries sorted by byte
-order of their path, files only, stored without compression, fixed timestamp
-1980-01-01 00:00, zero attributes, no extra fields or comments. Every later version
-ships the `.team` the Domios exporter writes, unchanged; the script never writes it.
-`node scripts/check-forms.mjs` checks that each ZIP holds exactly the folder's files
-byte for byte and matches its writer's container profile, that a re-pack of the
-listed versions is byte-identical, and that text files use LF only. The [reference validator](../validator/) checks every
-form: `node scripts/conformance.mjs` runs it on each form under host profiles `none`
-and `domios`, and the catalog build fails when a version does not validate.
+Every file of every form is the output of the Domios exporter, byte for byte; nothing
+here is authored, re-packed or reformatted. `scripts/pack-team.mjs` packs no package
+version (its `PACK_TEAM_VERSIONS` is empty) and only builds the archive-only invalid
+examples. `node scripts/check-forms.mjs` checks that each ZIP holds exactly the
+folder's files byte for byte and matches the exporter's container profile, and that
+text files use LF only. The [reference validator](../validator/) checks every
+form: `node scripts/conformance.mjs` runs it on each form, and the catalog build fails
+when a version does not validate.
 
 The root `.gitattributes` disables line-ending conversion for `packages/**` and
 `examples/**`, so the bytes and their checksums survive any checkout.
 
-Phase 1 published com.example/research-desk 2.1.0. Phase 2 adds the builtin
-dev.domios/default 1.0.0 from the Domios tree, in all three forms.
+The rules for publishing and changing a package version are in
+[CONTRIBUTING.md](../CONTRIBUTING.md#packages).
 
-Both versions above keep the `.team` ZIP packed here by `scripts/pack-team.mjs`.
-Every later published version publishes the `.team` bytes of the Domios exporter
-as-is (see [CONTRIBUTING.md](../CONTRIBUTING.md)).
+## Export provenance
+
+Both versions were rewritten in place in the `roles` shape of specification
+2026-11-11 under a one-time owner exception recorded in `IMMUTABILITY-EXCEPTIONS.json`;
+their versions did not change. Every form was exported by a Domios development build
+at Domios commit `16d5277f4ff083d487a7c55ba351f9bb72b8f084` with the Domios CLI:
+
+- `team export <name> --format yaml --out <name>.team.yaml`
+- `team export <name> --format team --out <name>.team`
+- `team export <name> --format folder --out <name>`
+
+For com.example/research-desk the ZIP and folder forms come from the package with the
+binary logo, which the yaml format refuses; its single file comes from the separate
+fully inline variant ([below](#single-file-research-deskteamyaml)), imported into the
+same build and exported with `--format yaml`.
+
+`team check` on each exported form reported it valid with no diagnostics. A second
+export of every form was byte-identical to the first.
+
+| Version | Form | SHA-256 |
+| --- | --- | --- |
+| dev.domios/default 1.0.0 | `default.team.yaml` | `7c2f600f5f7599f37dfc45198ff76e408066e8b743b1b08813bb1972092fc3ce` |
+| dev.domios/default 1.0.0 | `default.team` | `5ff976fc98a85b6391ab631157b216b2f57f0ee95ea3ba5647b5c21cbd552e88` |
+| dev.domios/default 1.0.0 | `default/team.yaml` | `1f3fd08ef8aa2bfb921be441765b459fa9fa3540660ddc963acf5da49b02a7c9` |
+| com.example/research-desk 2.1.0 | `research-desk.team.yaml` | `037165fc8f812b5899e214e76da2c6ea64f3b3d1ba8d7cb90e62f46ba51f31c1` |
+| com.example/research-desk 2.1.0 | `research-desk.team` | `783fd17bfd89462cf4964594114f97ccf51e2fddb69bbb29ea40aaa3c77cb1bb` |
+| com.example/research-desk 2.1.0 | `research-desk/team.yaml` | `d31b57c2a48976456433b6e57f78dc884cf4b4e637948feb1e567b80b24c818b` |
+
+Each folder holds exactly the files of the exporter's folder export, and the ZIP holds
+the same entries with the same bytes.
 
 ## dev.domios/default 1.0.0
 
-### Folder and ZIP: `default/`, `default.team`
+The builtin default team of Domios, the reference implementation, as the exporter
+writes it.
 
-The builtin default team of Domios, the reference implementation. Every file in
-`default/` is the Domios file of the same path under
-`src-tauri/team-templates/default/` at Domios commit
-`46078622b77e6bbb4aeca70a779e7cef819fd60d`, byte for byte (same git object id), including
-the header comment of `team.yaml`. Nothing is added, removed or reformatted.
-`default.team` is packed from that folder by `scripts/pack-team.mjs`.
-
-- `team.yaml`: Orchestrator, Planner, Cartographer and Curator managers; worker, qa,
-  reviewer and release_manager workers
+- `team.yaml`: one `roles` map with the managers orchestrator, planner, cartographer
+  and curator and the workers worker, qa, reviewer and release_manager, each with its
+  own instructions
 - `icon.svg`: the package icon
 - `managers/*.md`, `workers/*.md`: each role's `instructions_file`
-
-### Single file: `default.team.yaml`
-
-`default.team.yaml` is the output of the Domios exporter, byte for byte. It was not
-authored, derived or reformatted here. It was added after the version's first
-commit through a one-time entry in `IMMUTABILITY-EXCEPTIONS.json` that allows
-exactly this file to be added; no other byte of the version changed.
-
-Provenance:
-
-- Domios commit: `a7374d38447289ded47f01849bbdb45799720ce8`
-- Command: `team export dev.domios/default --format yaml` (Domios CLI)
-- SHA-256: `55dd56f313a78fc666f304bfd9d613cbcf6804a394487815f592cfa012b45a91`
-  (LF line endings only)
-- `team check` on the exported file at export time: valid, 0 warnings
-- The same export with `--format folder` wrote the 10 files of `default/`, each
-  byte-identical to the file committed here.
-
-### ZIP: packed here, same entries as the exporter's
-
-For this version the contract is the per-file contents, and `default.team` stays
-the archive packed here (SHA-256
-`10ac7cf261e66da38c885ddcf85bacaae0689b4632f8aed7dddab7f413a2bb9b`). The same
-export with `--format team` produced an archive with SHA-256
-`575bd0e4f1105c85e4a6a566fd0c78abb73cdfc82e86ee8dfa5f52744b6c6fd4`. Both hold the same
-10 entry names with identical bytes, both are 60675 bytes long, store every entry
-uncompressed with the timestamp 1980-01-01 00:00:00 and carry no extra fields,
-comments or data descriptors. The containers differ only in these fields:
-
-| Field | Packed here | Domios exporter |
-| --- | --- | --- |
-| Entry order | byte order of the path (`team.yaml` sixth) | `team.yaml` first, then byte order |
-| Version made by | 20 (2.0), MS-DOS host | 10 (1.0), Unix host |
-| Version needed to extract | 20 (2.0) | 10 (1.0) |
-| General purpose flags | `0x0800` (UTF-8 names) | `0x0000` (all names are ASCII) |
-| External attributes | `0` | `0x81A40000` (Unix regular file, mode 0644) |
+- `default.team.yaml`: the same package in one file, with the icon and every role's
+  instructions inline
 
 ## com.example/research-desk 2.1.0
 
+The canonical example package, with the neutral author identities of `com.example`.
+
 ### Folder and ZIP: `research-desk/`, `research-desk.team`
 
-`team.yaml` is the canonical example byte for byte. The canonical package
-references five paths without inline content, which is valid only in the folder
-and ZIP forms. These forms carry minimal neutral placeholders for them. The
-placeholders are illustrative, not normative; automation content is host-defined.
-
-- `data/competitors.csv`: three fictional competitors
-- `assets/logo.png`: a 16x16 PNG
-- `workers/checker.md`: instructions for the checker worker
-- `skills/market-sizing/SKILL.md`: a skill named `market-sizing`
-- `blueprints/digest.yaml`: an hourly digest automation, in the shape of the inline `stale-task-nudge` entry
-
-Files that `team.yaml` already carries inline through `content` (for example
-`assets/icon.svg` and the `source-check` skill's `scripts/fetch.py`) are not
-duplicated as folder files.
+The exporter writes every file, skill and automation entry and every role's
+instructions as a file referenced from `team.yaml`: `assets/`, `essences/`,
+`templates/`, `data/`, `skills/`, `blueprints/`, and `managers/<role>.md` and
+`workers/<role>.md` for the instructions of each manager and worker. The data,
+logo, skill and automation contents are minimal neutral placeholders; they are
+illustrative, not normative, and automation content is host-defined.
 
 ### Single file: `research-desk.team.yaml`
 
-A single file must resolve every reference inline, so this form is a fully
-inline variant of the canonical `team.yaml`. Its inline text is byte-identical
-to the folder files above. It differs from the canonical bytes in exactly
-these places:
+A single file must resolve every reference inline, so this form is the fully
+inline variant of the package. Its inline text equals the folder files above
+except where the table says otherwise:
 
-| Canonical `team.yaml` | Single file |
+| Folder and ZIP | Single file |
 | --- | --- |
-| `files`: `data/competitors.csv` (path only) | same entry plus `content` (the folder file's text) |
-| `files`: `assets/logo.png` (path only, binary) | replaced by `assets/logo.svg` with inline SVG `content`; same description |
-| `skills`: `- path: skills/market-sizing` | inline `{name: market-sizing, description, content}` (content is the folder's `SKILL.md`) |
-| `automation`: `- path: blueprints/digest.yaml` + description | inline `{name: digest, description, content}` (same description; content is the folder's `digest.yaml`) |
-| `workers.checker.instructions_file: workers/checker.md` | `instructions: \|` with the text of `workers/checker.md` |
-
-Every other line is unchanged. The canonical bytes used as a single file are
-the invalid fixture `examples/invalid/path-only-in-single-file`.
+| `files` entries by path | the same entries with inline `content` |
+| `files`: `assets/logo.png` (binary) | replaced by `assets/logo.svg` with inline SVG `content`; same description |
+| `skills`: `- path: skills/<name>` | inline `{name, description, content}` (and `files` for `source-check`) |
+| `automation`: `- path: blueprints/<name>.yaml` | inline `{name, description, content}` |
+| `instructions_file: managers/<role>.md`, `workers/<role>.md` | `instructions: \|` with the role's text |

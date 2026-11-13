@@ -4,12 +4,13 @@ description: Package with a key repeated inside one mapping.
 authors:
   - name: Example Author
     url: https://example.com
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Coordinate the team.
-workers:
   researcher:
+    kind: worker
     description: Researches one angle.
     instructions: |
       Research exactly one angle.

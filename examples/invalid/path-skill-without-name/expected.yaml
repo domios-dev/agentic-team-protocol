@@ -1,4 +1,4 @@
-# Expected result for an Agentic Team Protocol (ATP) conformance fixture.
+# Expected result for an Agentic Team Protocol conformance fixture.
 # The code and location come from a run of the reference validator (validator_run);
 # the conformance corpus has no case for this rule. The validator reports the
 # missing name at the skills entry in team.yaml, not inside SKILL.md.
@@ -18,5 +18,5 @@ errors:
       detail: input/skills/source-check/SKILL.md has a frontmatter (lines 1-3) with description but no name
     severity: error
     code: missing_field
-    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169
+    validator_run: https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465
 warnings: []
