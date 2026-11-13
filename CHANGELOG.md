@@ -22,11 +22,11 @@ and the release tag stay the same, and there is no migration.
     (section 10), and section 15 gives the final validator codes.
   - JSON Schema `schema/2026-11-11/team.schema.json`, conformance corpus
     `corpus/2026-11-11/` and reference validator 2026.11.11: regenerated from Domios
-    `16d5277f4ff083d487a7c55ba351f9bb72b8f084`. The schema and the WebAssembly module
-    come from `validator.yml` run 43455116961, and the corpus is a `git archive` of that
+    `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`. The schema and the WebAssembly module
+    come from `validator.yml` run 43468853771, and the corpus is a `git archive` of that
     commit.
   - Release `validator-2026.11.11`: after the merge to `main`, the binaries and
-    `SHA256SUMS` of run 43455116961 replace the first release's under the same tag. The
+    `SHA256SUMS` of run 43468853771 replace the first release's under the same tag. The
     tag moves to the merge commit on `main`.
   - `packages/`: com.example/research-desk 2.1.0 and dev.domios/default 1.0.0 are rewritten
     in the `roles` shape, every form byte for byte as the Domios exporter wrote it. Their

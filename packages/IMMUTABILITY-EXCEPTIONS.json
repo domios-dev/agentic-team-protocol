@@ -53,7 +53,7 @@
     },
     {
       "directory": "schema/2026-11-11",
-      "reason": "Rewrite the 2026-11-11 JSON Schema in place for the roles map, exactly as atp-validate schema --spec-version 2026-11-11 wrote it in validator.yml run 43455116961 at Domios 16d5277f4ff083d487a7c55ba351f9bb72b8f084 (PROVENANCE.md); the first release had no users.",
+      "reason": "Rewrite the 2026-11-11 JSON Schema in place for the roles map, exactly as atp-validate schema --spec-version 2026-11-11 wrote it in validator.yml run 43468853771 at Domios fafc45b8b68808530d6c2fe4956af0fa9d23dd54 (PROVENANCE.md); the first release had no users.",
       "approver": "owner, one-time first-release exception (roles map)",
       "added": [],
       "modified": ["team.schema.json"],
@@ -61,7 +61,7 @@
     },
     {
       "directory": "corpus/2026-11-11",
-      "reason": "Rewrite the 2026-11-11 conformance corpus in place for the roles map, as git archive of fixtures/corpus at Domios 16d5277f4ff083d487a7c55ba351f9bb72b8f084 (PROVENANCE.md); the first release had no users.",
+      "reason": "Rewrite the 2026-11-11 conformance corpus in place for the roles map, as git archive of fixtures/corpus at Domios fafc45b8b68808530d6c2fe4956af0fa9d23dd54 (PROVENANCE.md); the first release had no users.",
       "approver": "owner, one-time first-release exception (roles map)",
       "added": [
         "invalid/bad-role-name.team.yaml",
@@ -118,7 +118,7 @@
     },
     {
       "directory": "validator/2026.11.11",
-      "reason": "Rewrite the reference validator 2026.11.11 WebAssembly module in place for the roles map, exactly as artifact atp-validate-wasm of validator.yml run 43455116961 at Domios 16d5277f4ff083d487a7c55ba351f9bb72b8f084 holds it (PROVENANCE.md); its Cargo.lock is unchanged; the first release had no users.",
+      "reason": "Rewrite the reference validator 2026.11.11 WebAssembly module in place for the roles map, exactly as artifact atp-validate-wasm of validator.yml run 43468853771 at Domios fafc45b8b68808530d6c2fe4956af0fa9d23dd54 holds it (PROVENANCE.md); its Cargo.lock is unchanged; the first release had no users.",
       "approver": "owner, one-time first-release exception (roles map)",
       "added": [],
       "modified": ["atp_validate.d.ts", "atp_validate.js", "atp_validate_bg.wasm", "atp_validate_bg.wasm.d.ts"],

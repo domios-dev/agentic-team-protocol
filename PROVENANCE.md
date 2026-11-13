@@ -57,10 +57,10 @@ corpus is the `corpus/2026-11-11/` tree of this repository's commit
 
 `schema/`, `corpus/` and `validator/` are licensed under the Apache License 2.0, the
 license of this repository ([LICENSE](LICENSE)). Each Domios component they are generated
-from is licensed Apache-2.0 at Domios commit `16d5277f4ff083d487a7c55ba351f9bb72b8f084`
+from is licensed Apache-2.0 at Domios commit `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`
 (`domios-dev/domios`). That commit is also the source commit of every artifact below.
 
-| Component (Domios path) | Used for | License | Taken from, at `16d5277f4ff083d487a7c55ba351f9bb72b8f084` |
+| Component (Domios path) | Used for | License | Taken from, at `fafc45b8b68808530d6c2fe4956af0fa9d23dd54` |
 | --- | --- | --- | --- |
 | Crate `codeterm-team-package` (`src-tauri/crates/codeterm-team-package`) | the corpus (its `fixtures/corpus/`), the JSON Schema generator, the `atp-validate` binaries, the validation code in the WebAssembly module | Apache-2.0 | `Cargo.toml` (`license = "Apache-2.0"`) and the crate's `LICENSE` |
 | Crate `codeterm-team-package-wasm` (`src-tauri/crates/codeterm-team-package-wasm`) | the WebAssembly wrapper in `validator/2026.11.11/` | Apache-2.0 | `Cargo.toml` (`license = "Apache-2.0"`) and the crate's `LICENSE` |
@@ -72,10 +72,10 @@ from is licensed Apache-2.0 at Domios commit `16d5277f4ff083d487a7c55ba351f9bb72
 | --- | --- |
 | Directory | `corpus/2026-11-11/` |
 | Spec version | 2026-11-11 |
-| Domios commit | `16d5277f4ff083d487a7c55ba351f9bb72b8f084` (Domios integration branch `feature/atp-1.20.0`, repository `domios-dev/domios`) |
+| Domios commit | `fafc45b8b68808530d6c2fe4956af0fa9d23dd54` (Domios integration branch `feature/atp-1.20.0`, repository `domios-dev/domios`) |
 | Crate | `codeterm-team-package` 0.0.0 (`src-tauri/crates/codeterm-team-package`) |
 | Source path | `src-tauri/crates/codeterm-team-package/fixtures/corpus/` |
-| Generator command | `git -c core.autocrlf=false -c core.eol=lf archive --format=tar 16d5277f4ff083d487a7c55ba351f9bb72b8f084 -- src-tauri/crates/codeterm-team-package/fixtures/corpus \| tar -x --strip-components=5 -C corpus/2026-11-11` |
+| Generator command | `git -c core.autocrlf=false -c core.eol=lf archive --format=tar fafc45b8b68808530d6c2fe4956af0fa9d23dd54 -- src-tauri/crates/codeterm-team-package/fixtures/corpus \| tar -x --strip-components=5 -C corpus/2026-11-11` |
 | Builder | none (git export) |
 | License | Apache-2.0 (see [Licenses](#licenses)) |
 | Files | 50 |
@@ -171,9 +171,9 @@ file the run produced, the exact commands, the toolchains and the run URL.
 
 | Field | Value |
 | --- | --- |
-| Run | <https://github.com/domios-dev/agentic-team-protocol/actions/runs/43455116961> (attempt 1) |
-| Workflow commit | `a6b307e8d3c4da9382c48fcc13ac7e083885bc45` (pull request head; the run's merge commit is `cf75d063dde847ee43c4c67e957b7f32702ea961`) |
-| Domios commit | `16d5277f4ff083d487a7c55ba351f9bb72b8f084` (`domios-dev/domios`, pinned in `DOMIOS_SHA`) |
+| Run | <https://github.com/domios-dev/agentic-team-protocol/actions/runs/43468853771> (attempt 1) |
+| Workflow commit | `d2db069610800fed454668c44ea58b97623c5ffc` (pull request head; the run's merge commit is `51c6748049a175ce7138afe57a75733be6d44e78`) |
+| Domios commit | `fafc45b8b68808530d6c2fe4956af0fa9d23dd54` (`domios-dev/domios`, pinned in `DOMIOS_SHA`) |
 | Crates | `codeterm-team-package` 0.0.0 (`atp-validate` binary), `codeterm-team-package-wasm` 0.0.0 |
 | Toolchain | rustc 1.99.1 (58cf8f9c3 2026-10-13), cargo 1.99.1 (5f94df478 2026-08-27), from Domios `rust-toolchain.toml` |
 | wasm-bindgen | crate and CLI 0.2.130 (resolved in the generated `Cargo.lock`) |
@@ -196,7 +196,7 @@ file the run produced, the exact commands, the toolchains and the run URL.
 | URL | <https://atp.domios.dev/schema/2026-11-11/team.schema.json> (its `$id`) |
 | Dialect | JSON Schema draft-07 (`$schema`: `http://json-schema.org/draft-07/schema#`); the generator (schemars 0.8.22) has no 2020-12 mode |
 | Command | `atp-validate-x86_64-unknown-linux-musl schema --spec-version 2026-11-11 > schema/2026-11-11/team.schema.json` (job "Schema and example run" of the build run) |
-| SHA-256 | `9095041121d76f33b8ec6738c757a072f9f1ce807b176e87105f0c704b1e930d` |
+| SHA-256 | `97b2ff9d69c70add556ba79399f8bae563098160f810ad16bdf4b0373ba0e1f5` |
 
 The file is committed exactly as the command wrote it, and its SHA-256 equals the
 `schema-and-example-run` artifact entry in the manifest.
@@ -211,7 +211,7 @@ WebAssembly module, committed under `validator/2026.11.11/` (artifact `atp-valid
 | File | SHA-256 |
 | --- | --- |
 | `validator/2026.11.11/atp_validate.js` | `33c06897c8547dcbbdd6746916e0b7febcdfcf3ae1d75132e13a660d4048b7e5` |
-| `validator/2026.11.11/atp_validate_bg.wasm` | `ba5cba614408ea7338878009c608d2361df75a1dddebdccf25c4fc85b966b330` |
+| `validator/2026.11.11/atp_validate_bg.wasm` | `da89b776abab657287dd9c75c5ef72044d48b37b1b0086af789b7bb565e39363` |
 | `validator/2026.11.11/atp_validate.d.ts` | `9e62c3a9ec10719a1c4ef1c735c7109414ca631969c538c058e8e01e81e17e10` |
 | `validator/2026.11.11/atp_validate_bg.wasm.d.ts` | `57923798aa5c14f15bd16ae02e85c2429b36552fea56f26a2c82394a26bf8c6c` |
 | `validator/2026.11.11/Cargo.lock` (generated by the wasm build) | `6fb8f436c7d1f917d07b3d047a6256acf444b645ad38f16dcff3e1379bdb31dc` |
@@ -221,31 +221,31 @@ Command-line binaries, not committed (for a GitHub Release; see
 
 | File | Target | SHA-256 |
 | --- | --- | --- |
-| `atp-validate-x86_64-unknown-linux-musl` | x86_64 Linux (static, musl) | `a0d982b5f9ba43816b4b4d675336bc3c41040faeca817554c841463c1c25ad1c` |
-| `atp-validate-aarch64-apple-darwin` | Apple silicon macOS | `0562c1008440b5dc998ef4c0eb043433edd50995dfb50e844869a127b482e466` |
-| `atp-validate-x86_64-apple-darwin` | Intel macOS | `5ba326bce800d1ec66a87df5069e634e73fd5099902cc9316631f87941335eaf` |
-| `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `d886e7f07e665be4f0cb53f29abd43eaf260fa45b56edfa69b1fe38e5984caac` |
+| `atp-validate-x86_64-unknown-linux-musl` | x86_64 Linux (static, musl) | `6adfa021bda8bd56a46805025c424d75891f523a44af238f8b1572aff082dc7d` |
+| `atp-validate-aarch64-apple-darwin` | Apple silicon macOS | `c8b52eae2040016837182923eaf94486e4424c37bebaf6f8880dcac4e04955cc` |
+| `atp-validate-x86_64-apple-darwin` | Intel macOS | `03e4f3e3f5ce92a023d18ef9fb960e2b64353cd494a4df543d00469777eec9dc` |
+| `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `f1da9f500caacda004545332a0224428906cc5dcd64a94c6449b1215aaf2eacc` |
 
-The native binaries are not byte-reproducible across runs. Later runs of the same workflow
-at the same Domios commit (for example
-[43457952465](https://github.com/domios-dev/agentic-team-protocol/actions/runs/43457952465))
-rebuilt only `atp-validate-x86_64-apple-darwin` with identical bytes. The WebAssembly
-module, its `Cargo.lock` and the JSON Schema came out identical. The release binaries are
-therefore exactly those of the build run above, never a rebuild.
+The native binaries are not byte-reproducible across runs. Repeated runs of this workflow
+at one Domios commit rebuilt only `atp-validate-x86_64-apple-darwin` with identical bytes,
+while the WebAssembly module, its `Cargo.lock` and the JSON Schema came out identical. The
+release binaries are therefore exactly those of the build run above, never a rebuild.
+
+The build run's Domios commit, `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`, spells out
+"Agentic Team Protocol" in the schema description and in three validator messages. Before
+it, the roles-map artifacts were built at `16d5277f4ff083d487a7c55ba351f9bb72b8f084`. Between
+the two commits, the crates differ only in that text and in the host template contracts
+(`src/contracts.rs` and its fixtures), which neither the binary nor the WebAssembly entry
+points call. The corpus is identical. Of the committed files, only `team.schema.json` and
+`atp_validate_bg.wasm` changed.
 
 ## Example run
 
 `validator.yml` checks every input under `examples/` and every form of every package under
 `packages/` once with the Linux binary (`atp-validate <input> --json`); the validator takes
-no host profile. The run over the current examples and packages is
-<https://github.com/domios-dev/agentic-team-protocol/actions/runs/43459756828> (attempt 1;
-workflow commit `ca3f0aa506bbeac16f191a47fbf53d649057c144`, the run's merge commit is
-`f4eba1c88ee318f495ccf52893429587d1052b93`; Domios
-`16d5277f4ff083d487a7c55ba351f9bb72b8f084`). Its report is the `examples-report.jsonl` file
-of the `schema-and-example-run` artifact (SHA-256
-`9bea7ed51f2540f7d50519d54b442a916031cded2dbd92c81f214f2b6d501278`): 37 runs, with 30 invalid
-examples (exit 1), the warning example and all 6 package forms valid (exit 0). That run built
-its own Linux binary. The release Linux binary of the build run above
-(`a0d982b5f9ba43816b4b4d675336bc3c41040faeca817554c841463c1c25ad1c`) gives the same exit
-code and an identical JSON report for each of the 37 inputs. Codes and locations that
-`examples/**/expected.yaml` takes from this run name it as `validator_run`.
+no host profile. The build run above checked the current examples and packages with the Linux
+release binary. Its report is the `examples-report.jsonl` file of the
+`schema-and-example-run` artifact (SHA-256
+`52df0e08529a1e498b84d7625c70c76b8c370751a2133a8b8885a9766dd2b602`): 37 runs, with 30 invalid
+examples (exit 1), the warning example and all 6 package forms valid (exit 0). Codes and
+locations that `examples/**/expected.yaml` takes from this run name it as `validator_run`.

@@ -510,7 +510,7 @@
       "type": "object"
     }
   },
-  "description": "One ATP package document: the typed form of `team.yaml`, in protocol field order.",
+  "description": "One Agentic Team Protocol package document: the typed form of `team.yaml`, in protocol field order.",
   "properties": {
     "authors": {
       "items": {

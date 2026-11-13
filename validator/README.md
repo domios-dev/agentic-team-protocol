@@ -67,14 +67,14 @@ The release binaries and their SHA-256:
 
 | File | Platform | SHA-256 |
 | --- | --- | --- |
-| `atp-validate-x86_64-unknown-linux-musl` | x86_64 Linux (static, musl) | `a0d982b5f9ba43816b4b4d675336bc3c41040faeca817554c841463c1c25ad1c` |
-| `atp-validate-aarch64-apple-darwin` | Apple silicon macOS | `0562c1008440b5dc998ef4c0eb043433edd50995dfb50e844869a127b482e466` |
-| `atp-validate-x86_64-apple-darwin` | Intel macOS | `5ba326bce800d1ec66a87df5069e634e73fd5099902cc9316631f87941335eaf` |
-| `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `d886e7f07e665be4f0cb53f29abd43eaf260fa45b56edfa69b1fe38e5984caac` |
+| `atp-validate-x86_64-unknown-linux-musl` | x86_64 Linux (static, musl) | `6adfa021bda8bd56a46805025c424d75891f523a44af238f8b1572aff082dc7d` |
+| `atp-validate-aarch64-apple-darwin` | Apple silicon macOS | `c8b52eae2040016837182923eaf94486e4424c37bebaf6f8880dcac4e04955cc` |
+| `atp-validate-x86_64-apple-darwin` | Intel macOS | `03e4f3e3f5ce92a023d18ef9fb960e2b64353cd494a4df543d00469777eec9dc` |
+| `atp-validate-x86_64-pc-windows-msvc.exe` | x86_64 Windows | `f1da9f500caacda004545332a0224428906cc5dcd64a94c6449b1215aaf2eacc` |
 
 They come from build run
-[43455116961](https://github.com/domios-dev/agentic-team-protocol/actions/runs/43455116961)
-at Domios commit `16d5277f4ff083d487a7c55ba351f9bb72b8f084`. The release was replaced once,
+[43468853771](https://github.com/domios-dev/agentic-team-protocol/actions/runs/43468853771)
+at Domios commit `fafc45b8b68808530d6c2fe4956af0fa9d23dd54`. The release was replaced once,
 in place, under the owner's first-release exception recorded in
 [PROVENANCE.md](../PROVENANCE.md#owner-exception), which also lists the superseded
 checksums.
