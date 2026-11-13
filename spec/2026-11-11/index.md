@@ -7,9 +7,9 @@
 
 ## 1. Scope
 
-The Agentic Team Protocol defines a portable package that describes an agent team: its identity, what it asks a host for at start, the content it carries, its manager roles and its worker roles. This document defines the package format and the rules a conforming reader and writer follow. A host's runtime policy is not part of this format. The companion page [host-behaviour.md](host-behaviour.md) describes how a host treats a package and uses Domios as the reference host. That page is non-normative.
+The Agentic Team Protocol defines a portable package that describes an agent team: its identity, what it asks a host for at start, the content it carries, and its roles, each of which is a manager or a worker. This document defines the package format and the rules a conforming reader and writer follow. A host's runtime policy is not part of this format. The companion page [host-behaviour.md](host-behaviour.md) describes how a host treats a package and uses Domios as the reference host. That page is non-normative.
 
-Version 2026-11-11 covers managers and workers with per-role instructions, plus optional files, memory, skills and automation. It defines no plan, spec or task templates and no plan export (see [section 14](#14-out-of-scope-for-this-version)).
+Version 2026-11-11 covers roles of two kinds, managers and workers, with per-role instructions, plus optional files, memory, skills and automation. It defines no plan, spec or task templates and no plan export (see [section 14](#14-out-of-scope-for-this-version)).
 
 ## 2. Conventions and terms
 
@@ -20,9 +20,11 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - **Reader:** software that parses and validates a package, such as a validator or a host's importer.
 - **Writer:** software that produces a package, such as a host's exporter.
 - **Host:** software that starts a team from a package. Domios is the reference host.
-- **Role:** one manager slot or one worker definition ([section 10](#10-managers-and-workers)).
-- **Host profile:** an optional validator input that lists a host's built-in worker names ([section 10.7](#107-roles-with-host-defaults)).
-- **Host default role:** the role a host provides for a manager slot, or for one of its built-in worker names, supplying the fields a package does not define ([section 10.7](#107-roles-with-host-defaults)).
+- **Role:** one entry of the `roles` mapping: a role name and its definition ([section 10](#10-roles)).
+- **Kind:** the class of a role, `manager` or `worker` ([section 10.1](#101-role-names-and-kinds)).
+- **Manager:** a role of kind `manager`. It lives with the team across tasks.
+- **Worker:** a role of kind `worker`. It takes one task, or one assignment, and ends.
+- **Built-in manager name:** one of the names `orchestrator`, `planner`, `cartographer` and `curator` ([section 10.2](#102-orchestrator-and-built-in-manager-names)).
 - **Reference:** a key in the package document that points at other package content ([section 4.4](#44-references)).
 - **Error:** a condition that makes a package invalid. A reader MUST refuse an invalid package.
 - **Warning:** a condition that a reader MUST report and that leaves the package valid.
@@ -95,7 +97,7 @@ A package also uses names to point inside the package document:
 
 1. A package document MUST be YAML 1.2.
 2. A package document MUST NOT contain anchors or aliases (**YAML anchor or alias**).
-3. A mapping MUST NOT contain a duplicate key (**duplicate key**). Two definitions of the same manager slot or worker name are duplicate keys.
+3. A mapping MUST NOT contain a duplicate key (**duplicate key**). Two definitions of the same role name are duplicate keys.
 4. Tabs MUST NOT be used for indentation (**tab indentation**).
 5. A reader MUST normalize CRLF line endings to LF. A writer MUST write LF line endings.
 6. A writer MUST write multi-line text as a literal block scalar (`|`). When the first line of the text starts with whitespace, the writer MUST add an indentation indicator (for example `|2`). A reader MUST accept every YAML 1.2 scalar style, including folded scalars (`>-`).
@@ -113,13 +115,12 @@ The package document is a mapping. Its top-level blocks, in canonical order, are
 | 1 | Identity | `name`, `version`, `title`, `description`, `icon`, `authors`, `links`, `license`, `when`, `derived_from` |
 | 2 | Start asks | `project`, `requires`, `inputs`, `permissions`, `secrets` |
 | 3 | Payload | `files`, `memory`, `skills`, `automation` |
-| 4 | Managers | `managers` |
-| 5 | Workers | `workers` |
-| 6 | Extensions | `x-*` |
+| 4 | Roles | `roles` |
+| 5 | Extensions | `x-*` |
 
 1. A writer MUST emit top-level keys in this canonical order. A reader MUST accept keys in any order.
-2. The REQUIRED keys are `name`, `version`, `description` and `managers.orchestrator`. All other top-level keys are OPTIONAL. A missing required key is an error (**missing required key**).
-3. A top-level key that does not start with `x-` MUST be one listed above. An unknown key is an error (**unknown key**). A top-level `coordinator` or `planner` key, for example, is unknown. Manager slots exist only under `managers`.
+2. The REQUIRED keys are `name`, `version`, `description` and `roles.orchestrator`. All other top-level keys are OPTIONAL. A missing required key is an error (**missing required key**).
+3. A top-level key that does not start with `x-` MUST be one listed above. An unknown key is an error (**unknown key**). A top-level `coordinator` or `planner` key, for example, is unknown. Roles exist only under `roles`.
 4. Every key has the type this document gives it. A value of the wrong type, or a value outside its enumeration or grammar, is an error (**invalid value**).
 5. Keys that earlier drafts of the format used are rejected as removed fields ([section 11](#11-removed-fields)).
 
@@ -129,8 +130,9 @@ A minimal valid package (neutral example):
 name: com.example/minimal
 version: 1.0.0
 description: Smallest valid Agentic Team Protocol package.
-managers:
+roles:
   orchestrator:
+    kind: manager
     instructions: |
       Agree the goal with the owner, then delegate one task per worker.
 ```
@@ -322,35 +324,61 @@ automation:
       action: { notify: orchestrator }
 ```
 
-## 10. Managers and workers
+## 10. Roles
 
-### 10.1 Manager slots
+`roles` is a mapping from a role name to a role definition. Every role is either a manager or a worker. Both are open classes of roles: a package names its own managers and its own workers.
 
-`managers` is a mapping from a fixed slot name to a role definition. A host knows the duties of each slot.
+Canonical example (neutral):
 
-| Slot | Required | Default `start` | Count |
-|---|---|---|---|
-| `orchestrator` | required | `with_team` | exactly one |
-| `planner` | optional | `with_team` | at most one |
-| `cartographer` | optional | `on_demand` | at most one |
-| `curator` | optional | `{schedule: 45m..2h}` | at most one |
+```yaml
+roles:
+  orchestrator:
+    kind: manager
+    name: Lead
+    model: [claude:opus, codex:gpt-6.1-sol]
+    instructions: |
+      Agree the question with the owner, then delegate one task per angle.
+  planner:
+    kind: manager
+    name: Atlas
+    instructions: |
+      Split the question into one task per angle.
+  editor:
+    kind: manager
+    description: Keeps the report consistent across tasks.
+    instructions: |
+      Keep one structure and one voice across every section of the report.
+  researcher:
+    kind: worker
+    model: [claude:sonnet]
+    instructions: |
+      Research exactly one angle. Every claim gets a source link and a date.
+  checker:
+    kind: worker
+    instructions: |
+      Verify every claim in a researcher's report against its cited source.
+```
 
-1. `managers.orchestrator` MUST be present (**missing required key**).
-2. A key under `managers` other than these four slots and `x-*` keys is an error (**unknown key**).
-3. Each slot holds one role. A repeated slot is a duplicate key ([section 5](#5-yaml-rules)).
-4. When the package omits an optional slot, the host's default manager for that slot applies.
-5. A defined slot takes the host default role's value for each field it omits ([section 10.7](#107-roles-with-host-defaults)).
+`orchestrator` and `planner` use built-in manager names. `editor` is a manager with a name of the package's own. `researcher` and `checker` are workers.
 
-### 10.2 Workers
+### 10.1 Role names and kinds
 
-`workers` is a mapping from a worker name to a role definition.
+1. A role name MUST match `[a-z][a-z0-9_]*` (**invalid role name**). This applies to managers and workers alike. Canonical names: `orchestrator`, `planner`, `editor`, `researcher`, `checker`, `qa`, `writer`.
+2. Every role MUST set `kind` (**missing role kind**). Its value MUST be `manager` or `worker`; any other value is an error (**invalid value**).
+3. Role names are the keys of one mapping, so a name names exactly one role, and no name is both a manager and a worker. A repeated role name is a duplicate key ([section 5](#5-yaml-rules)).
+4. The two kinds differ by lifecycle, not by authority:
+   - A manager lives with the team across tasks. Each manager is one agent in the team.
+   - A worker takes one task, or one assignment, and ends. A host may run several instances of a worker. A worker that must run alone says so in its instructions.
+5. The format gives no role any authority. What a host lets a role do is host policy (see [host-behaviour.md](host-behaviour.md)).
 
-1. A worker name MUST match `[a-z][a-z0-9_]*` (**invalid role name**). Canonical names: `researcher`, `checker`, `qa`, `writer`.
-2. A worker MUST NOT be named `orchestrator`, `planner`, `cartographer` or `curator` (**reserved worker name**).
-3. A worker whose name is one of the host's built-in worker names takes the host default role's value for each field it omits ([section 10.7](#107-roles-with-host-defaults)). Built-in workers that the package does not name stay available.
-4. A worker that sets neither `instructions` nor `instructions_file` is checked against the host profile ([section 10.7](#107-roles-with-host-defaults), rules 5 to 7).
-5. A host may run several instances of a worker. A worker that must run alone says so in its instructions.
-6. Workers default to `start: on_demand`.
+### 10.2 Orchestrator and built-in manager names
+
+1. `roles.orchestrator` MUST be present (**missing required key**). The orchestrator anchors the team. Because role names are unique ([section 10.1](#101-role-names-and-kinds)), a team has exactly one orchestrator.
+2. The orchestrator always starts with the team. A `start` other than `with_team` on `roles.orchestrator` is an error (**orchestrator not started with the team**).
+3. `orchestrator`, `planner`, `cartographer` and `curator` are the built-in manager names. A role with one of these names MUST be of kind `manager`. A built-in manager name with `kind: worker` is an error (**reserved worker name**). This includes `orchestrator` with `kind: worker`.
+4. Apart from `orchestrator`, every built-in manager name is optional. A package that does not list one has no role of that name.
+5. A built-in manager name supplies no field values. A role with a built-in manager name sets its fields like any other role, instructions included. Its only difference from other managers is its default `start` ([section 10.4](#104-start)).
+6. A host may attach its own duties and authority to a built-in manager name that the package lists. A manager with any other name gets no such host authority (see [host-behaviour.md](host-behaviour.md)).
 
 ### 10.3 Role fields
 
@@ -358,19 +386,21 @@ Managers and workers use the same role fields, and only these fields. A key in a
 
 | Field | Type | Required | Default | Constraints |
 |---|---|---|---|---|
-| `name` | string | optional | host default role's value, otherwise none | A display name, for example `Lead` or `Atlas`. |
-| `description` | string | optional | host default role's value, otherwise none | What the role does. |
-| `start` | `with_team`, `on_demand`, or `{schedule: "<min>..<max>"}` | optional | the slot default ([section 10.1](#101-manager-slots)), or `on_demand` for workers | See [section 10.4](#104-start). |
-| `model` | list of model ids, `{same_as: <role>}`, or omitted | optional | host default role's value, otherwise omitted | See [section 10.5](#105-model). |
-| `reasoning` | string | optional | host default role's value, otherwise none | Requested reasoning effort, for example `medium` or `high`. The value set is pending: generated from the Domios reference implementation. |
-| `skills` | list of strings | optional | host default role's value, otherwise none | Bare names of package skills ([section 9.3](#93-skills)). A name that matches no package skill is a warning, not an error (**unresolved skill reference**). |
-| `tools` | list of strings | optional | host default role's value, otherwise none | Tool references in the form `mcp:<registry name>`, for example `mcp:io.github.example/search`. |
-| `files` | list of strings (paths) | optional | host default role's value, otherwise none | Paths of top-level `files` entries ([section 9.1](#91-files)) that this role uses. A path the package does not contain is an error (**missing referenced file**). |
-| `instructions` | string | conditional (see [section 10.2](#102-workers)) | host default role's value | The role's instructions as literal text. MUST NOT appear together with `instructions_file`. |
-| `instructions_file` | string (path) | conditional (see [section 10.2](#102-workers)) | host default role's value | A package-relative file that holds the role's instructions. It is a reference ([section 4.4](#44-references)). MUST NOT appear together with `instructions`. |
+| `kind` | `manager` or `worker` | required | none | See [section 10.1](#101-role-names-and-kinds). |
+| `name` | string | optional | none | A display name, for example `Lead` or `Atlas`. |
+| `description` | string | optional | none | What the role does. |
+| `start` | `with_team`, `on_demand`, or `{schedule: "<min>..<max>"}` | optional | by role, see [section 10.4](#104-start) | See [section 10.4](#104-start). |
+| `model` | list of model ids, `{same_as: <role>}`, or omitted | optional | omitted | See [section 10.5](#105-model). |
+| `reasoning` | string | optional | none | Requested reasoning effort, for example `medium` or `high`. The value set is pending: generated from the Domios reference implementation. |
+| `skills` | list of strings | optional | none | Bare names of package skills ([section 9.3](#93-skills)). A name that matches no package skill is a warning, not an error (**unresolved skill reference**). |
+| `tools` | list of strings | optional | none | Tool references in the form `mcp:<registry name>`, for example `mcp:io.github.example/search`. |
+| `files` | list of strings (paths) | optional | none | Paths of top-level `files` entries ([section 9.1](#91-files)) that this role uses. A path the package does not contain is an error (**missing referenced file**). |
+| `instructions` | string | required unless `instructions_file` is set | none | The role's instructions as literal text. MUST NOT appear together with `instructions_file`. |
+| `instructions_file` | string (path) | required unless `instructions` is set | none | A package-relative file that holds the role's instructions. It is a reference ([section 4.4](#44-references)). MUST NOT appear together with `instructions`. |
 
 1. A role MAY narrow `skills` and `files` to itself by listing them.
-2. Setting both `instructions` and `instructions_file` is an error (**instructions and instructions_file both set**).
+2. Every role MUST set `instructions` or `instructions_file`. A role that sets neither is an error (**missing instructions**), whatever its kind and name.
+3. Setting both `instructions` and `instructions_file` is an error (**instructions and instructions_file both set**).
 
 ### 10.4 Start
 
@@ -380,12 +410,26 @@ Managers and workers use the same role fields, and only these fields. A key in a
 | `on_demand` | The role is available. The orchestrator starts it when it is needed. |
 | `{schedule: "<min>..<max>"}` | The role runs on a schedule. The interval lies between `<min>` and `<max>`, for example `45m..2h`. |
 
+A role that omits `start` takes this default:
+
+| Role | Default `start` |
+|---|---|
+| `orchestrator` | `with_team` (the only valid value, [section 10.2](#102-orchestrator-and-built-in-manager-names)) |
+| `planner` | `with_team` |
+| `cartographer` | `on_demand` |
+| `curator` | `{schedule: 45m..2h}` |
+| any other manager | `on_demand` |
+| every worker | `on_demand` |
+
 Canonical scheduled form:
 
 ```yaml
 curator:
+  kind: manager
   start:
     schedule: 45m..2h
+  instructions: |
+    Review the team's health and report to the orchestrator.
 ```
 
 1. Each duration MUST match `<positive integer>(m|h)`, where `m` means minutes and `h` means hours, for example `45m` or `2h`. Any other duration is an error (**invalid schedule**).
@@ -401,10 +445,10 @@ curator:
    - `<model>` is a non-empty, provider-defined token with no whitespace. It may contain `/`, `.`, `-` and `_`.
    - Examples: `claude:opus`, `codex:gpt-6.1-sol`.
    - A value that does not match is an error (**invalid model id**).
-2. **`same_as`.** A mapping `{same_as: <role>}`. The role uses the resolved model of another role in the same package. `<role>` is a manager slot name or a worker name, for example `same_as: orchestrator`.
+2. **`same_as`.** A mapping `{same_as: <role>}`. The role uses the resolved model of another role in the same package. `<role>` is the name of any role in the package, manager or worker, for example `same_as: orchestrator`.
    - A target that names no role in the package is an error (**unknown same_as role**).
    - A chain of `same_as` references that returns to a role already in the chain, including a role that names itself, is an error (**same_as cycle**).
-3. **Omitted.** A package is valid without any model. When a role has no model, from the package or from its host default role, the host chooses one (see [host-behaviour.md](host-behaviour.md)).
+3. **Omitted.** A package is valid without any model. When a role has no model, the host chooses one. That choice is host policy (see [host-behaviour.md](host-behaviour.md)).
 
 Canonical examples:
 
@@ -418,28 +462,22 @@ curator:
 
 ### 10.6 Instructions
 
-1. Instructions are per role only. A role carries its own `instructions` or `instructions_file`, or takes them from its host default role ([section 10.7](#107-roles-with-host-defaults)). The package has no top-level instructions and no brief.
+1. Instructions are per role only. Every role carries its own `instructions` or `instructions_file` ([section 10.3](#103-role-fields), rule 2). A host supplies no instructions for a role. The package has no top-level instructions and no brief.
 2. The team's overall way of working is written in the orchestrator's instructions. A starting hint for the planner is written in the planner's instructions.
 3. Instructions are literal text ([section 5](#5-yaml-rules), rules 7 and 8). A line inside an instructions block that looks like a key, such as `carries:` or `principles:`, is text, not a package key.
 4. `instructions_file` is a reference. In the single-file form it is an error (**missing referenced file**). In the ZIP or folder form, a missing target is the same error.
 5. A host appends its own runtime text to a role's instructions ([section 13](#13-host-runtime-text)). Package instructions do not replace or override that text.
 
-### 10.7 Roles with host defaults
+### 10.7 A team has exactly its listed roles
 
-1. A manager slot, and a worker whose name is one of the host's built-in worker names, has a host default role.
-2. For each role field that the package omits, such a role takes the host default role's value. This includes `instructions`.
-3. A field that the package sets replaces the host default role's value for that field.
-4. The format fixes only the manager slots (`orchestrator`, `planner`, `cartographer`, `curator`). Built-in worker names are a host input, not part of the format. A validator takes an OPTIONAL **host profile** that lists a host's built-in worker names. [host-behaviour.md](host-behaviour.md) lists the Domios profile.
-5. Without a host profile, a worker that sets neither `instructions` nor `instructions_file` is a warning (**inherits host default role**). The warning reads: the worker inherits the host's default role `<name>`, and is invalid on hosts without one.
-6. With a host profile, such a worker is valid when its name is a built-in worker name in the profile.
-7. With a host profile, such a worker is an error when its name is not in the profile (**missing instructions**).
-8. A worker with a name that is not built in has no host default role. Fields it omits take the defaults in [section 10.3](#103-role-fields).
+1. A team has exactly the roles its package lists under `roles`. A host MUST NOT add a role to the team, and MUST NOT fill in a field of a listed role from its own role definitions.
+2. A field that a role omits takes the default this document gives in [section 10.3](#103-role-fields) and [section 10.4](#104-start), or has no value. The host's choice of a model for a role without one ([section 10.5](#105-model)) is host policy, not a field value.
+3. The result of reading a package depends only on the package. A reader takes no host input, such as a list of a host's own role names, that changes whether a package is valid.
 
 ## 11. Removed fields
 
 The following fields are removed from the format. A package that contains one is invalid (**removed field**):
 
-- `kind`
 - `persona`
 - `extends`
 - `single`
@@ -450,11 +488,10 @@ The following fields are removed from the format. A package that contains one is
 - top-level `instructions` (a role's own `instructions` stays valid)
 - top-level `instructions_file` (a role's own `instructions_file` stays valid)
 - top-level `brief`
-- top-level `roles` (roles are declared under `managers` and `workers`)
 
 The error is reported at the removed key. `model: inherit` is reported with its own code ([section 15.1](#151-conditions-as-the-reference-implementation-reports-them)).
 
-Role count is set by the group instead ([section 10.1](#101-manager-slots), [section 10.2](#102-workers)). Machine placement is not an author field in this version. Placement is host-side registration data.
+Role count follows the role's kind ([section 10.1](#101-role-names-and-kinds)). Machine placement is not an author field in this version. Placement is host-side registration data.
 
 ## 12. Extensions
 
@@ -470,7 +507,7 @@ x-domios:
 
 ## 13. Host runtime text
 
-A host appends its own runtime text to a role's instructions when it composes the role's prompt. That text includes the host's primer, routing contract, reporting rules and similar runtime material. The host appends it per group (managers, workers) and per manager slot.
+A host appends its own runtime text to a role's instructions when it composes the role's prompt. That text includes the host's primer, routing contract, reporting rules and similar runtime material. The host appends it per kind (managers, workers) and, for a built-in manager name that the package lists, per that name.
 
 1. Host runtime text is never part of a package.
 2. A writer MUST NOT export host runtime text into a package.
@@ -493,18 +530,19 @@ Each condition below is named by its rule. Its stable code is the one the confor
 | YAML anchor or alias | error | [5](#5-yaml-rules).2 | `yaml_anchor`, `yaml_alias` |
 | duplicate key | error | [5](#5-yaml-rules).3 | `duplicate_key` |
 | tab indentation | error | [5](#5-yaml-rules).4 | `tab_indentation` |
-| missing required key | error | [6](#6-top-level-structure).2, [10.1](#101-manager-slots).1 | `missing_field` |
-| unknown key | error | [6](#6-top-level-structure).3, [10.1](#101-manager-slots).2, [10.3](#103-role-fields), [12](#12-extensions).1 | `unknown_field` |
-| invalid value | error | [6](#6-top-level-structure).4 | pending |
+| missing required key | error | [6](#6-top-level-structure).2, [10.2](#102-orchestrator-and-built-in-manager-names).1 | `missing_field` |
+| unknown key | error | [6](#6-top-level-structure).3, [10.3](#103-role-fields), [12](#12-extensions).1 | `unknown_field` |
+| invalid value | error | [6](#6-top-level-structure).4, [10.1](#101-role-names-and-kinds).2 | pending |
 | invalid package name | error | [7](#7-identity-block) (`name`) | pending |
 | invalid derived_from | error | [7](#7-identity-block) (`derived_from.name`, `derived_from.version`) | `invalid_derived_from` |
 | invalid model id | error | [10.5](#105-model).1 | `invalid_model` |
-| invalid role name | error | [10.2](#102-workers).1 | pending |
-| reserved worker name | error | [10.2](#102-workers).2 | `reserved_role_name` |
-| missing instructions (with a host profile) | error | [10.7](#107-roles-with-host-defaults).7 | `missing_field` |
+| invalid role name | error | [10.1](#101-role-names-and-kinds).1 | pending |
+| missing role kind | error | [10.1](#101-role-names-and-kinds).2 | pending |
+| reserved worker name (a built-in manager name with `kind: worker`) | error | [10.2](#102-orchestrator-and-built-in-manager-names).3 | pending |
+| missing instructions (any role) | error | [10.3](#103-role-fields).2 | pending |
 | skill without name | error | [9.3](#93-skills).3 | `missing_field` |
 | invalid schedule | error | [10.4](#104-start).1, [10.4](#104-start).2 | `invalid_schedule` |
-| orchestrator not started with the team | error | [10.1](#101-manager-slots), [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `invalid_start` |
+| orchestrator not started with the team | error | [10.2](#102-orchestrator-and-built-in-manager-names).2, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `invalid_start` |
 | plan, spec or task template | error | [14](#14-out-of-scope-for-this-version), [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `plan_template_unsupported` |
 | input default not in choices | error | [8](#8-start-asks-block) (`inputs` full form) | pending |
 | removed field | error | [11](#11-removed-fields) | `removed_field` |
@@ -512,7 +550,7 @@ Each condition below is named by its rule. Its stable code is the one the confor
 | bare-string skill | error | [9.3](#93-skills).1 | `expected_mapping` |
 | unknown same_as role | error | [10.5](#105-model).2 | `unknown_same_as` |
 | same_as cycle | error | [10.5](#105-model).2 | `same_as_cycle` |
-| instructions and instructions_file both set | error | [10.3](#103-role-fields).2 | pending |
+| instructions and instructions_file both set | error | [10.3](#103-role-fields).3 | pending |
 | invalid icon | error | [7.1](#71-icon).3 | `icon_not_image` |
 | SVG icon with script | error | [7.1](#71-icon).3, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `svg_script` |
 | SVG icon with external reference | error | [7.1](#71-icon).3, [15.1](#151-conditions-as-the-reference-implementation-reports-them) | `svg_external_reference` |
@@ -523,7 +561,6 @@ Each condition below is named by its rule. Its stable code is the one the confor
 | unsafe path (`..`, absolute path, symbolic link) | error | [4.2](#42-zip-and-folder-forms).4 | `..`: `path_escape`; absolute path: `absolute_path`; symbolic link: pending |
 | bound exceeded | error | [4.3](#43-bounds) | pending |
 | unresolved skill reference | warning | [10.3](#103-role-fields) | `unresolved_skill` |
-| inherits host default role (without a host profile) | warning | [10.7](#107-roles-with-host-defaults).5 | `inherits_host_role` |
 
 A reader MUST refuse a package that has any error. A warning leaves the package valid. A host can, for example, start a team whose role names a skill that does not exist yet.
 
@@ -536,7 +573,6 @@ The reference implementation is normative for the conditions below. Each names t
 - **malformed YAML** (`yaml_syntax`): reported at the line and column where the YAML parser detects the error, which can be after the construct that causes it. Example: `examples/invalid/malformed-yaml/` (an unclosed flow sequence on line 9, reported on line 10).
 - **skill without name** (`missing_field`): reported in the package document at the skill's `skills[].path`, not inside `SKILL.md`. Example: `examples/invalid/path-skill-without-name/`.
 - **unsafe path** (`path_escape`, `absolute_path`): reported for the archive entry and for each reference that names it; such a reference is also a missing referenced file (`missing_file`). Examples: `examples/invalid/zip-entry-dotdot/`, `examples/invalid/zip-entry-absolute/`.
-- **inherits host default role** (`inherits_host_role`): without a host profile, reported at the worker's `instructions` path. Example: `examples/invalid/new-worker-without-instructions/`.
 - **YAML anchor or alias** (`yaml_anchor`, `yaml_alias`): an anchor is reported at its node; an alias is reported at its position and read as an empty value, so the key that holds it usually also has a type error. Corpus: `invalid/anchor-alias.team.yaml`; example: `examples/invalid/yaml-alias-anchor/`.
 
 - **more than one YAML document** (`multiple_documents`): a package document holds exactly one YAML document. A second document start is an error, reported at that line. Corpus: `invalid/build-owner.md`.
@@ -545,7 +581,7 @@ The reference implementation is normative for the conditions below. Each names t
 - **invalid derived_from** (`invalid_derived_from`): `derived_from.name` that does not follow the package name grammar of [section 7](#7-identity-block), or `derived_from.version` that is not a semantic version. Each is reported at its own key. Corpus: `invalid/invalid-derived-from.team.yaml`.
 - **invalid model id** (`invalid_model`): a model list entry that is not `<harness>:<model>`, reported at that entry; also an empty model list, or a `model` scalar other than `inherit`. Corpus: `invalid/invalid-model.team.yaml` (`model: [opus]`).
 - **removed `model: inherit`** (`removed_inherit`): the removed form `model: inherit`; use `model: {same_as: <role>}`. Corpus: `invalid/removed-inherit.team.yaml`.
-- **orchestrator not started with the team** (`invalid_start`): the orchestrator always starts with the team, so a `start` other than `with_team` on `managers.orchestrator` is an error, reported at `managers.orchestrator.start`. Corpus: `invalid/orchestrator-on-demand.team.yaml`.
+- **orchestrator not started with the team** (`invalid_start`): the orchestrator always starts with the team, so a `start` other than `with_team` on `roles.orchestrator` is an error, reported at `roles.orchestrator.start`. Corpus: `invalid/orchestrator-on-demand.team.yaml`.
 - **plan, spec or task template** (`plan_template_unsupported`): a top-level `plan`, `plans`, `spec`, `specs`, `tasks` or `goal` key is an error ([section 14](#14-out-of-scope-for-this-version)). Corpus: `invalid/plan-template.team.yaml`.
 - **SVG icon with script** (`svg_script`): an SVG icon that contains a `script` or `foreignObject` element, or an attribute whose name starts with `on`. Reported at `icon`. Corpus: `invalid/icon-svg-script.team.yaml`.
 - **SVG icon with external reference** (`svg_external_reference`): an SVG icon with an `href`, `*:href` or `src` attribute, or a CSS `url(...)`, whose target is not an in-document `#` reference; or one that uses `@import` or `javascript:`, or declares a DTD. Reported at `icon`. Corpus: `invalid/icon-svg-external.team.yaml`.
@@ -583,8 +619,8 @@ The single-file form is therefore a separate, fully inline variant of the packag
 | ZIP | `packages/com.example/research-desk/2.1.0/research-desk.team` |
 | Folder | `packages/com.example/research-desk/2.1.0/research-desk/team.yaml` |
 
-Its role definitions show each kind of role:
+Its role definitions show both kinds of role:
 
-- `researcher`, `checker` and `writer` are new worker names. Each carries its own instructions.
-- `qa` uses a built-in worker name of the Domios host profile. It sets some fields and takes the rest from the host default role.
-- `cartographer` and `curator` set only `start` and `model`, and take their instructions from the host default role.
+- `orchestrator`, `planner`, `cartographer` and `curator` are managers with built-in manager names.
+- `researcher`, `checker`, `qa` and `writer` are workers.
+- Every role sets its `kind` and carries its own instructions.

@@ -3,9 +3,10 @@
 The Agentic Team Protocol is an open format for portable AI agent teams. One package
 describes a whole team so that any host that implements the format can start it:
 
-- **Managers**: fixed slots with known duties. Every team has an orchestrator; planner,
-  cartographer and curator are optional, and an omitted slot falls back to the host's default.
-- **Workers**: freely named roles, started on demand unless they say otherwise.
+- **Roles**: one map of named roles, each with a kind. A manager lives with the team across
+  tasks; a worker takes one task and ends. The package names its own managers and workers.
+  Every team has exactly one orchestrator, a manager. A team has exactly the roles its
+  package lists: the host adds none and fills in no field.
 - **Models**: an optional, ordered list of `harness:model` ids per role, or a reference to
   another role's model. A role without models leaves the choice to the host and its owner.
 - **Files**: reference files, memory items, skills and automation that travel with the team.
