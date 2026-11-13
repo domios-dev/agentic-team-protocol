@@ -1,7 +1,9 @@
 # Agentic Team Protocol conformance fixtures
 
 These fixtures check the package format only. They never test what a host does with
-a team, and role instructions in a fixture are opaque text.
+a team, and role instructions in a fixture are opaque text (specification
+[scope](../spec/2026-11-11/index.html#108-scope-package-format-only); see also its
+[future direction](../spec/2026-11-11/index.html#141-future-direction-informative)).
 
 Each case directory holds one input in the form it tests (`input.team.yaml`, `input/`
 folder or `input.team` ZIP) and an `expected.yaml`:
