@@ -54,9 +54,13 @@ all served bytes match the recorded checksums
 
 ## Publication 2
 
-Status: _to be filled_.
+Status: published. HTTPS is enforced (plain HTTP answers 301 to `https://atp.domios.dev/`);
+the GitHub Pages certificate for `atp.domios.dev` expires 2027-02-11.
 
-Publication 2 supersedes the checksums recorded in Publication 1. Publication 1 stays
+Publication 2 supersedes the checksums recorded in Publication 1 under the one-time
+first-release owner exception below; for example the served schema SHA-256 changes from
+`4ebc85adbcd99c9bfbe1cfb828e095d31cb128a6e9a24c2e41ba2e2d71580300` to
+`97b2ff9d69c70add556ba79399f8bae563098160f810ad16bdf4b0373ba0e1f5`. Publication 1 stays
 above unchanged as the record of what was served at that time; from Publication 2 on, its
 schema, corpus, validator, catalog and package checksums are no longer the served bytes.
 Every deploy of `main` rebuilds `catalog.json` with that commit as its `source_commit`, its
@@ -83,6 +87,10 @@ first release only.
 - Catalog packages, rewritten in place in all three forms: `com.example/research-desk`
   `2.1.0` and `dev.domios/default` `1.0.0`.
 
+The change reached `main` as one merge, pull request #14
+(`7b33488fb87d3bd5341458ae84b391d9e71d8e0d`), which integrates pull request #13 (spec
+text), #16 (catalog packages) and #15 (examples).
+
 ### Release replacement log
 
 The old values were read from the live GitHub release on 2026-11-13 12:48 UTC, before its
@@ -91,48 +99,114 @@ refs/tags/validator-2026.11.11` and `gh release download validator-2026.11.11` f
 `sha256sum -c SHA256SUMS` (all four binaries `OK`). Every binary SHA-256 below equals the
 GitHub asset digest and the values in PROVENANCE.md and validator/README.md at that time.
 
+The old release was then deleted together with its tag, and the new release was published
+under the same tag on the main merge commit, under the goal owner's one-time first-release
+exception. The new values were read from the live release on 2026-11-13
+17:20 UTC with the same commands: `git ls-remote origin refs/tags/validator-2026.11.11`
+returns `7b33488fb87d3bd5341458ae84b391d9e71d8e0d`, equal to `refs/heads/main`, with no
+peeled entry (a lightweight tag); `sha256sum -c SHA256SUMS` reports all four binaries
+`OK`; and every binary SHA-256 equals the GitHub asset digest, PROVENANCE.md and
+validator/README.md at `7b33488fb87d3bd5341458ae84b391d9e71d8e0d`.
+
 | Evidence | Old release | New release |
 | --- | --- | --- |
-| Tag `validator-2026.11.11` | lightweight tag at `dcab5843fb7a4721e17a5008d1d063533f788557` (merge of pull request #8) | _to be filled_ (the main merge commit) |
-| Published (UTC) | 2026-11-12T17:35:06Z | _to be filled_ (recreation time) |
-| Source workflow run | https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169 (Validator, success) | _to be filled_ |
-| Domios source commit | `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` | _to be filled_ |
+| Tag `validator-2026.11.11` | lightweight tag at `dcab5843fb7a4721e17a5008d1d063533f788557` (merge of pull request #8) | lightweight tag at `7b33488fb87d3bd5341458ae84b391d9e71d8e0d` (merge of pull request #14, the published commit on `main`) |
+| Published (UTC) | 2026-11-12T17:35:06Z | 2026-11-13T17:17:22Z (not draft, not prerelease) |
+| Source workflow run | https://github.com/domios-dev/agentic-team-protocol/actions/runs/43267871169 (Validator, success) | https://github.com/domios-dev/agentic-team-protocol/actions/runs/43468853771 (Validator, success) |
+| Domios source commit | `abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49` | `fafc45b8b68808530d6c2fe4956af0fa9d23dd54` |
 | Authority | not applicable | goal owner (one-time first-release exception) |
 
 | Asset | Old size (bytes) | Old SHA-256 | New size (bytes) | New SHA-256 |
 | --- | --- | --- | --- | --- |
-| `atp-validate-x86_64-unknown-linux-musl` | 1724856 | `66a196322b0dd0bf3529a0506caac004fb61c9d99311ba824a3b008e19e420c4` | _to be filled_ | _to be filled_ |
-| `atp-validate-aarch64-apple-darwin` | 1428720 | `ac5a8ffb51986022e09ea49e7c648bc641a75bee79553a1e2ec33baee25d2f61` | _to be filled_ | _to be filled_ |
-| `atp-validate-x86_64-apple-darwin` | 1484664 | `9cbaf22a66458ae116008614dd39a292d20c961322747c9ca1e1d03bd367d50e` | _to be filled_ | _to be filled_ |
-| `atp-validate-x86_64-pc-windows-msvc.exe` | 1200128 | `71e09ed921b5d7a17b24a6f6b30d55f3271f017a54de201c438fc388a0a501d7` | _to be filled_ | _to be filled_ |
-| `SHA256SUMS` | 410 | `53cdcb7b55ea9275b0e959df1f67b25e652cf5ce3caca90eb4f30ecbc710976f` | _to be filled_ | _to be filled_ |
+| `atp-validate-x86_64-unknown-linux-musl` | 1724856 | `66a196322b0dd0bf3529a0506caac004fb61c9d99311ba824a3b008e19e420c4` | 1703856 | `6adfa021bda8bd56a46805025c424d75891f523a44af238f8b1572aff082dc7d` |
+| `atp-validate-aarch64-apple-darwin` | 1428720 | `ac5a8ffb51986022e09ea49e7c648bc641a75bee79553a1e2ec33baee25d2f61` | 1408816 | `c8b52eae2040016837182923eaf94486e4424c37bebaf6f8880dcac4e04955cc` |
+| `atp-validate-x86_64-apple-darwin` | 1484664 | `9cbaf22a66458ae116008614dd39a292d20c961322747c9ca1e1d03bd367d50e` | 1463320 | `03e4f3e3f5ce92a023d18ef9fb960e2b64353cd494a4df543d00469777eec9dc` |
+| `atp-validate-x86_64-pc-windows-msvc.exe` | 1200128 | `71e09ed921b5d7a17b24a6f6b30d55f3271f017a54de201c438fc388a0a501d7` | 1171968 | `f1da9f500caacda004545332a0224428906cc5dcd64a94c6449b1215aaf2eacc` |
+| `SHA256SUMS` | 410 | `53cdcb7b55ea9275b0e959df1f67b25e652cf5ce3caca90eb4f30ecbc710976f` | 410 | `99b5fcc06aa69ffa21b283c0dfbccfec444a0f66546a6153a0c7e1faa54495d1` |
 
 ### Evidence
 
 | Evidence | Value |
 | --- | --- |
-| Date (UTC) | _to be filled_ |
+| Date (UTC) | 2026-11-13 |
 | Site URL | `https://atp.domios.dev` |
-| Published commit on `main` | _to be filled_ |
-| Integration merge commit | _to be filled_ |
-| Domios source commit | _to be filled_ |
-| `validator.yml` workflow run | _to be filled_ |
-| Pages workflow run | _to be filled_ |
-| Conformance workflow run at that commit | _to be filled_ |
-| Conformance rerun on `main` after the release recreation | _to be filled_ |
-| DEV team check and export receipts, `com.example/research-desk` `2.1.0` | _to be filled_ |
-| DEV team check and export receipts, `dev.domios/default` `1.0.0` | _to be filled_ |
+| Published commit on `main` | `7b33488fb87d3bd5341458ae84b391d9e71d8e0d` |
+| Integration merge commit | `7b33488fb87d3bd5341458ae84b391d9e71d8e0d`, pull request #14 from integration head `b78e04dd11dada345bc1e050841d4ff5a0c91932` (integrates pull requests #13, #16 and #15) |
+| Domios source commit | `fafc45b8b68808530d6c2fe4956af0fa9d23dd54` for the schema, corpus, WebAssembly validator and release binaries (`DOMIOS_SHA` in `.github/workflows/validator.yml`, PROVENANCE.md); `16d5277f4ff083d487a7c55ba351f9bb72b8f084` for the catalog package exports (packages/README.md) |
+| `validator.yml` workflow runs | build https://github.com/domios-dev/agentic-team-protocol/actions/runs/43468853771 (success, at `d2db069610800fed454668c44ea58b97623c5ffc`; the schema, WebAssembly module and release binaries come from it); pull request #14 head https://github.com/domios-dev/agentic-team-protocol/actions/runs/43470288001 (success, at `b78e04dd11dada345bc1e050841d4ff5a0c91932`) |
+| Pages workflow run | https://github.com/domios-dev/agentic-team-protocol/actions/runs/43471124152 (success) |
+| Conformance workflow run at that commit | https://github.com/domios-dev/agentic-team-protocol/actions/runs/43471124135, attempt 1 failed: it ran before the release recreation, installed the old release binaries, and each of the three clean consumers stopped because that binary's SHA-256 is not recorded in validator/README.md (Same results on every platform skipped) |
+| Conformance rerun on `main` after the release recreation | the same run, attempt 2: success; Clean consumer (ubuntu-24.04), Clean consumer (macos-15), Clean consumer (windows-2025) and Same results on every platform all green |
+| DEV team check and export receipts, `com.example/research-desk` `2.1.0` | exported by a Domios development build at `16d5277f4ff083d487a7c55ba351f9bb72b8f084` (`team export --format yaml`, `team`, `folder`); `team check` valid with no diagnostics on each form; a second export byte-identical (packages/README.md). Served SHA-256 equal the recorded exports: `research-desk.team.yaml` `037165fc8f812b5899e214e76da2c6ea64f3b3d1ba8d7cb90e62f46ba51f31c1`, `research-desk.team` `783fd17bfd89462cf4964594114f97ccf51e2fddb69bbb29ea40aaa3c77cb1bb`, `research-desk/team.yaml` `d31b57c2a48976456433b6e57f78dc884cf4b4e637948feb1e567b80b24c818b` |
+| DEV team check and export receipts, `dev.domios/default` `1.0.0` | same build, commands and `team check` result (packages/README.md). Served SHA-256 equal the recorded exports: `default.team.yaml` `7c2f600f5f7599f37dfc45198ff76e408066e8b743b1b08813bb1972092fc3ce`, `default.team` `5ff976fc98a85b6391ab631157b216b2f57f0ee95ea3ba5647b5c21cbd552e88`, `default/team.yaml` `1f3fd08ef8aa2bfb921be441765b459fa9fa3540660ddc963acf5da49b02a7c9` |
 | Spec version | `2026-11-11` |
 | Validator version | `2026.11.11` |
 | Schema URL | `https://atp.domios.dev/schema/2026-11-11/team.schema.json` |
-| Schema served SHA-256 | _to be filled_ |
-| `catalog.json` served SHA-256 and `source_commit` | _to be filled_ |
-| Validator release | _to be filled_ (tag commit, asset checksums against SHA256SUMS, PROVENANCE.md and validator/README.md) |
-| Install without Domios | _to be filled_ (validator/README.md install run in a fresh directory: one catalog package in three forms, one `examples/invalid` case) |
-| `check-served.mjs` result | _to be filled_ |
+| Schema served SHA-256 | `97b2ff9d69c70add556ba79399f8bae563098160f810ad16bdf4b0373ba0e1f5` (equals PROVENANCE.md) |
+| `catalog.json` served SHA-256 and `source_commit` | `044ed94f11abea85494f7d3b5ba7e6e5cb1c6817200ec1aba921cdbf94bf3b09`, `source_commit` `7b33488fb87d3bd5341458ae84b391d9e71d8e0d` (the published commit), 2 entries |
+| Validator release | tag at the published commit; all four binaries and `SHA256SUMS` as in the release replacement log above |
+| Install without Domios | passed, see below |
+| `check-served.mjs` result | exit 0, 91 served files checked, no notes |
 
-`check-served.mjs` output:
+`check-served.mjs` output, from a clean clone of `main` checked out at
+`7b33488fb87d3bd5341458ae84b391d9e71d8e0d` (no local changes), 2026-11-13 17:20 UTC:
 
 ```text
-_to be filled_
+checked 91 served files under https://atp.domios.dev/
+
+Evidence:
+  spec version: 2026-11-11
+  validator version: 2026.11.11
+  schema URL: https://atp.domios.dev/schema/2026-11-11/team.schema.json
+  schema served SHA-256: 97b2ff9d69c70add556ba79399f8bae563098160f810ad16bdf4b0373ba0e1f5
+  catalog.json served SHA-256: 044ed94f11abea85494f7d3b5ba7e6e5cb1c6817200ec1aba921cdbf94bf3b09 (source_commit 7b33488fb87d3bd5341458ae84b391d9e71d8e0d, 2 entries)
+
+all served bytes match the recorded checksums
 ```
+
+### Install without Domios
+
+On Windows, in a new empty directory with `HOME` pointing to a new empty directory, the
+PowerShell install snippet of validator/README.md ran verbatim and exited 0; the installed
+`atp-validate.exe` has SHA-256
+`f1da9f500caacda004545332a0224428906cc5dcd64a94c6449b1215aaf2eacc`. With only that
+directory and the Windows system directory on `PATH` (no Domios), it validated the three
+forms of `com.example/research-desk` `2.1.0` and the input of `examples/invalid/missing-role-kind`,
+all downloaded from `https://atp.domios.dev` (every package file's SHA-256 equal to
+`catalog.json`):
+
+```text
+$ atp-validate pkg/research-desk.team.yaml
+valid com.example/research-desk@2.1.0 (0 warning(s))
+exit=0
+$ atp-validate pkg/research-desk.team
+valid com.example/research-desk@2.1.0 (0 warning(s))
+exit=0
+$ atp-validate pkg/research-desk
+valid com.example/research-desk@2.1.0 (0 warning(s))
+exit=0
+$ atp-validate invalid/input.team.yaml --json
+{
+  "format": "yaml",
+  "valid": false,
+  "name": "com.example/missing-role-kind",
+  "version": "1.0.0",
+  "diagnostics": [
+    {
+      "code": "missing_role_kind",
+      "severity": "error",
+      "file": "team.yaml",
+      "path": "roles.researcher.kind",
+      "line": 13,
+      "column": 16,
+      "message": "`roles.researcher.kind` is required: `manager` or `worker`"
+    }
+  ]
+}
+exit=1
+```
+
+The served `expected.yaml` lists one error, `missing_role_kind` at `roles.researcher.kind`
+line 13 column 16, and no warnings; the report has exactly that diagnostic. Its `file` is
+`team.yaml` because the validator names a single file `team.yaml`, the mapping
+`scripts/conformance.mjs` applies.
