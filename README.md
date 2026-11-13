@@ -8,7 +8,7 @@ secrets it asks its host to grant. The format defines three equivalent forms: a 
 published version may lack the single-file form when its package does not ship one. Domios is
 the reference implementation; any host can implement the format.
 
-Site: https://atp.domios.dev/ (not yet published)
+Site: https://atp.domios.dev/
 
 ## Repository layout
 
