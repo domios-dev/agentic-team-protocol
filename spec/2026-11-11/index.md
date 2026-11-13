@@ -481,7 +481,7 @@ curator:
 
 This format standardizes the package: its roles with their `kind`, `start`, `model` and instructions, and the files, skills and tools the team carries. It does not standardize orchestration. The commands a host offers its roles, for example to dispatch tasks, edit plans, review work or report results, are host-defined.
 
-1. Role instructions are opaque to this format. Whether a package is valid never depends on what its instructions say: a reader, a validator included, MUST NOT refuse a package or report a diagnostic because of the content of its instructions.
+1. Role instructions are opaque to this format. Whether a package is valid never depends on what its instructions say: a reader, a validator included, MUST NOT refuse a package or report a diagnostic because of the content of its instructions. A host may still apply its own safety policy when it imports a package, for example refusing a package that embeds a secret value. Such a refusal is host policy, not a format diagnostic (see [host-behaviour.md](host-behaviour.md#22-secrets-by-name-only)).
 2. Instructions are written for a host, so a package built for one host may use that host's commands. For example, the instructions of `dev.domios/default` use Domios plan, dispatch and report commands. Such a package is valid; a different host may not be able to run it as intended.
 
 [Section 14.1](#141-future-direction-informative) describes a possible future direction for host-portable packages.

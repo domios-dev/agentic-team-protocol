@@ -22,7 +22,7 @@ permissions:
 
 env:
   DOMIOS_REPOSITORY: domios-dev/domios
-  DOMIOS_SHA: abe52ab407be6db0b1e9e3bc26fedd8db4cb8a49
+  DOMIOS_SHA: 16d5277f4ff083d487a7c55ba351f9bb72b8f084
   SPEC_VERSION: 2026-11-11
   CARGO_TERM_COLOR: never
 
@@ -186,8 +186,20 @@ jobs:
           bin/atp-validate-x86_64-unknown-linux-musl schema --spec-version "$SPEC_VERSION" > out/schema/"$SPEC_VERSION"/team.schema.json
           jq -e --arg id "https://atp.domios.dev/schema/$SPEC_VERSION/team.schema.json" '.["$id"] == $id' out/schema/"$SPEC_VERSION"/team.schema.json
 
-      # Every example and package form, under host profile none and domios. One JSON
-      # line per run: the input, the profile, the exit code and the validator's report.
+      # The validator takes no host profile: an input is checked once. The binary must
+      # refuse the removed option as a usage error (exit 2) rather than ignore it.
+      - name: Confirm --host-profile is refused
+        run: |
+          set +e
+          bin/atp-validate-x86_64-unknown-linux-musl team.yaml --host-profile none --json > stdout.txt 2> stderr.txt
+          status=$?
+          set -e
+          cat stderr.txt
+          test "$status" -eq 2
+          grep -qF 'unknown option --host-profile' stderr.txt
+
+      # Every example and package form, checked once. One JSON line per run: the input,
+      # the exit code and the validator's report.
       - name: Run the validator over examples and packages
         run: |
           validate=bin/atp-validate-x86_64-unknown-linux-musl
@@ -205,26 +217,24 @@ jobs:
           done
           : > out/examples-report.jsonl
           for input in "${inputs[@]}"; do
-            for profile in none domios; do
-              set +e
-              report=$("$validate" "$input" --host-profile "$profile" --json 2> stderr.txt)
-              status=$?
-              set -e
-              if ! printf '%s' "$report" | jq -e . > /dev/null 2>&1; then report=null; fi
-              jq -nc --arg input "$input" --arg profile "$profile" --argjson exit "$status" \
-                --argjson report "$report" --arg stderr "$(cat stderr.txt)" \
-                '{input: $input, host_profile: $profile, exit: $exit, report: $report, stderr: $stderr}' \
-                >> out/examples-report.jsonl
-            done
+            set +e
+            report=$("$validate" "$input" --json 2> stderr.txt)
+            status=$?
+            set -e
+            if ! printf '%s' "$report" | jq -e . > /dev/null 2>&1; then report=null; fi
+            jq -nc --arg input "$input" --argjson exit "$status" \
+              --argjson report "$report" --arg stderr "$(cat stderr.txt)" \
+              '{input: $input, exit: $exit, report: $report, stderr: $stderr}' \
+              >> out/examples-report.jsonl
           done
           echo "runs: $(wc -l < out/examples-report.jsonl)"
-          jq -c '{input, host_profile, exit, codes: [.report.diagnostics[]? | "\(.code)@\(.path):\(.line // "-")"]}' out/examples-report.jsonl
+          jq -c '{input, exit, codes: [.report.diagnostics[]? | "\(.code)@\(.path):\(.line // "-")"]}' out/examples-report.jsonl
 
       - name: Run record
         run: |
           jq -n \
             --arg c1 "atp-validate-x86_64-unknown-linux-musl schema --spec-version $SPEC_VERSION > schema/$SPEC_VERSION/team.schema.json" \
-            --arg c2 "atp-validate-x86_64-unknown-linux-musl <input> --host-profile <none|domios> --json  (every examples/** input and packages/** form)" \
+            --arg c2 "atp-validate-x86_64-unknown-linux-musl <input> --json  (every examples/** input and packages/** form)" \
             '{commands: [$c1, $c2]}' > out/run.json
 
       - name: Upload

@@ -1,19 +1,20 @@
 #!/usr/bin/env node
-// Keeps every published Agentic Team Protocol package version, dated JSON Schema
-// and dated conformance corpus immutable.
+// Keeps every published Agentic Team Protocol package version, dated JSON Schema,
+// dated conformance corpus and reference validator version immutable.
 //
 //   node scripts/check-immutability.mjs --base <ref> [--head <ref>]
 //
 // A published version is a directory that exists in --base (the pull request base,
 // or the previous main commit on a push) and is one of:
 //   packages/<scope>/<name>/<version>/
-//   schema/<YYYY-MM-DD>/   (the generated JSON Schema for that spec version)
-//   corpus/<YYYY-MM-DD>/   (the generated conformance corpus for that spec version)
+//   schema/<YYYY-MM-DD>/     (the generated JSON Schema for that spec version)
+//   corpus/<YYYY-MM-DD>/     (the generated conformance corpus for that spec version)
+//   validator/<YYYY.MM.DD>/  (the generated reference validator of that version)
 // Compared with --head (default: the working tree, including untracked files), any
 // modified, deleted, type-changed or added file inside a published version fails; a
 // change needs a new version directory. Adding files in a new version directory
-// passes. Files outside version directories (for example packages/README.md) are
-// not published versions and are not checked.
+// passes. Files outside version directories (for example packages/README.md or
+// validator/README.md) are not published versions and are not checked.
 //
 // Exit codes: 0 no published version changed; 1 a published version changed;
 // 2 usage error or an unresolvable ref (fails closed).
@@ -24,9 +25,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ROOTS = ['packages/', 'schema/', 'corpus/'];
+const ROOTS = ['packages/', 'schema/', 'corpus/', 'validator/'];
 const DATED = new Set(['schema', 'corpus']);
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const DOTTED_DATE = /^\d{4}\.\d{2}\.\d{2}$/;
 
 const git = (args) => execFileSync('git', args, { cwd: ROOT, maxBuffer: 256 * 1024 * 1024 }).toString('utf8');
 const nul = (s) => s.split('\0').filter(Boolean);
@@ -34,6 +36,7 @@ const versionDir = (file) => {
   const parts = file.split('/');
   if (parts[0] === 'packages') return parts.length >= 5 ? parts.slice(0, 4).join('/') : null;
   if (DATED.has(parts[0])) return parts.length >= 3 && DATE.test(parts[1]) ? parts.slice(0, 2).join('/') : null;
+  if (parts[0] === 'validator') return parts.length >= 3 && DOTTED_DATE.test(parts[1]) ? parts.slice(0, 2).join('/') : null;
   return null;
 };
 
@@ -75,8 +78,22 @@ function resolveCommit(ref, label) {
 // allows only those exact files to be added (status A), and each listed file must
 // really be added; any other change to that version, a modification included, still
 // fails. A malformed file at --base or --head exits 2.
+//
+// Exact-file entries name any published version directory (packages/, schema/,
+// corpus/ or validator/) and list every file the change touches:
+//   { "directory": "<version directory>", "reason": "...", "approver": "...",
+//     "added": [...], "modified": [...], "deleted": [...] }
+// All six keys are required. The three arrays hold distinct relative paths; one may
+// be empty, not all three, and no path appears in two of them. Each listed file must
+// have exactly that change (A, M or D) and any other change to that directory fails.
+// An exact-file entry applies only while new: no exact-file entry for its directory
+// is in the file at --base (entries of the forms above do not count). A directory has
+// at most one new entry; a new entry of each form for one directory exits 2.
 const EXCEPTIONS = 'packages/IMMUTABILITY-EXCEPTIONS.json';
 const VERSION_DIR = /^packages\/[^/]+\/[^/]+\/[^/]+$/;
+const EXACT_DIR = /^(packages\/[^/]+\/[^/]+\/[^/]+|(schema|corpus)\/\d{4}-\d{2}-\d{2}|validator\/\d{4}\.\d{2}\.\d{2})$/;
+const EXACT_LISTS = { added: 'A', modified: 'M', deleted: 'D' };
+const isExact = (e) => e !== null && typeof e === 'object' && !Array.isArray(e) && 'directory' in e;
 
 function readExceptions(ref) {
   const where = `${EXCEPTIONS} at ${ref ?? 'the working tree'}`;
@@ -101,9 +118,31 @@ function readExceptions(ref) {
     usage(`${where} must be an object with only an "exceptions" array`);
   }
   const seen = new Set();
+  const seenExact = new Set();
   const safeFile = (f) =>
     typeof f === 'string' && !/[\\:\0]/.test(f) && f.split('/').every((p) => p !== '' && p !== '.' && p !== '..');
   for (const [i, e] of data.exceptions.entries()) {
+    if (isExact(e)) {
+      const lists = Object.keys(EXACT_LISTS).map((k) => e[k]);
+      const all = lists.every(Array.isArray) ? lists.flat() : [];
+      const ok =
+        keys(e) === 'added,approver,deleted,directory,modified,reason' &&
+        lists.every((l) => Array.isArray(l) && l.every(safeFile)) &&
+        all.length > 0 &&
+        new Set(all).size === all.length &&
+        [e.directory, e.reason, e.approver].every((v) => typeof v === 'string' && v.trim() !== '') &&
+        EXACT_DIR.test(e.directory);
+      if (!ok) {
+        usage(
+          `${where}: exceptions[${i}] needs exactly non-empty "directory" (packages/<scope>/<name>/<version>, schema/<YYYY-MM-DD>, ` +
+            'corpus/<YYYY-MM-DD> or validator/<YYYY.MM.DD>), "reason" and "approver", and the arrays "added", "modified" and ' +
+            '"deleted" of relative file paths without "", ".", ".." segments, not all empty, no path listed twice',
+        );
+      }
+      if (seenExact.has(e.directory)) usage(`${where}: exceptions[${i}] repeats ${e.directory}`);
+      seenExact.add(e.directory);
+      continue;
+    }
     const ok =
       isObject(e) &&
       (keys(e) === 'approver,reason,version' ||
@@ -146,8 +185,23 @@ if (!head) {
 const VERB = { A: 'added to', D: 'deleted from', M: 'modified in', T: 'type changed in' };
 const violations = [];
 const added = new Set();
-const baseExceptions = new Set(readExceptions(base).map((e) => e.version));
-const excepted = new Map(readExceptions(head).filter((e) => !baseExceptions.has(e.version)).map((e) => [e.version, e]));
+const baseAll = readExceptions(base);
+const headAll = readExceptions(head);
+const baseExceptions = new Set(baseAll.filter((e) => !isExact(e)).map((e) => e.version));
+const excepted = new Map(
+  headAll.filter((e) => !isExact(e) && !baseExceptions.has(e.version)).map((e) => [e.version, e]),
+);
+// New exact-file entries: directory -> Map(relative path -> expected status).
+const baseExact = new Set(baseAll.filter(isExact).map((e) => e.directory));
+const exact = new Map(
+  headAll
+    .filter((e) => isExact(e) && !baseExact.has(e.directory))
+    .map((e) => [e.directory, new Map(Object.entries(EXACT_LISTS).flatMap(([k, s]) => e[k].map((f) => [f, s])))]),
+);
+for (const dir of exact.keys()) {
+  if (excepted.has(dir)) usage(`${EXCEPTIONS} at ${head ?? 'the working tree'}: ${dir} has two new entries`);
+}
+const exactMatched = new Set();
 // Files a new entry's "added" array lists, as full paths; each must really be added.
 const listed = new Set([...excepted.values()].flatMap((e) => (e.added ?? []).map((f) => `${e.version}/${f}`)));
 const applied = new Set();
@@ -155,6 +209,16 @@ const addedListed = new Set();
 for (const [status, file] of changes) {
   const dir = versionDir(file);
   if (!dir) continue;
+  const expect = published.has(dir) ? exact.get(dir) : undefined;
+  if (expect) {
+    if (expect.get(file.slice(dir.length + 1)) === status) {
+      applied.add(dir);
+      exactMatched.add(file);
+    } else {
+      violations.push(`${file}: ${VERB[status[0]] ?? `changed (${status}) in`} published version ${dir}, not as its exact-file entry lists`);
+    }
+    continue;
+  }
   const entry = published.has(dir) ? excepted.get(dir) : undefined;
   if (entry && !entry.added && status === 'M') applied.add(dir);
   else if (entry?.added && status === 'A' && listed.has(file)) {
@@ -166,10 +230,21 @@ for (const [status, file] of changes) {
 for (const file of listed) {
   if (!addedListed.has(file)) violations.push(`${file}: listed in "added" in ${EXCEPTIONS} but not added to a published version`);
 }
+const LIST_OF = Object.fromEntries(Object.entries(EXACT_LISTS).map(([k, s]) => [s, k]));
+for (const [dir, expect] of exact) {
+  for (const [rel, status] of expect) {
+    const file = `${dir}/${rel}`;
+    if (!exactMatched.has(file)) {
+      violations.push(`${file}: listed in "${LIST_OF[status]}" in ${EXCEPTIONS} but not ${VERB[status]} published version ${dir}`);
+    }
+  }
+}
 
 const target = head ? head : 'the working tree';
 if (violations.length) {
-  console.error(`error: published package versions, dated schemas and dated corpora are immutable (base ${base}, compared with ${target}).`);
+  console.error(
+    `error: published package versions, dated schemas, dated corpora and validator versions are immutable (base ${base}, compared with ${target}).`,
+  );
   console.error('Publish the change as a new version directory instead.');
   for (const v of violations.sort()) console.error(`  ${v}`);
   process.exit(1);
