@@ -59,6 +59,11 @@ Status: _to be filled_.
 Publication 2 supersedes the checksums recorded in Publication 1. Publication 1 stays
 above unchanged as the record of what was served at that time; from Publication 2 on, its
 schema, corpus, validator, catalog and package checksums are no longer the served bytes.
+Every deploy of `main` rebuilds `catalog.json` with that commit as its `source_commit`, its
+only commit-bound value, so the served `catalog.json` SHA-256 changes on each deploy even
+when no package changes (for example
+`f659b4c9785ea8e5544fddf75439b9651f3f6bd0413cf4907af69ba4839315a5` at `0111ff8` after pull
+request #12). Each publication records the value at its own published commit.
 
 ### Owner decision
 
