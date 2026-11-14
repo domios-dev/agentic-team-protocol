@@ -20,9 +20,13 @@
 // to h4. Navigation never changes an
 // output path or a copied byte.
 //
+//   search-index.json       the h1 to h3 sections of every rendered page as plain text,
+//                           read by site/assets/search.js (self-hosted, same origin).
+//
 // Absent or empty spec/, packages/ and examples/ are valid inputs. The output is
-// deterministic (sorted entries, no timestamps) and static only: the build refuses
-// to emit a rendered page containing a script, form or input element.
+// deterministic (sorted entries, no timestamps) and static apart from site search:
+// the build refuses a rendered page with any script, form, input, textarea, button
+// or iframe element other than the layout's one search script and one search field.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -35,11 +39,49 @@ const OUT = path.join(ROOT, '_site');
 const SITE_DIR = path.join(ROOT, 'site');
 const TEMPLATE_DIR = path.join(SITE_DIR, 'templates');
 const DATE_DIR = /^\d{4}-\d{2}-\d{2}$/;
+// Elements a static page must not carry, with one exact allowlist: the layout's
+// search script tag (one per page, at that page's root) and its one search field in
+// the header. Anything else, and any of these elements in page content, fails the build.
 const FORBIDDEN_ELEMENT = /<\s*(script|form|input|textarea|button|iframe)\b/i;
+const FORBIDDEN_TAGS = /<\s*(script|form|input|textarea|button|iframe)\b[^>]*>/gi;
+const searchScript = (root) => `<script src="${root}assets/search.js" defer></script>`;
 
 const layout = fs.readFileSync(path.join(TEMPLATE_DIR, 'layout.html'), 'utf8');
+const SEARCH_INPUT = checkLayoutAllowlist(layout);
 const renderedPages = [];
+const unsafeContent = [];
+const searchPages = [];
 const warnings = [];
+
+// The layout must hold exactly the allowed elements: the search script in the head and
+// one <input type="search"> inside the header. Returns that input tag.
+function checkLayoutAllowlist(template) {
+  const tags = [...template.matchAll(FORBIDDEN_TAGS)].map((m) => m[0]);
+  const inputs = tags.filter((t) => /^<input\b/i.test(t));
+  const header = template.match(/<header\b[\s\S]*?<\/header>/i)?.[0] ?? '';
+  const ok = tags.length === 2
+    && template.split(searchScript('{{root}}')).length === 2
+    && tags.includes(searchScript('{{root}}').replace('</script>', ''))
+    && inputs.length === 1
+    && /^<input type="search"[\s>]/.test(inputs[0])
+    && header.includes(inputs[0]);
+  if (!ok) {
+    console.error('error: site/templates/layout.html must hold exactly the search script and one <input type="search"> in the header');
+    process.exit(1);
+  }
+  return inputs[0];
+}
+
+// A rendered page passes when its only script/form/input/textarea/button/iframe
+// elements are the layout's search script (for its own root) and search field.
+function pageIsAllowed(html, root) {
+  const tags = [...html.matchAll(FORBIDDEN_TAGS)].map((m) => m[0]);
+  const script = searchScript(root);
+  return tags.length === 2
+    && tags.filter((t) => t === SEARCH_INPUT).length === 1
+    && tags.filter((t) => t === script.replace('</script>', '')).length === 1
+    && html.split(script).length === 2;
+}
 
 const byName = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
@@ -282,10 +324,16 @@ function renderToc(headings) {
 
 // --- Pages ----------------------------------------------------------------
 
+function rootFor(outRel) {
+  const depth = outRel.split('/').length - 1;
+  return depth === 0 ? './' : '../'.repeat(depth);
+}
+
 // outRel: output path relative to _site/, POSIX separators.
 function writePage(outRel, { title, body, notice = '', headings = null }) {
-  const depth = outRel.split('/').length - 1;
-  const root = depth === 0 ? './' : '../'.repeat(depth);
+  const root = rootFor(outRel);
+  if (FORBIDDEN_ELEMENT.test(body) || FORBIDDEN_ELEMENT.test(notice)) unsafeContent.push(outRel);
+  searchPages.push({ outRel, body });
   const pageTitle = title === 'Agentic Team Protocol' ? title : `${title} | Agentic Team Protocol`;
   const toc = renderToc(headings);
   const values = {
@@ -493,6 +541,53 @@ function buildCatalog() {
   return catalog.packages.length;
 }
 
+// --- search index ---------------------------------------------------------
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", nbsp: ' ' };
+
+function plainText(html) {
+  return html
+    .replace(/<(br|\/p|\/li|\/tr|\/td|\/th|\/pre|\/h\d)\b[^>]*>/gi, ' ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z0-9#]+);/gi, (m, name) => {
+      if (/^#x/i.test(name)) return String.fromCodePoint(parseInt(name.slice(2), 16));
+      if (/^#\d+$/.test(name) && name !== '#39') return String.fromCodePoint(Number(name.slice(1)));
+      return ENTITIES[name.toLowerCase()] ?? m;
+    })
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// search-index.json: one entry per h1, h2 and h3 section of every rendered page, in
+// build order (deterministic). url is the page relative to the site root, anchor the
+// heading id ("" for the page top), text the section's plain text up to the next
+// h1 to h3 (a listing's entry names). Read only by site/assets/search.js.
+function buildSearchIndex() {
+  const HEADING = /<h([1-3])(?: id="([^"]*)")?>([\s\S]*?)<\/h\1>/g;
+  const entries = [];
+  for (const { outRel, body } of searchPages) {
+    const url = hrefFor(outRel.replace(/(^|\/)index\.html$/, '$1'));
+    // Listings contribute entry names only: no parent row, no file sizes.
+    const html = body
+      .replace(/<a class="heading-anchor"[^>]*>#<\/a>/g, '')
+      .replace(/<li><a href="\.\.\/">\.\.\/<\/a><\/li>/g, '')
+      .replace(/<span class="size">[^<]*<\/span>/g, '');
+    const marks = [...html.matchAll(HEADING)];
+    marks.forEach((m, i) => {
+      const end = i + 1 < marks.length ? marks[i + 1].index : html.length;
+      entries.push({
+        url,
+        anchor: m[1] === '1' ? '' : (m[2] ?? ''),
+        heading: plainText(m[3]),
+        text: plainText(html.slice(m.index + m[0].length, end)),
+      });
+    });
+  }
+  const json = `${JSON.stringify(entries)}\n`;
+  fs.writeFileSync(path.join(OUT, 'search-index.json'), json);
+  return { entries: entries.length, bytes: Buffer.byteLength(json) };
+}
+
 // --- main -----------------------------------------------------------------
 
 fs.rmSync(OUT, { recursive: true, force: true });
@@ -522,11 +617,15 @@ for (const [name, intro] of GENERATED) {
 const catalog = buildCatalog();
 copyExact(path.join(ROOT, 'LICENSE'), path.join(OUT, 'LICENSE.txt'));
 
-const unsafe = renderedPages.filter((rel) => FORBIDDEN_ELEMENT.test(fs.readFileSync(path.join(OUT, ...rel.split('/')), 'utf8')));
+const unsafe = [...new Set([
+  ...unsafeContent,
+  ...renderedPages.filter((rel) => !pageIsAllowed(fs.readFileSync(path.join(OUT, ...rel.split('/')), 'utf8'), rootFor(rel))),
+])].sort(byName);
 if (unsafe.length) {
-  console.error(`error: the site must be static; script/form/input elements found in: ${unsafe.join(', ')}`);
+  console.error(`error: the site must be static apart from the search script and field; script/form/input/textarea/button/iframe elements found in: ${unsafe.join(', ')}`);
   process.exit(1);
 }
+const searchIndex = buildSearchIndex();
 if (!fs.existsSync(path.join(OUT, 'index.html'))) {
   console.error('error: site/index.md did not produce _site/index.html');
   process.exit(1);
@@ -538,5 +637,5 @@ console.log(
     `${spec.current ? ` (current ${spec.current})` : ''}; packages files: ${packageFiles}; ` +
     `examples files: ${exampleFiles}; ` +
     Object.entries(generatedFiles).map(([name, count]) => `${name} files: ${count}; `).join('') +
-    `catalog.json: ${catalog} entries`,
+    `catalog.json: ${catalog} entries; search-index.json: ${searchIndex.entries} sections, ${searchIndex.bytes} bytes`,
 );

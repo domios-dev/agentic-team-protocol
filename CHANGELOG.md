@@ -11,9 +11,10 @@ specification is versioned by date (`spec/<YYYY-MM-DD>/`) rather than by semanti
 
 - Site: a documentation layout in the domios.dev visual language, with a left navigation
   of the specification sections, an on-page section list, heading anchors, dark and light
-  themes from `prefers-color-scheme`, and a "Contents" menu on narrow screens. It stays
-  static, with no script and no font files, and every URL and served artifact byte is
-  unchanged.
+  themes from `prefers-color-scheme`, and a "Contents" menu on narrow screens. Site
+  search is a self-hosted script reading a build-time index (`search-index.json`), with
+  no external requests; the build allows only that script and its search field. There
+  are no font files, and every URL and served artifact byte is unchanged.
 
 ## [Unreleased]: Phase 3
 
