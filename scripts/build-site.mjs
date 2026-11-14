@@ -14,9 +14,19 @@
 //                           plus the catalog/ page rendered from it.
 //   LICENSE                 copied byte-for-byte to LICENSE.txt.
 //
+// Every page gets the same documentation layout: a left navigation of pages, a section
+// list for pages with at least three h2 sections (on the right from 1200px, nested
+// under the page's own navigation item below that), and an anchor link on every h2
+// to h4. Navigation never changes an
+// output path or a copied byte.
+//
+//   search-index.json       the h1 to h3 sections of every rendered page as plain text,
+//                           read by site/assets/search.js (self-hosted, same origin).
+//
 // Absent or empty spec/, packages/ and examples/ are valid inputs. The output is
-// deterministic (sorted entries, no timestamps) and static only: the build refuses
-// to emit a rendered page containing a script, form or input element.
+// deterministic (sorted entries, no timestamps) and static apart from site search:
+// the build refuses a rendered page with any script, form, input, textarea, button
+// or iframe element other than the layout's one search script and one search field.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,11 +39,49 @@ const OUT = path.join(ROOT, '_site');
 const SITE_DIR = path.join(ROOT, 'site');
 const TEMPLATE_DIR = path.join(SITE_DIR, 'templates');
 const DATE_DIR = /^\d{4}-\d{2}-\d{2}$/;
+// Elements a static page must not carry, with one exact allowlist: the layout's
+// search script tag (one per page, at that page's root) and its one search field in
+// the header. Anything else, and any of these elements in page content, fails the build.
 const FORBIDDEN_ELEMENT = /<\s*(script|form|input|textarea|button|iframe)\b/i;
+const FORBIDDEN_TAGS = /<\s*(script|form|input|textarea|button|iframe)\b[^>]*>/gi;
+const searchScript = (root) => `<script src="${root}assets/search.js" defer></script>`;
 
 const layout = fs.readFileSync(path.join(TEMPLATE_DIR, 'layout.html'), 'utf8');
+const SEARCH_INPUT = checkLayoutAllowlist(layout);
 const renderedPages = [];
+const unsafeContent = [];
+const searchPages = [];
 const warnings = [];
+
+// The layout must hold exactly the allowed elements: the search script in the head and
+// one <input type="search"> inside the header. Returns that input tag.
+function checkLayoutAllowlist(template) {
+  const tags = [...template.matchAll(FORBIDDEN_TAGS)].map((m) => m[0]);
+  const inputs = tags.filter((t) => /^<input\b/i.test(t));
+  const header = template.match(/<header\b[\s\S]*?<\/header>/i)?.[0] ?? '';
+  const ok = tags.length === 2
+    && template.split(searchScript('{{root}}')).length === 2
+    && tags.includes(searchScript('{{root}}').replace('</script>', ''))
+    && inputs.length === 1
+    && /^<input type="search"[\s>]/.test(inputs[0])
+    && header.includes(inputs[0]);
+  if (!ok) {
+    console.error('error: site/templates/layout.html must hold exactly the search script and one <input type="search"> in the header');
+    process.exit(1);
+  }
+  return inputs[0];
+}
+
+// A rendered page passes when its only script/form/input/textarea/button/iframe
+// elements are the layout's search script (for its own root) and search field.
+function pageIsAllowed(html, root) {
+  const tags = [...html.matchAll(FORBIDDEN_TAGS)].map((m) => m[0]);
+  const script = searchScript(root);
+  return tags.length === 2
+    && tags.filter((t) => t === SEARCH_INPUT).length === 1
+    && tags.filter((t) => t === script.replace('</script>', '')).length === 1
+    && html.split(script).length === 2;
+}
 
 const byName = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
@@ -102,8 +150,12 @@ function isRelativeMarkdownLink(href) {
   return !/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/') && !href.startsWith('#') && /\.md(#.*)?$/i.test(href);
 }
 
+// Renders Markdown to HTML. Every heading gets a stable id; h2 to h4 also get a
+// visible anchor link to themselves. Returns the first h1 as the title and the
+// h2/h3 headings for the navigation and the on-page section list.
 function renderMarkdown(source) {
   const used = new Map();
+  const headings = [];
   let title = null;
   const marked = new Marked({
     gfm: true,
@@ -120,28 +172,181 @@ function renderMarkdown(source) {
         const count = used.get(base) ?? 0;
         used.set(base, count + 1);
         const id = count === 0 ? base : `${base}-${count}`;
-        return `<h${depth} id="${id}">${inner}</h${depth}>\n`;
+        const text = inner.replace(/<[^>]*>/g, '');
+        if (depth === 2 || depth === 3) headings.push({ depth, id, text });
+        const anchor = depth >= 2 && depth <= 4
+          ? `<a class="heading-anchor" href="#${id}" aria-label="Link to this section: ${text.replace(/"/g, '&quot;')}">#</a>`
+          : '';
+        return `<h${depth} id="${id}">${inner}${anchor}</h${depth}>\n`;
       },
     },
   });
   const html = marked.parse(source);
-  return { html, title };
+  return { html, title, headings };
+}
+
+// --- Navigation -----------------------------------------------------------
+
+const REPOSITORY_URL = 'https://github.com/domios-dev/agentic-team-protocol';
+
+// "Agentic Team Protocol: host behaviour (non-normative), version 2026-11-11"
+// -> "Host behaviour (non-normative)" for the navigation.
+function shortSpecTitle(title) {
+  const short = title.replace(/^Agentic Team Protocol:\s*/, '').replace(/,\s*version\s+\d{4}-\d{2}-\d{2}\s*$/, '');
+  return short.charAt(0).toUpperCase() + short.slice(1);
+}
+
+// The left navigation, planned once before any page is written. Items name their
+// target as an output path relative to _site/ ("dir/" for a directory index) or an
+// absolute URL. It lists pages only; a page's own sections are added per page.
+function planNavigation() {
+  const specDir = path.join(ROOT, 'spec');
+  const dates = sortedEntries(specDir).filter((e) => e.isDirectory() && DATE_DIR.test(e.name)).map((e) => e.name);
+  const current = dates.at(-1) ?? null;
+  const specItems = [{ label: 'All versions', target: 'spec/' }];
+  if (current) {
+    const dateDir = path.join(specDir, current);
+    const pages = sortedEntries(dateDir).filter((e) => e.isFile() && e.name.endsWith('.md')).map((e) => e.name);
+    // index.md first, then the companion pages in name order.
+    pages.sort((a, b) => (a === 'index.md' ? -1 : b === 'index.md' ? 1 : byName(a, b)));
+    for (const rel of pages) {
+      const { title } = renderMarkdown(fs.readFileSync(path.join(dateDir, ...rel.split('/')), 'utf8'));
+      const outRel = rel.replace(/\.md$/, '.html');
+      const target = outRel === 'index.html' ? `spec/${current}/` : `spec/${current}/${outRel}`;
+      specItems.push({ label: shortSpecTitle(title ?? fallbackTitle(rel)), target });
+    }
+  }
+  const exists = (name) => fs.existsSync(path.join(ROOT, name));
+  const groups = [
+    { label: 'Start', items: [{ label: 'Introduction', target: '' }] },
+    { label: current ? `Specification ${current}` : 'Specification', items: specItems },
+    {
+      label: 'Packages',
+      items: [
+        { label: 'Catalog', target: 'catalog/' },
+        { label: 'Packages', target: 'packages/' },
+        { label: 'Examples', target: 'examples/' },
+      ],
+    },
+    {
+      label: 'Generated artifacts',
+      items: [
+        exists('schema') && { label: 'JSON Schema', target: 'schema/' },
+        exists('corpus') && { label: 'Conformance corpus', target: 'corpus/' },
+        exists('validator') && { label: 'Reference validator', target: 'validator/' },
+      ].filter(Boolean),
+    },
+    {
+      label: 'Project',
+      items: [
+        { label: 'License', target: 'LICENSE.txt' },
+        { label: 'Repository', target: REPOSITORY_URL },
+      ],
+    },
+  ].filter((g) => g.items.length);
+  return { groups, current };
+}
+
+const navigation = planNavigation();
+
+const isExternal = (target) => /^[a-z][a-z0-9+.-]*:/i.test(target);
+
+// The output path a target names: "spec/" -> "spec/index.html", "" -> "index.html".
+function pageOf(target) {
+  const p = target.split('#')[0];
+  return p === '' || p.endsWith('/') ? `${p}index.html` : p;
+}
+
+const isPageTarget = (target) => !isExternal(target) && !target.includes('#');
+
+// The one target of a link set marked current on page outRel, with its aria-current
+// value: "page" for the page itself, otherwise "true" for the deepest directory the
+// page sits in (packages/ for packages/com.example/), or null.
+function activeTarget(targets, outRel) {
+  const pages = targets.filter(isPageTarget);
+  const exact = pages.find((t) => pageOf(t) === outRel);
+  if (exact !== undefined) return { target: exact, state: 'page' };
+  const parent = pages
+    .filter((t) => t.endsWith('/') && outRel.startsWith(t))
+    .sort((a, b) => b.length - a.length)[0];
+  return parent ? { target: parent, state: 'true' } : null;
+}
+
+function navLink({ label, target }, root, active) {
+  const href = isExternal(target) ? target : `${root}${hrefFor(target)}`.replace(/%23/g, '#');
+  const state = active && active.target === target ? active.state : null;
+  return `<a href="${href}"${state ? ` aria-current="${state}"` : ''}>${escapeHtml(label)}</a>`;
+}
+
+function renderHeaderNav(outRel, root) {
+  const active = activeTarget(HEADER_LINKS.map((l) => l.target), outRel);
+  return HEADER_LINKS.map((l) => navLink(l, root, active)).join('\n');
+}
+
+// The page's h2 sections, when it has enough of them for a section list.
+function pageSections(headings) {
+  const h2 = (headings ?? []).filter((h) => h.depth === 2);
+  return h2.length >= 3 ? h2 : [];
+}
+
+// The left navigation lists pages only. Under the current page's own item it nests
+// that page's h2 sections, which CSS shows only below 1200px (wider screens have the
+// "On this page" list instead). No other page's sections are ever listed.
+function renderNav(outRel, root, headings) {
+  const all = navigation.groups.flatMap((g) => g.items);
+  const active = activeTarget(all.map((it) => it.target), outRel);
+  const sections = pageSections(headings);
+  const item = (it) => {
+    const own = active?.state === 'page' && active.target === it.target && sections.length
+      ? `\n<ul class="nav-sections">\n${sections.map((h) => `<li><a href="#${h.id}">${h.text}</a></li>`).join('\n')}\n</ul>`
+      : '';
+    return `<li>${navLink(it, root, active)}${own}</li>`;
+  };
+  return navigation.groups
+    .map((g) => `<p class="nav-group">${escapeHtml(g.label)}</p>\n<ul>\n${g.items.map(item).join('\n')}\n</ul>`)
+    .join('\n');
+}
+
+const HEADER_LINKS = [
+  { label: 'Specification', target: 'spec/' },
+  { label: 'Catalog', target: 'catalog/' },
+  { label: 'Repository', target: REPOSITORY_URL },
+];
+
+// The on-page section list, for pages with at least three h2 sections.
+function renderToc(headings) {
+  if (!pageSections(headings).length) return '';
+  const items = headings
+    .map((h) => `<li class="toc-${h.depth}"><a href="#${h.id}">${h.text}</a></li>`)
+    .join('\n');
+  return `<nav class="toc" aria-label="On this page">\n<p class="nav-group">On this page</p>\n<ul>\n${items}\n</ul>\n</nav>`;
 }
 
 // --- Pages ----------------------------------------------------------------
 
-// outRel: output path relative to _site/, POSIX separators.
-function writePage(outRel, { title, body, notice = '' }) {
+function rootFor(outRel) {
   const depth = outRel.split('/').length - 1;
-  const root = depth === 0 ? './' : '../'.repeat(depth);
+  return depth === 0 ? './' : '../'.repeat(depth);
+}
+
+// outRel: output path relative to _site/, POSIX separators.
+function writePage(outRel, { title, body, notice = '', headings = null }) {
+  const root = rootFor(outRel);
+  if (FORBIDDEN_ELEMENT.test(body) || FORBIDDEN_ELEMENT.test(notice)) unsafeContent.push(outRel);
+  searchPages.push({ outRel, body });
   const pageTitle = title === 'Agentic Team Protocol' ? title : `${title} | Agentic Team Protocol`;
+  const toc = renderToc(headings);
   const values = {
     title: escapeHtml(pageTitle),
     root,
+    nav: renderNav(outRel, root, headings),
+    header_nav: renderHeaderNav(outRel, root),
+    toc,
+    layout_class: toc ? 'layout has-toc' : 'layout',
     notice: notice ? `<p class="notice">${notice.replaceAll('{{root}}', root)}</p>` : '',
     content: body,
   };
-  const html = layout.replace(/\{\{(title|root|notice|content)\}\}/g, (_, key) => values[key]);
+  const html = layout.replace(/\{\{(title|root|nav|header_nav|toc|layout_class|notice|content)\}\}/g, (_, key) => values[key]);
   const target = path.join(OUT, ...outRel.split('/'));
   ensureDir(target);
   fs.writeFileSync(target, html);
@@ -159,8 +364,8 @@ function buildSitePages() {
     if (rel.startsWith('templates/')) continue;
     const abs = path.join(SITE_DIR, ...rel.split('/'));
     if (rel.endsWith('.md')) {
-      const { html, title } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
-      writePage(rel.replace(/\.md$/, '.html'), { title: title ?? fallbackTitle(rel), body: html });
+      const { html, title, headings } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
+      writePage(rel.replace(/\.md$/, '.html'), { title: title ?? fallbackTitle(rel), body: html, headings });
     } else {
       copyExact(abs, path.join(OUT, ...rel.split('/')));
     }
@@ -187,11 +392,11 @@ function buildSpec() {
     for (const rel of walkFiles(dateDir)) {
       const abs = path.join(dateDir, ...rel.split('/'));
       if (rel.endsWith('.md')) {
-        const { html, title } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
+        const { html, title, headings } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
         const outRel = rel.replace(/\.md$/, '.html');
         const pageTitle = title ?? fallbackTitle(rel);
         pages.push({ outRel, title: pageTitle });
-        writePage(`spec/${date}/${outRel}`, { title: pageTitle, body: html, notice });
+        writePage(`spec/${date}/${outRel}`, { title: pageTitle, body: html, notice, headings });
       } else {
         copyExact(abs, path.join(OUT, 'spec', date, ...rel.split('/')));
       }
@@ -336,6 +541,53 @@ function buildCatalog() {
   return catalog.packages.length;
 }
 
+// --- search index ---------------------------------------------------------
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", nbsp: ' ' };
+
+function plainText(html) {
+  return html
+    .replace(/<(br|\/p|\/li|\/tr|\/td|\/th|\/pre|\/h\d)\b[^>]*>/gi, ' ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z0-9#]+);/gi, (m, name) => {
+      if (/^#x/i.test(name)) return String.fromCodePoint(parseInt(name.slice(2), 16));
+      if (/^#\d+$/.test(name) && name !== '#39') return String.fromCodePoint(Number(name.slice(1)));
+      return ENTITIES[name.toLowerCase()] ?? m;
+    })
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// search-index.json: one entry per h1, h2 and h3 section of every rendered page, in
+// build order (deterministic). url is the page relative to the site root, anchor the
+// heading id ("" for the page top), text the section's plain text up to the next
+// h1 to h3 (a listing's entry names). Read only by site/assets/search.js.
+function buildSearchIndex() {
+  const HEADING = /<h([1-3])(?: id="([^"]*)")?>([\s\S]*?)<\/h\1>/g;
+  const entries = [];
+  for (const { outRel, body } of searchPages) {
+    const url = hrefFor(outRel.replace(/(^|\/)index\.html$/, '$1'));
+    // Listings contribute entry names only: no parent row, no file sizes.
+    const html = body
+      .replace(/<a class="heading-anchor"[^>]*>#<\/a>/g, '')
+      .replace(/<li><a href="\.\.\/">\.\.\/<\/a><\/li>/g, '')
+      .replace(/<span class="size">[^<]*<\/span>/g, '');
+    const marks = [...html.matchAll(HEADING)];
+    marks.forEach((m, i) => {
+      const end = i + 1 < marks.length ? marks[i + 1].index : html.length;
+      entries.push({
+        url,
+        anchor: m[1] === '1' ? '' : (m[2] ?? ''),
+        heading: plainText(m[3]),
+        text: plainText(html.slice(m.index + m[0].length, end)),
+      });
+    });
+  }
+  const json = `${JSON.stringify(entries)}\n`;
+  fs.writeFileSync(path.join(OUT, 'search-index.json'), json);
+  return { entries: entries.length, bytes: Buffer.byteLength(json) };
+}
+
 // --- main -----------------------------------------------------------------
 
 fs.rmSync(OUT, { recursive: true, force: true });
@@ -365,11 +617,15 @@ for (const [name, intro] of GENERATED) {
 const catalog = buildCatalog();
 copyExact(path.join(ROOT, 'LICENSE'), path.join(OUT, 'LICENSE.txt'));
 
-const unsafe = renderedPages.filter((rel) => FORBIDDEN_ELEMENT.test(fs.readFileSync(path.join(OUT, ...rel.split('/')), 'utf8')));
+const unsafe = [...new Set([
+  ...unsafeContent,
+  ...renderedPages.filter((rel) => !pageIsAllowed(fs.readFileSync(path.join(OUT, ...rel.split('/')), 'utf8'), rootFor(rel))),
+])].sort(byName);
 if (unsafe.length) {
-  console.error(`error: the site must be static; script/form/input elements found in: ${unsafe.join(', ')}`);
+  console.error(`error: the site must be static apart from the search script and field; script/form/input/textarea/button/iframe elements found in: ${unsafe.join(', ')}`);
   process.exit(1);
 }
+const searchIndex = buildSearchIndex();
 if (!fs.existsSync(path.join(OUT, 'index.html'))) {
   console.error('error: site/index.md did not produce _site/index.html');
   process.exit(1);
@@ -381,5 +637,5 @@ console.log(
     `${spec.current ? ` (current ${spec.current})` : ''}; packages files: ${packageFiles}; ` +
     `examples files: ${exampleFiles}; ` +
     Object.entries(generatedFiles).map(([name, count]) => `${name} files: ${count}; `).join('') +
-    `catalog.json: ${catalog} entries`,
+    `catalog.json: ${catalog} entries; search-index.json: ${searchIndex.entries} sections, ${searchIndex.bytes} bytes`,
 );
