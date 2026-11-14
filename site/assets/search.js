@@ -41,10 +41,17 @@
 
   const words = (q) => q.toLowerCase().split(/\s+/).filter(Boolean);
 
-  // Every query word must appear in the heading or the text. Sections whose heading
-  // holds all words come first, then those whose heading holds some. Within each tier
-  // document sections come before directory listings (whose heading is their path);
-  // ties keep document order.
+  const LISTINGS_SHOWN = 3;
+  const isListing = (x) => x.h.endsWith('/'); // a directory listing's heading is its path
+
+  // Every query word must appear in the heading or the text. Order:
+  //   0 specification sections (spec/**, host behaviour included) matched in the heading,
+  //   1 specification sections matched in the text only,
+  //   2 the other pages: home, catalog and package pages,
+  //   3 the other directory listings (examples, schema, corpus, validator).
+  // Within a group, sections whose heading holds all words come first, then those whose
+  // heading holds some; ties keep document order. At most LISTINGS_SHOWN directory
+  // listings (package directories included) are returned.
   function search(ws) {
     const hits = [];
     entries.forEach((x, i) => {
@@ -54,10 +61,16 @@
         if (!h && !x.t.includes(w)) return;
         if (h) inHeading += 1;
       }
-      const tier = inHeading === ws.length ? 0 : inHeading > 0 ? 1 : 2;
-      hits.push({ x, i, rank: tier * 2 + (x.h.endsWith('/') ? 1 : 0) });
+      const strength = inHeading === ws.length ? 0 : inHeading > 0 ? 1 : 2;
+      const url = x.e.url;
+      const group = url.startsWith('spec/') ? (inHeading > 0 ? 0 : 1)
+        : url === '' || url.startsWith('catalog/') || url.startsWith('packages/') ? 2
+          : 3;
+      hits.push({ x, i, rank: group * 3 + strength });
     });
-    return hits.sort((a, b) => a.rank - b.rank || a.i - b.i);
+    hits.sort((a, b) => a.rank - b.rank || a.i - b.i);
+    let listings = 0;
+    return hits.filter((hit) => !isListing(hit.x) || ++listings <= LISTINGS_SHOWN);
   }
 
   function snippet(text, ws) {
@@ -125,7 +138,7 @@
         const heading = span('search-hit-heading');
         appendMarked(heading, e.heading, ws);
         a.append(heading);
-        if (decodeURI(e.url) !== e.heading) {
+        if (e.url !== '' && decodeURI(e.url) !== e.heading) {
           const where = span('search-hit-path');
           where.textContent = `/${decodeURI(e.url)}`;
           a.append(where);

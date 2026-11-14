@@ -424,10 +424,11 @@ a:focus-visible, summary:focus-visible, .search-input:focus-visible { outline: 2
 .footer-links { display: flex; flex-wrap: wrap; gap: 6px 22px; }
 .site-footer a { color: var(--ct-muted-fg); }
 .site-footer a:hover { color: var(--ct-accent); }
-/* "by Domios": the Domios mark (used with the owner's approval) sits before "Domios";
-   inline-flex keeps the underline off the space around it. */
-.site-footer a:has(.brand-mark) { display: inline-flex; align-items: center; gap: 0.3em; }
-.brand-mark { width: 1em; height: 1em; flex: none; }
+/* "by Domios": the Domios mark (used with the owner's approval) leads the link; only
+   the phrase is underlined. */
+.by-domios { display: inline-flex; align-items: center; gap: .35em; text-decoration: none; }
+.by-domios span { text-decoration: underline; text-underline-offset: 3px; }
+.by-domios svg { width: 1em; height: 1em; flex: none; }
 
 /* Narrow screens: the navigation collapses behind "Contents" and never sits
    beside the text. */
@@ -440,14 +441,6 @@ a:focus-visible, summary:focus-visible, .search-input:focus-visible { outline: 2
   .layout { display: block; }
   .sidebar { display: none; }
   .header-nav { display: none; }
-
-  /* Search takes its own row under the wordmark; the header grows with it. */
-  :root:has(#site-search:not([hidden])) { --header-h: 108px; }
-  .header-inner { flex-wrap: wrap; row-gap: 0; }
-  .brand { padding-block: 16px 12px; }
-  .search { flex: 1 0 100%; width: auto; margin: 0 0 14px; }
-  .search-key { display: none; }
-  .search-results { left: 0; width: auto; }
 
   .nav-mobile {
     display: block;
@@ -485,4 +478,16 @@ a:focus-visible, summary:focus-visible, .search-input:focus-visible { outline: 2
   .doc th,
   .doc td { min-width: 8.5rem; }
   .doc td:last-child { min-width: 12rem; }
+}
+
+/* Phones: the header scrolls away with the page, and search takes its own row under
+   the wordmark. */
+@media (max-width: 719px) {
+  .site-header { position: static; }
+  .doc [id] { scroll-margin-top: 16px; }
+  .header-inner { flex-wrap: wrap; row-gap: 0; }
+  .brand { padding-block: 16px 12px; }
+  .search { flex: 1 0 100%; width: auto; margin: 0 0 14px; }
+  .search-key { display: none; }
+  .search-results { left: 0; width: auto; }
 }
