@@ -180,7 +180,7 @@ a:focus-visible, summary:focus-visible, .search-input:focus-visible { outline: 2
 .search-results a { display: block; padding: 8px 10px; color: var(--ct-fg); text-decoration: none; }
 .search-hit-heading { display: block; color: var(--ct-heading); font-weight: 600; }
 .search-results a:hover .search-hit-heading { color: var(--ct-accent); }
-.search-hit-path { display: block; color: var(--ct-muted-fg); font-family: var(--ct-font-mono); font-size: 12px; overflow-wrap: anywhere; }
+.search-hit-page { display: block; color: var(--ct-muted-fg); font-size: 12px; overflow-wrap: anywhere; }
 .search-hit-snippet { display: block; margin-top: 2px; color: var(--ct-muted-fg); font-size: 13px; }
 .search-results mark {
   background: none;

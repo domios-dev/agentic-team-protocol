@@ -50,8 +50,11 @@
   //   2 the other pages: home, catalog and package pages,
   //   3 the other directory listings (examples, schema, corpus, validator).
   // Within a group, sections whose heading holds all words come first, then those whose
-  // heading holds some; ties keep document order. At most LISTINGS_SHOWN directory
-  // listings (package directories included) are returned.
+  // heading holds some. Within each of those tiers the normative package format
+  // (spec/<version>/) comes before host behaviour and every other page; remaining ties
+  // keep document order. At most LISTINGS_SHOWN directory listings (package directories
+  // included) are returned.
+  const isPackageFormat = (url) => /^spec\/\d{4}-\d{2}-\d{2}\/$/.test(url);
   function search(ws) {
     const hits = [];
     entries.forEach((x, i) => {
@@ -66,9 +69,9 @@
       const group = url.startsWith('spec/') ? (inHeading > 0 ? 0 : 1)
         : url === '' || url.startsWith('catalog/') || url.startsWith('packages/') ? 2
           : 3;
-      hits.push({ x, i, rank: group * 3 + strength });
+      hits.push({ x, i, rank: group * 3 + strength, page: isPackageFormat(url) ? 0 : 1 });
     });
-    hits.sort((a, b) => a.rank - b.rank || a.i - b.i);
+    hits.sort((a, b) => a.rank - b.rank || a.page - b.page || a.i - b.i);
     let listings = 0;
     return hits.filter((hit) => !isListing(hit.x) || ++listings <= LISTINGS_SHOWN);
   }
@@ -138,10 +141,11 @@
         const heading = span('search-hit-heading');
         appendMarked(heading, e.heading, ws);
         a.append(heading);
-        if (e.url !== '' && decodeURI(e.url) !== e.heading) {
-          const where = span('search-hit-path');
-          where.textContent = `/${decodeURI(e.url)}`;
-          a.append(where);
+        // The page name from the build (search-index.json "title"), as text only.
+        if (e.title && e.title !== e.heading) {
+          const page = span('search-hit-page');
+          page.textContent = e.title;
+          a.append(page);
         }
         if (e.text) {
           const snip = span('search-hit-snippet');

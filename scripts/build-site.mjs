@@ -150,10 +150,41 @@ function isRelativeMarkdownLink(href) {
   return !/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/') && !href.startsWith('#') && /\.md(#.*)?$/i.test(href);
 }
 
+const linkedNames = new Map();
+
+// The page name a relative .md link shows on the rendered page when its visible text is
+// exactly the target's file name: [host-behaviour.md](host-behaviour.md) reads
+// "Host behaviour". Any other link text, or a target without an h1, keeps its text.
+// fromRel is the source file relative to the repository root. The Markdown source is
+// never changed; this applies to the rendered HTML only.
+function linkedPageName(fromRel, { href, text }) {
+  let file;
+  try {
+    file = decodeURIComponent(href.split('#')[0]);
+  } catch {
+    return null;
+  }
+  if (text !== path.posix.basename(file)) return null;
+  const targetRel = path.posix.normalize(path.posix.join(path.posix.dirname(fromRel), file));
+  if (!linkedNames.has(targetRel)) {
+    const abs = path.join(ROOT, ...targetRel.split('/'));
+    let name = null;
+    if (!targetRel.startsWith('../') && fs.existsSync(abs) && fs.statSync(abs).isFile()) {
+      const { title } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
+      const outRel = (targetRel.startsWith('site/') ? targetRel.slice('site/'.length) : targetRel).replace(/\.md$/i, '.html');
+      if (title) name = pageName(outRel, title);
+    }
+    linkedNames.set(targetRel, name);
+  }
+  return linkedNames.get(targetRel);
+}
+
 // Renders Markdown to HTML. Every heading gets a stable id; h2 to h4 also get a
 // visible anchor link to themselves. Returns the first h1 as the title and the
-// h2/h3 headings for the navigation and the on-page section list.
-function renderMarkdown(source) {
+// h2/h3 headings for the navigation and the on-page section list. With fromRel (the
+// source path relative to the repository root), a relative .md link whose text is
+// its target's file name shows the target's page name instead (linkedPageName).
+function renderMarkdown(source, fromRel = null) {
   const used = new Map();
   const headings = [];
   let title = null;
@@ -161,6 +192,11 @@ function renderMarkdown(source) {
     gfm: true,
     walkTokens(token) {
       if (token.type === 'link' && isRelativeMarkdownLink(token.href)) {
+        const name = fromRel ? linkedPageName(fromRel, token) : null;
+        if (name) {
+          token.text = name;
+          token.tokens = [{ type: 'text', raw: name, text: name, escaped: false }];
+        }
         token.href = token.href.replace(/\.md(#.*)?$/i, '.html$1');
       }
     },
@@ -194,6 +230,18 @@ const REPOSITORY_URL = 'https://github.com/domios-dev/agentic-team-protocol';
 function shortSpecTitle(title) {
   const short = title.replace(/^Agentic Team Protocol:\s*/, '').replace(/,\s*version\s+\d{4}-\d{2}-\d{2}\s*$/, '');
   return short.charAt(0).toUpperCase() + short.slice(1);
+}
+
+// The short name of a rendered page, shown under search results and as the text of a
+// link written as a bare file name. A dated specification page titled "Agentic Team
+// Protocol: package format, version 2026-11-11" is "Package format 2026-11-11" for the
+// version's index and "Host behaviour" for a companion page; any other page keeps its
+// title.
+function pageName(outRel, title) {
+  const m = outRel.match(/^spec\/(\d{4}-\d{2}-\d{2})\/(.+)$/);
+  if (!m || !/^Agentic Team Protocol:/.test(title)) return title;
+  const short = shortSpecTitle(title).replace(/\s*\([^)]*\)\s*$/, '');
+  return m[2] === 'index.html' ? `${short} ${m[1]}` : short;
 }
 
 // The left navigation, planned once before any page is written. Items name their
@@ -330,10 +378,11 @@ function rootFor(outRel) {
 }
 
 // outRel: output path relative to _site/, POSIX separators.
-function writePage(outRel, { title, body, notice = '', headings = null }) {
+// name is the page name search results show (pageName by default).
+function writePage(outRel, { title, body, notice = '', headings = null, name = pageName(outRel, title) }) {
   const root = rootFor(outRel);
   if (FORBIDDEN_ELEMENT.test(body) || FORBIDDEN_ELEMENT.test(notice)) unsafeContent.push(outRel);
-  searchPages.push({ outRel, body });
+  searchPages.push({ outRel, body, name });
   const pageTitle = title === 'Agentic Team Protocol' ? title : `${title} | Agentic Team Protocol`;
   const toc = renderToc(headings);
   const values = {
@@ -364,7 +413,7 @@ function buildSitePages() {
     if (rel.startsWith('templates/')) continue;
     const abs = path.join(SITE_DIR, ...rel.split('/'));
     if (rel.endsWith('.md')) {
-      const { html, title, headings } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
+      const { html, title, headings } = renderMarkdown(fs.readFileSync(abs, 'utf8'), `site/${rel}`);
       writePage(rel.replace(/\.md$/, '.html'), { title: title ?? fallbackTitle(rel), body: html, headings });
     } else {
       copyExact(abs, path.join(OUT, ...rel.split('/')));
@@ -392,7 +441,7 @@ function buildSpec() {
     for (const rel of walkFiles(dateDir)) {
       const abs = path.join(dateDir, ...rel.split('/'));
       if (rel.endsWith('.md')) {
-        const { html, title, headings } = renderMarkdown(fs.readFileSync(abs, 'utf8'));
+        const { html, title, headings } = renderMarkdown(fs.readFileSync(abs, 'utf8'), `spec/${date}/${rel}`);
         const outRel = rel.replace(/\.md$/, '.html');
         const pageTitle = title ?? fallbackTitle(rel);
         pages.push({ outRel, title: pageTitle });
@@ -478,6 +527,7 @@ function buildCollection(name, intro) {
     const empty = dirs.length === 0 && files.length === 0;
     writePage(`${outDir}/index.html`, {
       title: heading,
+      name: outDir.split('/').at(-1),
       body: [
         `<h1>${escapeHtml(heading)}</h1>`,
         rel ? '' : intro,
@@ -559,13 +609,14 @@ function plainText(html) {
 }
 
 // search-index.json: one entry per h1, h2 and h3 section of every rendered page, in
-// build order (deterministic). url is the page relative to the site root, anchor the
-// heading id ("" for the page top), text the section's plain text up to the next
-// h1 to h3 (a listing's entry names). Read only by site/assets/search.js.
+// build order (deterministic). url is the page relative to the site root, title the
+// page name (pageName; a listing's directory name), anchor the heading id ("" for the
+// page top), text the section's plain text up to the next h1 to h3 (a listing's entry
+// names). Read only by site/assets/search.js, which renders every field as text.
 function buildSearchIndex() {
   const HEADING = /<h([1-3])(?: id="([^"]*)")?>([\s\S]*?)<\/h\1>/g;
   const entries = [];
-  for (const { outRel, body } of searchPages) {
+  for (const { outRel, body, name } of searchPages) {
     const url = hrefFor(outRel.replace(/(^|\/)index\.html$/, '$1'));
     // Listings contribute entry names only: no parent row, no file sizes.
     const html = body
@@ -577,6 +628,7 @@ function buildSearchIndex() {
       const end = i + 1 < marks.length ? marks[i + 1].index : html.length;
       entries.push({
         url,
+        title: name,
         anchor: m[1] === '1' ? '' : (m[2] ?? ''),
         heading: plainText(m[3]),
         text: plainText(html.slice(m.index + m[0].length, end)),

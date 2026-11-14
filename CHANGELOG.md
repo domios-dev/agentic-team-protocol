@@ -13,8 +13,13 @@ specification is versioned by date (`spec/<YYYY-MM-DD>/`) rather than by semanti
   of the specification sections, an on-page section list, heading anchors, dark and light
   themes from `prefers-color-scheme`, and a "Contents" menu on narrow screens. Site
   search is a self-hosted script reading a build-time index (`search-index.json`), with
-  no external requests; the build allows only that script and its search field. There
-  are no font files, and every URL and served artifact byte is unchanged.
+  no external requests; the build allows only that script and its search field. Results
+  list the normative package format before host behaviour within each ranking tier and
+  name their page ("Package format 2026-11-11", "Host behaviour", "Catalog") instead of
+  a URL path. On rendered pages, a link whose text is the bare file name of its `.md`
+  target shows that page's name ("host-behaviour.md" reads "Host behaviour"); the
+  Markdown sources are unchanged. There are no font files, and every URL and served
+  artifact byte is unchanged.
 
 ## [Unreleased]: Phase 3
 
